@@ -1,0 +1,4 @@
+Version 0.01 (alpha)
+Converted to autotools build system for packaging, ported code to be *nix
+compatible. Still lots to be done in terms of portability, bug-checking,
+and features. 
