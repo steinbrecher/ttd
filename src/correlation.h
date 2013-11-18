@@ -29,7 +29,6 @@ void corrInit(Correlation *corr, int chan1, int chan2) {
   corr->chan2 = chan2;
 
   corr->num_bins = (int)(2*round(global_args.correlation_window / global_args.bin_time) + 1);
-  printf("%d bins\n", corr->num_bins);
   corr->center_bin = (corr->num_bins - 1)/2;
   corr->correlation_window = global_args.correlation_window;
   corr->bin_time = global_args.bin_time;

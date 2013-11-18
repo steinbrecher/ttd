@@ -188,9 +188,6 @@ uint64_t run_g2(FILE *fpin, TimeBufferGroup *tbs, CorrelationGroup *corrs) {
     for (n=0; n < num_photons; n++) {
       total_read++;
       process(file_block[n], &overflow_correction, tbs, corrs);
-      /* if ((n%1000)==0) { */
-      /* 	printf("%" PRIu64 ", %g\n", total_read, tbLastTime(&(tbs[0].buffer))); */
-      /* } */
     }
   }
   free(file_block);
