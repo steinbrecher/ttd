@@ -11,24 +11,22 @@ struct global_args_t {
 static const struct option longopts[] = {
   { "bin-time", required_argument, NULL, 'b'},
   { "corr-window", required_argument, NULL, 'c'},
-  { "pages", required_argument, NULL, 'p'},
   { "rate-window", required_argument, NULL, 'r'},
 };
 
 
-static const char *optstring = "b:c:p:r:";
+static const char *optstring = "b:c:r:";
 
 int read_cli(int argc, char* argv[]) 
 {
   // Default values
   global_args.bin_time = 10;
   global_args.correlation_window = 100;
-  global_args.pages = 4;
   global_args.rate_window = 1e8;
 
   if((argc % 2) != 0)
     {
-      printf("Usage: read_hh.exe -b [bin_time] -c [corr_window] infile\n");
+      printf("Usage: read_hh -b [bin_time] -c [corr_window] infile\n");
       printf("infile is a HydraHarp ht2 or ht3 file (binary)\n"); 
       //getch();
       return(-1);
@@ -47,9 +45,6 @@ int read_cli(int argc, char* argv[])
 	  break;
 	case 'c':
 	  global_args.correlation_window = atof(optarg);
-	  break;
-	case 'p':
-	  global_args.pages = atoi(optarg);
 	  break;
 	case 'r':
 	  global_args.rate_window = atof(optarg);

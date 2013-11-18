@@ -2,9 +2,6 @@
 #define HH_HEADER_SEEN
 
 #define MAXINPCHANS 8
-#define T2WRAPAROUND 33554432 // 2^25
-#define OLDT2WRAPAROUND 33552000 // 2^25 - 2,432
-#define T3WRAPAROUND 1024 // 2^10
 
 #pragma pack(8) //structure alignment to 8 byte boundaries
 
@@ -22,7 +19,6 @@ typedef struct {
 typedef	struct { 
   int32_t ModelCode;
   int32_t VersionCode; } tModuleInfo;
-
 
 // T2 Record
 typedef union { 
@@ -106,6 +102,8 @@ struct {
   int32_t RepeatWaitTime;
   char ScriptName[20];	} BinHdr;
 
+double SyncPeriod;
+
 
 // The next is a header carrying hardware information
 
@@ -183,6 +181,7 @@ int read_header(FILE *fpin)
   if (fread(&TTTRHdr, 1, sizeof(TTTRHdr), fpin) != sizeof(TTTRHdr)) {
     return(-1);
   }
+  SyncPeriod = 1e9/TTTRHdr.SyncRate;
 
   // Multiply TTTRHdr.ImgHdrSize by 4 because each entry is a 4-byte (32 bit) record
   fseek(fpin, TTTRHdr.ImgHdrSize*4, SEEK_CUR);

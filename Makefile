@@ -182,7 +182,7 @@ AUTOMAKE = ${SHELL} /Users/gstein/projects/picoquant/missing automake-1.14
 AWK = awk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -O3
+CFLAGS = -g -O2
 CPP = gcc -E
 CPPFLAGS = 
 CYGPATH_W = echo

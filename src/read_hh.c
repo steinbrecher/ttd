@@ -8,8 +8,6 @@
 #include <time.h>
 #include <string.h>
 
-#define PAGE_SIZE 32768	// Page size in bits 
-#define PHOTONS_PER_PAGE 1024	
 
 
 #include "global_args.h"
@@ -27,8 +25,6 @@ int main(int argc, char* argv[])
   // Write command line input to global_args
   read_cli(argc, argv);
 
-  printf("Memory pages per block: %d\n", global_args.pages); 
-  printf("Records per block: %d\n", global_args.pages*PHOTONS_PER_PAGE);
   printf("Bin Time: %g ns\n", global_args.bin_time);
   printf("Correlation window: %g ns\n", global_args.correlation_window);
   //printf("Rate Tracking Window: %g ns\n", global_args.rate_window);
@@ -85,41 +81,42 @@ int main(int argc, char* argv[])
   uint64_t total_read, markers = 0, syncs=0; // Heuristics from read_htX_vY
   
   start = clock();
-  if (BinHdr.MeasMode == 2)
-    {
-      if (strcmp(TxtHdr.FormatVersion, "1.0")==0)
-	{
-	  total_read = read_ht2_v1(ht_file, tbs, correlations, &syncs, &markers);
-	}
-      else if (strcmp(TxtHdr.FormatVersion, "2.0")==0)
-	{
-	  total_read = read_ht2_v2(ht_file, tbs, correlations, &syncs, &markers);
-	}
-      else
-	{
-	  printf("ERROR: Unrecognized file version '%s'\n", TxtHdr.FormatVersion);
-	  exit(-1);
-	}
-    }
-  else if (BinHdr.MeasMode == 3)
-    {
-      if (strcmp(TxtHdr.FormatVersion, "1.0")==0)
-	{
-	  printf("Using read_ht3_v1\n");
-	  total_read = read_ht3_v1(ht_file, tbs, correlations, &markers);
-	  printf("Finished reading file.\n");
-	}
-      else if (strcmp(TxtHdr.FormatVersion, "2.0")==0)
-	{
-	  printf("Using read_ht3_v2\n");
-	  total_read = read_ht3_v2(ht_file, tbs, correlations, &markers);
-	}
-      else
-	{
-	  printf("ERROR: Unrecognized file version '%s'\n", TxtHdr.FormatVersion);
-	  exit(-1);
-	}
-    }
+  total_read = run_g2(ht_file, tbs, correlations);
+  /* if (BinHdr.MeasMode == 2) */
+  /*   { */
+  /*     if (strcmp(TxtHdr.FormatVersion, "1.0")==0) */
+  /* 	{ */
+  /* 	  total_read = read_ht2_v1(ht_file, tbs, correlations, &syncs, &markers); */
+  /* 	} */
+  /*     else if (strcmp(TxtHdr.FormatVersion, "2.0")==0) */
+  /* 	{ */
+  /* 	  total_read = read_ht2_v2(ht_file, tbs, correlations, &syncs, &markers); */
+  /* 	} */
+  /*     else */
+  /* 	{ */
+  /* 	  printf("ERROR: Unrecognized file version '%s'\n", TxtHdr.FormatVersion); */
+  /* 	  exit(-1); */
+  /* 	} */
+  /*   } */
+  /* else if (BinHdr.MeasMode == 3) */
+  /*   { */
+  /*     if (strcmp(TxtHdr.FormatVersion, "1.0")==0) */
+  /* 	{ */
+  /* 	  printf("Using read_ht3_v1\n"); */
+  /* 	  total_read = read_ht3_v1(ht_file, tbs, correlations, &markers); */
+  /* 	  printf("Finished reading file.\n"); */
+  /* 	} */
+  /*     else if (strcmp(TxtHdr.FormatVersion, "2.0")==0) */
+  /* 	{ */
+  /* 	  printf("Using read_ht3_v2\n"); */
+  /* 	  total_read = read_ht3_v2(ht_file, tbs, correlations, &markers); */
+  /* 	} */
+  /*     else */
+  /* 	{ */
+  /* 	  printf("ERROR: Unrecognized file version '%s'\n", TxtHdr.FormatVersion); */
+  /* 	  exit(-1); */
+  /* 	} */
+  /*   } */
 
   diff = clock() - start;
   double read_time = (double)diff / CLOCKS_PER_SEC;
