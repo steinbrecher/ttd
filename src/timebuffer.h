@@ -1,7 +1,7 @@
 #ifndef TIMEBUFFER_SEEN
 #define TIMEBUFFER_SEEN
 
-#include "global_args.h"
+#include "cli.h"
 
 
 typedef struct { 

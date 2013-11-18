@@ -154,7 +154,11 @@ struct{
 struct{
   double sync_period;
   double resolution;
+  double correlation_window;
+  double bin_time;
   int channel_pairs;
+  int ht_mode; // 2 for .ht2 and 3 for .ht3
+  int file_format_version;
 } g2_properties;
 
 int read_header(FILE *fpin)
@@ -196,6 +200,8 @@ int read_header(FILE *fpin)
   // Argument Processing
   g2_properties.sync_period = 1e12/TTTRHdr.SyncRate;
   g2_properties.resolution = BinHdr.Resolution;
+  g2_properties.correlation_window = cli_args.correlation_window;
+  g2_properties.bin_time = cli_args.bin_time;
   int channels = MainHardwareHdr.InpChansPresent;
   g2_properties.channel_pairs = channels * (channels - 1)/2; 
 

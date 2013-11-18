@@ -8,7 +8,7 @@
 #include <time.h>
 #include <string.h>
 
-#include "global_args.h"
+#include "cli.h"
 #include "timebuffer.h"
 #include "hh_header.h"
 #include "hhg2.h"
@@ -20,11 +20,11 @@ int main(int argc, char* argv[])
 
   printf("\n******************************** User Settings *******************************\n");
 
-  // Write command line input to global_args
+  // Write command line input to cli_args struct
   read_cli(argc, argv);
 
-  printf("Bin Time: %g ns\n", global_args.bin_time/1e3);
-  printf("Correlation window: %g ns\n", global_args.correlation_window/1e3);
+  printf("Bin Time: %g ns\n", cli_args.bin_time/1e3);
+  printf("Correlation window: %g ns\n", cli_args.correlation_window/1e3);
 
   printf("\n***************************** Header Information *****************************\n");
 

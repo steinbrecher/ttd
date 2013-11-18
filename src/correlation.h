@@ -21,17 +21,18 @@ typedef struct {
 
 typedef struct { Correlation corr; } CorrelationGroup;
 
-
-
 void corrInit(Correlation *corr, int chan1, int chan2) {
   int num_bins;
+  double correlation_window = g2_properties.correlation_window;
+  double bin_time = g2_properties.bin_time;
+
   corr->chan1 = chan1;
   corr->chan2 = chan2;
 
-  corr->num_bins = (int)(2*round(global_args.correlation_window / global_args.bin_time) + 1);
+  corr->num_bins = (int)(2*round(correlation_window / bin_time) + 1);
   corr->center_bin = (corr->num_bins - 1)/2;
-  corr->correlation_window = global_args.correlation_window;
-  corr->bin_time = global_args.bin_time;
+  corr->correlation_window = g2_properties.correlation_window;
+  corr->bin_time = g2_properties.bin_time;
   
   corr->total = 0;
   corr->hist = (Histogram *)malloc(corr->num_bins * sizeof(Histogram));

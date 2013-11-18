@@ -1,7 +1,7 @@
 #ifndef READ_HT_SEEN
 #define READ_HT_SEEN
 
-#include "global_args.h"
+#include "cli.h"
 #include "hh_header.h"
 #include "correlation.h"
 
@@ -154,8 +154,10 @@ void ht3_v2_g2(tTRec TRec, double *overflow_correction,
 void output_g2_csv(CorrelationGroup *correlations) {
   FILE *data_file;
   char fname[80];
-  int n,pairs = global_args.channel_pairs;
+  int n,pairs = g2_properties.channel_pairs;
   uint64_t m;
+  double bin_time = g2_properties.bin_time;
+  double correlation_window = g2_properties.correlation_window;
 
   // Outputs the hist files
   for (n=0; n < pairs; n++) {
@@ -165,7 +167,7 @@ void output_g2_csv(CorrelationGroup *correlations) {
 
     for (m=0; m < correlations[n].corr.num_bins; m++) {
       fprintf(data_file, "%g, %g\n", 
-	      ((m*global_args.bin_time)-global_args.correlation_window), (double)(correlations[n].corr.hist[m].counts));
+	      ((m*bin_time) - correlation_window), (double)(correlations[n].corr.hist[m].counts));
     }
 
     fclose(data_file);
@@ -179,18 +181,19 @@ uint64_t run_g2(FILE *fpin) {
   uint64_t n, m, num_photons, total_read=0;
 
   double overflow_correction=0;
+  double correlation_window = g2_properties.correlation_window;
 
 
   // Initialize memory structures for the g2 calculation
   int channels = (int)MainHardwareHdr.InpChansPresent;
-  int pairs = global_args.channel_pairs;
+  int pairs = g2_properties.channel_pairs;
 
   TimeBufferGroup tbs[channels]; // Container of ring buffers for arrival times 
   CorrelationGroup correlations[pairs]; // Container of correlation tracking objects 
 
   // Note: Need to free tb->times for each of these when done
   for (n=0; n < channels; n++) {
-    tbInit(&(tbs[n].buffer), n, 4096, global_args.correlation_window);
+    tbInit(&(tbs[n].buffer), n, 4096, correlation_window);
   }
 
   // Note: Need to free corr->hist for each of these when done
@@ -201,7 +204,7 @@ uint64_t run_g2(FILE *fpin) {
     }
 
   // Allocate memory for mapping blocks of the input file
-  tTRec *file_block = (tTRec *)malloc(PHOTONBLOCK*sizeof(TRec.allbits));
+  tTRec *file_block = (tTRec *) malloc(PHOTONBLOCK*sizeof(TRec.allbits));
 
   // Function pointer to the generic g2 function call (mode and version dependent)
   void (*g2)(tTRec, double *, TimeBufferGroup *, CorrelationGroup *);
