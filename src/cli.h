@@ -16,8 +16,7 @@ static const struct option longopts[] = {
 
 static const char *optstring = "b:m:w:";
 
-int read_cli(int argc, char* argv[]) 
-{
+int read_cli(int argc, char* argv[]) {
   // Default values
   cli_args.bin_time = 10*1000;
   cli_args.correlation_window = 100*1000;
@@ -34,11 +33,9 @@ int read_cli(int argc, char* argv[])
   int option_index, opt, num_args=0;
 
   opt = getopt_long( argc, argv, optstring, longopts, &option_index );
-  while (opt != -1)
-    {
+  while (opt != -1) {
       num_args++;
-      switch (opt) 
-	{
+      switch (opt) {
 	case 'b':
 	  cli_args.bin_time = atof(optarg)*1e3;
 	  break;

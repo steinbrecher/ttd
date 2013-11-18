@@ -3,7 +3,7 @@
 
 #include "cli.h"
 
-
+//TODO: Make type naming canonical
 typedef struct { 
   double time;
 } TimeType;

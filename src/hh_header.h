@@ -166,6 +166,10 @@ struct{
 
 struct{
   int channels;
+  int meas_mode; // 2 for .ht2 and 3 for .ht3
+  int file_format_version;
+  double resolution;
+  double sync_period;
 } convert_properties;
 
 
@@ -215,25 +219,40 @@ int read_header(FILE *fpin)
   // Multiply TTTRHdr.ImgHdrSize by 4 because each entry is a 4-byte (32 bit) record
   fseek(fpin, TTTRHdr.ImgHdrSize*4, SEEK_CUR);
 
-
-  // g2 mode argument processing
-  g2_properties.sync_period = 1e12/TTTRHdr.SyncRate;
-  g2_properties.resolution = BinHdr.Resolution;
-  g2_properties.correlation_window = cli_args.correlation_window;
-  g2_properties.bin_time = cli_args.bin_time;
+  // Calculations for arguments
+  double sync_period = 1e12/TTTRHdr.SyncRate;
+  double resolution = BinHdr.Resolution;
   int channels = MainHardwareHdr.InpChansPresent;
-  g2_properties.channels = channels;
-  g2_properties.channel_pairs = channels * (channels - 1)/2; 
-  g2_properties.meas_mode = BinHdr.MeasMode;
+  int channel_pairs = channels * (channels-1)/2;
+  int meas_mode = BinHdr.MeasMode;
+
+  int file_format_version;
   if (strcmp(TxtHdr.FormatVersion, "1.0")==0) {
-    g2_properties.file_format_version = 1;
+    file_format_version = 1;
   }
   else if (strcmp(TxtHdr.FormatVersion, "2.0")==0) {
-    g2_properties.file_format_version = 2;
+    file_format_version = 2;
   }
+
+
+  // g2 mode argument processing
+  g2_properties.sync_period = sync_period;
+  g2_properties.resolution = resolution;
+  g2_properties.correlation_window = cli_args.correlation_window;
+  g2_properties.bin_time = cli_args.bin_time;
+  g2_properties.channels = channels;
+  g2_properties.channel_pairs = channel_pairs;
+  g2_properties.meas_mode = meas_mode;
+  g2_properties.file_format_version = file_format_version;
+
 
   // convert mode argument prcoessing
   convert_properties.channels = channels; 
+  convert_properties.meas_mode = meas_mode;
+  convert_properties.resolution = resolution;
+  convert_properties.sync_period = sync_period;
+  convert_properties.file_format_version = file_format_version;
+
 
   return(0);
 }

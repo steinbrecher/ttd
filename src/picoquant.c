@@ -12,9 +12,11 @@
 #include "timebuffer.h"
 #include "hh_header.h"
 #include "hhg2.h"
+#include "convert.h"
 
-int main(int argc, char* argv[])
-{
+
+
+int main(int argc, char* argv[]) {
   FILE *ht_file;
   uint64_t n, m; 
 
@@ -38,7 +40,12 @@ int main(int argc, char* argv[])
   clock_t start, diff; 		// Benchmarking timers for read_file function call 
   
   start = clock();
-  run_g2(ht_file);
+  if (strcmp(cli_args.mode, "g2")==0) {
+    run_g2(ht_file);
+  }
+  else if (strcmp(cli_args.mode, "convert")==0) {
+    run_hh_convert(ht_file);
+  }
   diff = clock() - start;
 
   double read_time = (double)diff / CLOCKS_PER_SEC;
