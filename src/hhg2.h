@@ -6,8 +6,8 @@
 #include "correlation.h"
 
 #define T2WRAPAROUND 33554432 // 2^25
-#define OLDT2WRAPAROUND 33552000 // 2^25 - 2,432
-#define T3WRAPAROUND 1024 // 2^10
+#define OLDHT2WRAPAROUND 33552000 // 2^25 - 2,432
+#define HT3WRAPAROUND 1024 // 2^10
 
 #define PHOTONBLOCK 32768
 
@@ -37,7 +37,7 @@ static inline int pair_lookup (int a, int b) {
     }
 }
 
-void g2_insert(double realtime, int channel, TimeBufferGroup *tbs, CorrelationGroup *corrs) {
+void g2_insert(double realtime, int channel, TimeBufferGroup *tbs, CorrelationGroup *correlations) {
   static int lookup_others[4][3] = {
     { 1, 2, 3 },
     { 0, 2, 3 },
@@ -56,7 +56,7 @@ void g2_insert(double realtime, int channel, TimeBufferGroup *tbs, CorrelationGr
   int other_chan;
   for (m=0; m<3; m++) {
     other_chan = lookup_others[channel][m];
-    correlationUpdate(&(corrs[pair_lookup(channel, other_chan)].corr), 
+    correlationUpdate(&(correlations[pair_lookup(channel, other_chan)].corr), 
 		      &(tbs[other_chan].buffer), 
 		      channel, 
 		      realtime);
@@ -64,25 +64,25 @@ void g2_insert(double realtime, int channel, TimeBufferGroup *tbs, CorrelationGr
 
 }
 
-void ht2_v1_process(tTRec TRec, double *overflow_correction, 
-		    TimeBufferGroup *tbs, CorrelationGroup *corrs) {
+void ht2_v1_g2(tTRec TRec, double *overflow_correction, 
+		    TimeBufferGroup *tbs, CorrelationGroup *correlations) {
   int channel, other_chan,m;
   double realtime, resolution=0.5; // In version 1, T2 mode resolution locked to 0.5ps
 
   if (TRec.T2bits.special == 1) {
     if (TRec.T2bits.channel==0x3F) {
-      *overflow_correction += OLDT2WRAPAROUND;
+      *overflow_correction += OLDHT2WRAPAROUND;
     }
   }
   else {
     realtime = (*overflow_correction + TRec.T2bits.timetag)*resolution;
     channel = TRec.T2bits.channel;
-    g2_insert(realtime, channel, tbs, corrs);
+    g2_insert(realtime, channel, tbs, correlations);
   }
 }
 
-void ht2_v2_process(tTRec TRec, double *overflow_correction, 
-		    TimeBufferGroup *tbs, CorrelationGroup *corrs) {
+void ht2_v2_g2(tTRec TRec, double *overflow_correction, 
+		    TimeBufferGroup *tbs, CorrelationGroup *correlations) {
   int other_chan, m;
   double realtime, resolution=1; // In version 2, T2 mode resolution changed to 1ps
   int special = TRec.T2bits.special;
@@ -92,40 +92,43 @@ void ht2_v2_process(tTRec TRec, double *overflow_correction,
   if (special == 1) {
     if (channel==0x3F) {
       if (timetag < 2) {
-	*overflow_correction += OLDT2WRAPAROUND;
+	*overflow_correction += OLDHT2WRAPAROUND;
       }
       else {
-	*overflow_correction += OLDT2WRAPAROUND*timetag;
+	*overflow_correction += OLDHT2WRAPAROUND*timetag;
       }
     }
   }
   else {
     realtime = (*overflow_correction + timetag)*resolution;
     channel = TRec.T2bits.channel;
-    g2_insert(realtime, channel, tbs, corrs);
+    g2_insert(realtime, channel, tbs, correlations);
   }
 }
 
-void ht3_v1_process(tTRec TRec, double *overflow_correction, 
-		    TimeBufferGroup *tbs, CorrelationGroup *corrs) {
+void ht3_v1_g2(tTRec TRec, double *overflow_correction, 
+		    TimeBufferGroup *tbs, CorrelationGroup *correlations) {
   int channel, other_chan,m;
   double realtime;
+  double sync_period = g2_properties.sync_period;
+  double resolution = g2_properties.resolution;
 
   if (TRec.T3bits.special == 1) {
     if (TRec.T3bits.channel==0x3F) {
-      *overflow_correction += T3WRAPAROUND;
+      *overflow_correction += HT3WRAPAROUND;
     }
   }
   else {
-    realtime = (*overflow_correction + TRec.T3bits.nsync) * SyncPeriod + TRec.T3bits.dtime*BinHdr.Resolution;
+    realtime = (*overflow_correction + TRec.T3bits.nsync) * sync_period + TRec.T3bits.dtime * resolution;
     channel = TRec.T3bits.channel;
-    g2_insert(realtime, channel, tbs, corrs);
+    g2_insert(realtime, channel, tbs, correlations);
   }
 }
 
-void ht3_v2_process(tTRec TRec, double *overflow_correction, 
-		    TimeBufferGroup *tbs, CorrelationGroup *corrs) {
+void ht3_v2_g2(tTRec TRec, double *overflow_correction, 
+		    TimeBufferGroup *tbs, CorrelationGroup *correlations) {
   double realtime;
+  double sync_period = g2_properties.sync_period;
   int special = TRec.T3bits.special;
   int channel = TRec.T3bits.channel;
   int nsync = TRec.T3bits.nsync;
@@ -134,36 +137,82 @@ void ht3_v2_process(tTRec TRec, double *overflow_correction,
   if (special == 1) {
     if (channel==0x3F) {
       if (nsync < 2) {
-	*overflow_correction += T3WRAPAROUND;
+	*overflow_correction += HT3WRAPAROUND;
       }
       else {
-	*overflow_correction += nsync*T3WRAPAROUND;
+	*overflow_correction += nsync*HT3WRAPAROUND;
       }
     }
   }
   else {
-    realtime = (*overflow_correction + TRec.T3bits.nsync) * SyncPeriod + TRec.T3bits.dtime*BinHdr.Resolution;
+    realtime = (*overflow_correction + TRec.T3bits.nsync) * sync_period + TRec.T3bits.dtime*BinHdr.Resolution;
     channel = TRec.T3bits.channel;
-    g2_insert(realtime, channel, tbs, corrs);
+    g2_insert(realtime, channel, tbs, correlations);
   }
 }
 
-uint64_t run_g2(FILE *fpin, TimeBufferGroup *tbs, CorrelationGroup *corrs) { 
+void output_g2_csv(CorrelationGroup *correlations) {
+  FILE *data_file;
+  char fname[80];
+  int n,pairs = global_args.channel_pairs;
+  uint64_t m;
+
+  // Outputs the hist files
+  for (n=0; n < pairs; n++) {
+    snprintf(fname, sizeof(fname), "hist_%d%d.csv", // Most reliable way to create string from int 
+	     correlations[n].corr.chan1, correlations[n].corr.chan2); 
+    data_file = fopen(fname,"wb");
+
+    for (m=0; m < correlations[n].corr.num_bins; m++) {
+      fprintf(data_file, "%g, %g\n", 
+	      ((m*global_args.bin_time)-global_args.correlation_window), (double)(correlations[n].corr.hist[m].counts));
+    }
+
+    fclose(data_file);
+  }
+}
+
+
+// NOTE: This assumes that the file pointer is pointing at the part of the file with photon records. 
+uint64_t run_g2(FILE *fpin) { 
   tTRec TRec;
   uint64_t n, m, num_photons, total_read=0;
 
   double overflow_correction=0;
 
+
+  // Initialize memory structures for the g2 calculation
+  int channels = (int)MainHardwareHdr.InpChansPresent;
+  int pairs = global_args.channel_pairs;
+
+  TimeBufferGroup tbs[channels]; // Container of ring buffers for arrival times 
+  CorrelationGroup correlations[pairs]; // Container of correlation tracking objects 
+
+  // Note: Need to free tb->times for each of these when done
+  for (n=0; n < channels; n++) {
+    tbInit(&(tbs[n].buffer), n, 4096, global_args.correlation_window);
+  }
+
+  // Note: Need to free corr->hist for each of these when done
+  for (n=0; n < channels-1; n++) {
+      for (m=n+1; m < channels; m++) {
+	  corrInit(&(correlations[pair_lookup(n,m)].corr), n, m);
+	}
+    }
+
+  // Allocate memory for mapping blocks of the input file
   tTRec *file_block = (tTRec *)malloc(PHOTONBLOCK*sizeof(TRec.allbits));
 
-  void (*process)(tTRec, double *, TimeBufferGroup *, CorrelationGroup *);
-  // Select which function to use to process photon records
+  // Function pointer to the generic g2 function call (mode and version dependent)
+  void (*g2)(tTRec, double *, TimeBufferGroup *, CorrelationGroup *);
+
+  // Select which function to use to g2 photon records
   if (BinHdr.MeasMode == 2) {
     if (strcmp(TxtHdr.FormatVersion, "1.0")==0) {
-      process = &ht2_v1_process;
+      g2 = &ht2_v1_g2;
     }
     else if (strcmp(TxtHdr.FormatVersion, "2.0")==0) {
-      process = &ht2_v2_process;
+      g2 = &ht2_v2_g2;
     }
     else {
       return(-1);
@@ -171,10 +220,10 @@ uint64_t run_g2(FILE *fpin, TimeBufferGroup *tbs, CorrelationGroup *corrs) {
   }
   else if (BinHdr.MeasMode == 3) {
     if (strcmp(TxtHdr.FormatVersion, "1.0")==0) {
-      process = &ht3_v1_process;
+      g2 = &ht3_v1_g2;
     }
     else if (strcmp(TxtHdr.FormatVersion, "2.0")==0) {
-      process = &ht3_v2_process;
+      g2 = &ht3_v2_g2;
     }
     else {
       return(-1);
@@ -187,10 +236,35 @@ uint64_t run_g2(FILE *fpin, TimeBufferGroup *tbs, CorrelationGroup *corrs) {
 
     for (n=0; n < num_photons; n++) {
       total_read++;
-      process(file_block[n], &overflow_correction, tbs, corrs);
+      g2(file_block[n], &overflow_correction, tbs, correlations);
     }
   }
+
+  // Output Results
+  printf("\n*********************************** g2 Results ***********************************\n");
+  for(n=0; n<channels; n++) {
+      printf("Total Photons on Channel %" PRIu64 ": %" PRIu64 "\n", n, tbs[n].buffer.total_counts);
+    }
+  printf("\n");
+  for (n=0; n<pairs; n++) {
+    printf("Total Counts in Correlation %d->%d: %" PRIu64 "\n", 
+	   correlations[n].corr.chan1, correlations[n].corr.chan2, correlations[n].corr.total);
+  }
+
+  // Free allocated memory
   free(file_block);
+
+  for (n=0; n < channels; n++) {
+    free(tbs[n].buffer.times);
+  }
+
+  for (n=0; n < channels-1; n++) {
+      for (m=n+1; m < channels; m++) {
+	free(correlations[pair_lookup(n,m)].corr.hist);
+	}
+    }
+
+
   return(total_read);
 }
 
