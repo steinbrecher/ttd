@@ -44,9 +44,9 @@ int main(int argc, char* argv[])
       exit(-1);
     }
 
-  double sync_period = (double)1e9 / (double)TTTRHdr.SyncRate;
-  double resolution = ((double)BinHdr.Resolution)*((double)1e-3);
-  double Tacq = BinHdr.Tacq * 1e6;
+  double sync_period = 1e12 / (double)TTTRHdr.SyncRate;
+  double resolution = ((double)BinHdr.Resolution);
+  double Tacq = BinHdr.Tacq * 1e9;
   uint64_t channels = MainHardwareHdr.InpChansPresent;
 
   printf("File Name: %s\n", argv[argc-1]);

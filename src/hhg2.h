@@ -52,13 +52,13 @@ typedef struct {
 
 typedef struct { Correlation corr; } CorrelationGroup;
 
-void corrInit(Correlation *corr, int chan1, int chan2) {
+void corrInit(Correlation *corr, int chan1, int chan2)
+{
   int num_bins;
   corr->chan1 = chan1;
   corr->chan2 = chan2;
-  
-  num_bins = 2*(int) floor(global_args.correlation_window / global_args.bin_time) + 1;
-  corr->num_bins = num_bins;
+
+  corr->num_bins = (uint64_t)(round(2 * (global_args.correlation_window / global_args.bin_time)) + 1);
   corr->center_bin = (corr->num_bins - 1)/2;
   corr->correlation_window = global_args.correlation_window;
   corr->bin_time = global_args.bin_time;
@@ -67,9 +67,13 @@ void corrInit(Correlation *corr, int chan1, int chan2) {
   corr->hist = (Histogram *)malloc(num_bins * sizeof(Histogram));
 }
 
-void correlationUpdate(Correlation *corr, TimeBuffer *tb, int new_chan, double new_time) {
+void correlationUpdate(Correlation *corr, TimeBuffer *tb, int new_chan, 
+		       double new_time)
+{
   int n, sign=1;
-  double delta, delta_b;
+  double delta;
+  int delta_b;
+  
   
   if (tb->count > 0) {
     // This ensures that deltaT is (T2 - T1) even when (new_chan == chan2)
@@ -79,14 +83,13 @@ void correlationUpdate(Correlation *corr, TimeBuffer *tb, int new_chan, double n
       }
 
     for (n=0; n < tb->count; n++) {
-      delta = sign * (new_time - tbGet(tb, n));
-      delta_b = floor(corr->center_bin + (delta / corr->bin_time));
-      ++ corr->hist[(int)delta_b].counts;
+      delta = (sign * (new_time - tbGet(tb, n)));
+      delta_b = corr->center_bin + (int)floor(delta / corr->bin_time);
+      ++ corr->hist[delta_b].counts;
       ++ corr->total;
     }
   }
 }
-
 
 void g2_insert(double realtime, int channel, TimeBufferGroup *tbs, CorrelationGroup *corrs) {
   static int lookup_others[4][3] = {
@@ -137,7 +140,6 @@ uint64_t run_g2(FILE *fpin, TimeBufferGroup *tbs, CorrelationGroup *corrs) {
   double overflow_correction=0;
 
   tTRec *file_block = (tTRec *)malloc(PHOTONBLOCK*sizeof(TRec.allbits));
-
 
   num_photons = PHOTONBLOCK;
   while (num_photons == PHOTONBLOCK) {

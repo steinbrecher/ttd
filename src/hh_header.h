@@ -181,7 +181,7 @@ int read_header(FILE *fpin)
   if (fread(&TTTRHdr, 1, sizeof(TTTRHdr), fpin) != sizeof(TTTRHdr)) {
     return(-1);
   }
-  SyncPeriod = 1e9/TTTRHdr.SyncRate;
+  SyncPeriod = 1e12/TTTRHdr.SyncRate;
 
   // Multiply TTTRHdr.ImgHdrSize by 4 because each entry is a 4-byte (32 bit) record
   fseek(fpin, TTTRHdr.ImgHdrSize*4, SEEK_CUR);
