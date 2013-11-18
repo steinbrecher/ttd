@@ -76,7 +76,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = picoquant$(EXEEXT)
+bin_PROGRAMS = pq_g2$(EXEEXT) pq_convert$(EXEEXT)
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
@@ -95,9 +95,12 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
-am_picoquant_OBJECTS = src/picoquant.$(OBJEXT)
-picoquant_OBJECTS = $(am_picoquant_OBJECTS)
-picoquant_LDADD = $(LDADD)
+am_pq_convert_OBJECTS = src/pq_convert.$(OBJEXT)
+pq_convert_OBJECTS = $(am_pq_convert_OBJECTS)
+pq_convert_LDADD = $(LDADD)
+am_pq_g2_OBJECTS = src/pq_g2.$(OBJEXT)
+pq_g2_OBJECTS = $(am_pq_g2_OBJECTS)
+pq_g2_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -126,8 +129,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(picoquant_SOURCES)
-DIST_SOURCES = $(picoquant_SOURCES)
+SOURCES = $(pq_convert_SOURCES) $(pq_g2_SOURCES)
+DIST_SOURCES = $(pq_convert_SOURCES) $(pq_g2_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -260,7 +263,8 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = subdir-objects
-picoquant_SOURCES = src/picoquant.c
+pq_g2_SOURCES = src/pq_g2.c
+pq_convert_SOURCES = src/pq_convert.c
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -363,12 +367,17 @@ src/$(am__dirstamp):
 src/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) src/$(DEPDIR)
 	@: > src/$(DEPDIR)/$(am__dirstamp)
-src/picoquant.$(OBJEXT): src/$(am__dirstamp) \
+src/pq_convert.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 
-picoquant$(EXEEXT): $(picoquant_OBJECTS) $(picoquant_DEPENDENCIES) $(EXTRA_picoquant_DEPENDENCIES) 
-	@rm -f picoquant$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(picoquant_OBJECTS) $(picoquant_LDADD) $(LIBS)
+pq_convert$(EXEEXT): $(pq_convert_OBJECTS) $(pq_convert_DEPENDENCIES) $(EXTRA_pq_convert_DEPENDENCIES) 
+	@rm -f pq_convert$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(pq_convert_OBJECTS) $(pq_convert_LDADD) $(LIBS)
+src/pq_g2.$(OBJEXT): src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+
+pq_g2$(EXEEXT): $(pq_g2_OBJECTS) $(pq_g2_DEPENDENCIES) $(EXTRA_pq_g2_DEPENDENCIES) 
+	@rm -f pq_g2$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(pq_g2_OBJECTS) $(pq_g2_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -377,7 +386,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/picoquant.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pq_convert.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pq_g2.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\

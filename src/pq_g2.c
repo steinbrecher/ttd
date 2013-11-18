@@ -8,12 +8,10 @@
 #include <time.h>
 #include <string.h>
 
-#include "cli.h"
+#include "pq_g2.h"
 #include "timebuffer.h"
 #include "hh_header.h"
 #include "hhg2.h"
-#include "convert.h"
-
 
 
 int main(int argc, char* argv[]) {
@@ -37,15 +35,13 @@ int main(int argc, char* argv[]) {
       exit(-1);
     }
 
+  write_g2_properties();
+
   clock_t start, diff; 		// Benchmarking timers for read_file function call 
   
   start = clock();
-  if (strcmp(cli_args.mode, "g2")==0) {
-    run_g2(ht_file);
-  }
-  else if (strcmp(cli_args.mode, "convert")==0) {
-    run_hh_convert(ht_file);
-  }
+run_g2(ht_file);
+
   diff = clock() - start;
 
   double read_time = (double)diff / CLOCKS_PER_SEC;

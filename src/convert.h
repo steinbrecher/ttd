@@ -2,6 +2,18 @@
 #define PHOTONBLOCK 32768
 #endif 
 
+#ifndef T2WRAPAROUND
+#define T2WRAPAROUND 33554432 // 2^25
+#endif
+
+#ifndef OLDHT2WRAPAROUND
+#define OLDHT2WRAPAROUND 33552000 // 2^25 - 2,432
+#endif
+
+#ifndef HT3WRAPAROUND
+#define HT3WRAPAROUND 1024 // 2^10
+#endif
+
 #ifndef HT_CONVERT_SEEN
 #define HT_CONVERT_SEEN
 
@@ -129,7 +141,7 @@ uint64_t run_hh_convert(FILE *fpin) {
 
   pqb_buffer_group_t pqb_buffer_group[channels];
 
-  int k;
+  int j, k;
   for (k=0; k<channels; k++) {
     pqb_buffer_group[k].buffer = (pqb_buffer_t *) malloc(PHOTONBLOCK * sizeof(pqb_t));
   }
@@ -201,7 +213,7 @@ uint64_t run_hh_convert(FILE *fpin) {
     // Write data to outfiles
     // fwrite(data, sizeof(element), sizeof(array), file);
     for (k=0; k<channels; k++) {
-      fwrite(pqb_buffer_group[channel].buffer, sizeof(pqb_t), pqb_buffer_count[k], outfiles[k].fp);
+      fwrite(pqb_buffer_group[channel].buffer, sizeof(pqb_record), pqb_buffer_count[k], outfiles[k].fp);
     }
   }
   // Close the output files

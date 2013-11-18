@@ -5,7 +5,6 @@
 #ifndef READ_HT_SEEN
 #define READ_HT_SEEN
 
-#include "cli.h"
 #include "hh_header.h"
 #include "correlation.h"
 

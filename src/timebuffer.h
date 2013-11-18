@@ -1,8 +1,6 @@
 #ifndef TIMEBUFFER_SEEN
 #define TIMEBUFFER_SEEN
 
-#include "cli.h"
-
 //TODO: Make type naming canonical
 typedef struct { 
   double time;
