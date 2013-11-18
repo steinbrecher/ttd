@@ -151,6 +151,12 @@ struct{
   int32_t ImgHdrSize;
   int64_t nRecords;	} TTTRHdr;
 
+struct{
+  double sync_period;
+  double resolution;
+  int channel_pairs;
+} g2_properties;
+
 int read_header(FILE *fpin)
 {
   int i;
@@ -181,10 +187,17 @@ int read_header(FILE *fpin)
   if (fread(&TTTRHdr, 1, sizeof(TTTRHdr), fpin) != sizeof(TTTRHdr)) {
     return(-1);
   }
-  SyncPeriod = 1e12/TTTRHdr.SyncRate;
+
 
   // Multiply TTTRHdr.ImgHdrSize by 4 because each entry is a 4-byte (32 bit) record
   fseek(fpin, TTTRHdr.ImgHdrSize*4, SEEK_CUR);
+
+
+  // Argument Processing
+  g2_properties.sync_period = 1e12/TTTRHdr.SyncRate;
+  g2_properties.resolution = BinHdr.Resolution;
+  int channels = MainHardwareHdr.InpChansPresent;
+  g2_properties.channel_pairs = channels * (channels - 1)/2; 
 
   return(0);
 }
