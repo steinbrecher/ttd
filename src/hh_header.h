@@ -6,8 +6,6 @@
 #define OLDT2WRAPAROUND 33552000 // 2^25 - 2,432
 #define T3WRAPAROUND 1024 // 2^10
 
-//typedef unsigned long DWORD, *PDWORD, *LPDWORD; 
-
 #pragma pack(8) //structure alignment to 8 byte boundaries
 
 // These are substructures used further below 
@@ -26,7 +24,8 @@ typedef	struct {
   int32_t VersionCode; } tModuleInfo;
 
 
-typedef union { // T2 Record
+// T2 Record
+typedef union { 
   uint32_t   allbits;
   struct {
     unsigned timetag  :25;
@@ -35,7 +34,8 @@ typedef union { // T2 Record
   } bits; 
 } tT2Rec;
 
-typedef union { // T3 Record
+// T3 Record
+typedef union { 
   uint32_t allbits;
   struct {
     unsigned nsync		:10; 	// numer of sync period
@@ -45,7 +45,9 @@ typedef union { // T3 Record
   } bits;
 } tT3Rec;
 
-typedef union { // Combined Record
+// Combining into a union allows the program reading the file script to be agnostic to T2 vs. T3
+// until it actually reads the information out
+typedef union { 
   uint32_t allbits;
   struct {
     unsigned timetag  :25;
@@ -129,7 +131,7 @@ struct {
 //is indicated by InpChansPresent above. Here we allocate the possible maximum.
 
 struct{ 
-  int32_t InputModuleIndex;  //in welchem Modul war dieser Kanal
+  int32_t InputModuleIndex;
   int32_t InputCFDLevel;
   int32_t InputCFDZeroCross; 
   int32_t InputOffset;		} InputChannelSettings[MAXINPCHANS]; 
@@ -149,39 +151,42 @@ struct{
   int32_t StopAfter;
   int32_t StopReason;
   int32_t ImgHdrSize;
-  long long nRecords;	} TTTRHdr;
+  int64_t nRecords;	} TTTRHdr;
 
 int read_header(FILE *fpin)
 {
   int i;
   
-  if (fread(&TxtHdr, 1, sizeof(TxtHdr), fpin) != sizeof(TxtHdr))
+  if (fread(&TxtHdr, 1, sizeof(TxtHdr), fpin) != sizeof(TxtHdr)) {
     return(-1);
+  }
 
-  if (fread( &BinHdr, 1, sizeof(BinHdr) ,fpin) != sizeof(BinHdr))
+  if (fread( &BinHdr, 1, sizeof(BinHdr) ,fpin) != sizeof(BinHdr)) {
     return(-1);
+  }
 
-  if (fread( &MainHardwareHdr, 1, sizeof(MainHardwareHdr) ,fpin) != sizeof(MainHardwareHdr))
+  if (fread( &MainHardwareHdr, 1, sizeof(MainHardwareHdr) ,fpin) != sizeof(MainHardwareHdr)) {
     return(-1);
+  }
 
-  for(i=0;i<MainHardwareHdr.InpChansPresent;++i)
-    {
+  for(i=0;i<MainHardwareHdr.InpChansPresent;++i) {
       if (fread( &(InputChannelSettings[i]), 1, sizeof(InputChannelSettings[i]) ,fpin) 
 	  != sizeof(InputChannelSettings[i]))
 	return(-1);
     }
 
-  for(i=0;i<MainHardwareHdr.InpChansPresent;++i)
-    {
+  for(i=0;i<MainHardwareHdr.InpChansPresent;++i) {
       if (fread( &(InputRate[i]), 1, sizeof(InputRate[i]) ,fpin) != sizeof(InputRate[i]))
 	return(-1);
     }
 
-  if (fread(&TTTRHdr, 1, sizeof(TTTRHdr), fpin) != sizeof(TTTRHdr))
+  if (fread(&TTTRHdr, 1, sizeof(TTTRHdr), fpin) != sizeof(TTTRHdr)) {
     return(-1);
+  }
 
   // Multiply TTTRHdr.ImgHdrSize by 4 because each entry is a 4-byte (32 bit) record
   fseek(fpin, TTTRHdr.ImgHdrSize*4, SEEK_CUR);
+
   return(0);
 }
 
