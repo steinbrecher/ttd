@@ -1,10 +1,10 @@
 #define __STDC_FORMAT_MACROS
-#include <getopt.h>
-#include <math.h>
+#include <stdio.h>
 #include <inttypes.h>
 #include <stddef.h>
-#include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
+#include <getopt.h>
 #include <time.h>
 #include <string.h>
 
