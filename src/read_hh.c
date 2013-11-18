@@ -8,10 +8,6 @@
 #include <time.h>
 #include <string.h>
 
-#define PAGE_SIZE 32768	// Page size in bits 
-#define PHOTONS_PER_PAGE 1024	
-
-
 #include "global_args.h"
 #include "timebuffer.h"
 #include "hh_header.h"
@@ -27,11 +23,9 @@ int main(int argc, char* argv[])
   // Write command line input to global_args
   read_cli(argc, argv);
 
-  printf("Memory pages per block: %d\n", global_args.pages); 
-  printf("Records per block: %d\n", global_args.pages*PHOTONS_PER_PAGE);
-  printf("Bin Time: %g ns\n", global_args.bin_time);
-  printf("Correlation window: %g ns\n", global_args.correlation_window);
-  //printf("Rate Tracking Window: %g ns\n", global_args.rate_window);
+  printf("Bin Time: %g ns\n", global_args.bin_time/1e3);
+  printf("Correlation window: %g ns\n", global_args.correlation_window/1e3);
+  //printf("Rate Tracking Window: %g ns\n", global_args.rate_window*1e3);
 
   printf("\n***************************** Header Information *****************************\n");
 
@@ -48,9 +42,6 @@ int main(int argc, char* argv[])
       exit(-1);
     }
 
-  double sync_period = (double)1e9 / (double)TTTRHdr.SyncRate;
-  double resolution = ((double)BinHdr.Resolution)*((double)1e-3);
-  double Tacq = BinHdr.Tacq * 1e6;
   uint64_t channels = MainHardwareHdr.InpChansPresent;
 
   printf("File Name: %s\n", argv[argc-1]);
@@ -58,19 +49,19 @@ int main(int argc, char* argv[])
   printf("File Version: %s\n", TxtHdr.FormatVersion);
   printf("Number of channels: %d\n", MainHardwareHdr.InpChansPresent);
   printf("Sync Rate: %g MHz\n", (double)TTTRHdr.SyncRate*1e-6);
-  printf("Sync Period: %g ns\n", sync_period);
-  printf("Resolution: %g ps\n", resolution*1e3);
-  printf("Acquisition Time: %g ns\n", Tacq);
+  printf("Sync Period: %g ns\n", 1e9/TTTRHdr.SyncRate);
+  printf("Resolution: %g ps\n", BinHdr.Resolution);
+  printf("Acquisition Time: %g ms\n", (double)BinHdr.Tacq);
   printf("Number of Records: %" PRIu64 "\n", TTTRHdr.nRecords);
-
-
 
   int pairs = channels * (channels - 1)/2; // Number of pairs of channels = channels choose 2 
   TimeBufferGroup tbs[channels];       // Container of ring buffers for arrival times 
   CorrelationGroup correlations[pairs]; // Container of correlation tracking objects 
 
+  
+
   for (n=0; n < channels; n++) {
-    tbInit(&(tbs[n].buffer), n, 1024, global_args.correlation_window, Tacq);
+    tbInit(&(tbs[n].buffer), n, 4096, global_args.correlation_window);
   }
 
   for (n=0; n < channels-1; n++) 
@@ -80,48 +71,14 @@ int main(int argc, char* argv[])
 	  corrInit(&(correlations[pair_lookup(n,m)].corr), n, m);
 	}
     }
-
   clock_t start, diff; 		// Benchmarking timers for read_file function call 
   uint64_t total_read, markers = 0, syncs=0; // Heuristics from read_htX_vY
   
   start = clock();
-  if (BinHdr.MeasMode == 2)
-    {
-      if (strcmp(TxtHdr.FormatVersion, "1.0")==0)
-	{
-	  total_read = read_ht2_v1(ht_file, tbs, correlations, &syncs, &markers);
-	}
-      else if (strcmp(TxtHdr.FormatVersion, "2.0")==0)
-	{
-	  total_read = read_ht2_v2(ht_file, tbs, correlations, &syncs, &markers);
-	}
-      else
-	{
-	  printf("ERROR: Unrecognized file version '%s'\n", TxtHdr.FormatVersion);
-	  exit(-1);
-	}
-    }
-  else if (BinHdr.MeasMode == 3)
-    {
-      if (strcmp(TxtHdr.FormatVersion, "1.0")==0)
-	{
-	  printf("Using read_ht3_v1\n");
-	  total_read = read_ht3_v1(ht_file, tbs, correlations, &markers);
-	  printf("Finished reading file.\n");
-	}
-      else if (strcmp(TxtHdr.FormatVersion, "2.0")==0)
-	{
-	  printf("Using read_ht3_v2\n");
-	  total_read = read_ht3_v2(ht_file, tbs, correlations, &markers);
-	}
-      else
-	{
-	  printf("ERROR: Unrecognized file version '%s'\n", TxtHdr.FormatVersion);
-	  exit(-1);
-	}
-    }
-
+  total_read = run_g2(ht_file, tbs, correlations);
   diff = clock() - start;
+
+
   double read_time = (double)diff / CLOCKS_PER_SEC;
 
   fclose(ht_file);
@@ -129,30 +86,21 @@ int main(int argc, char* argv[])
   printf("\n*********************************** Results ***********************************\n");
   printf("Elapsed Time: %g seconds\n", read_time);
   printf("Records Read: %" PRIu64 "\n", total_read);
-  printf("Syncs Found: %llu\n", syncs);
-  printf("Markers Found: %llu\n", markers);
 
   printf("\n");
 
   for(n=0; n<channels; n++) {
-      printf("Total Photons on Channel %llu: %llu\n", n, tbs[n].buffer.total_counts);
+      printf("Total Photons on Channel %" PRIu64 ": %" PRIu64 "\n", n, tbs[n].buffer.total_counts);
     }
   printf("\n");
   for (n=0; n<pairs; n++) {
-    printf("Total Counts in Correlation %d->%d: %llu\n", 
+    printf("Total Counts in Correlation %d->%d: %" PRIu64 "\n", 
 	   correlations[n].corr.chan1, correlations[n].corr.chan2, correlations[n].corr.total);
   }
 
 
   double norms[pairs];
   uint64_t total1, total2;
-
-  for (n=0; n<pairs; n++) {
-    total1 = tbs[correlations[n].corr.chan1].buffer.total_counts;
-    total2 = tbs[correlations[n].corr.chan2].buffer.total_counts;
-    norms[n] =  Tacq * global_args.bin_time / (double)(total1 * total2);
-    printf("Norm %llu: %g\n", n, norms[n]);
-  }
 
   FILE *data_file;
   char fname[80];
@@ -166,20 +114,6 @@ int main(int argc, char* argv[])
     for (m=0; m < correlations[n].corr.num_bins; m++) {
       fprintf(data_file, "%g, %g\n", 
 	      ((m*global_args.bin_time)-global_args.correlation_window), (double)(correlations[n].corr.hist[m].counts));
-    }
-
-    fclose(data_file);
-  }
-
-  // Outputs the g2 files
-  for (n=0; n<pairs; n++) {
-    snprintf(fname, sizeof(fname), "g2_%d%d.csv", // Most reliable way to create string from int 
-	     correlations[n].corr.chan1, correlations[n].corr.chan2); 
-    data_file = fopen(fname,"wb");
-
-    for (m=0; m < correlations[n].corr.num_bins; m++) {
-      fprintf(data_file, "%g, %g\n", ((m*global_args.bin_time)-global_args.correlation_window), 
-	      (double)(correlations[n].corr.hist[m].counts)*norms[n]);
     }
 
     fclose(data_file);
