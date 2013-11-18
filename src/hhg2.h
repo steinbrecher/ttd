@@ -267,7 +267,10 @@ uint64_t run_g2(FILE *fpin) {
 	}
     }
 
-
+  printf("Records Read: %" PRIu64 "\n", total_read);
+  if (total_read != TTTRHdr.nRecords) {
+    printf("\nWARNING: Did not reach end of file.\n");
+  }
   return(total_read);
 }
 

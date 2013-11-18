@@ -151,6 +151,8 @@ struct{
   int32_t ImgHdrSize;
   int64_t nRecords;	} TTTRHdr;
 
+
+// TODO: Finish moving g2 properties in here, like # of channels
 struct{
   double sync_period;
   double resolution;
@@ -160,6 +162,12 @@ struct{
   int ht_mode; // 2 for .ht2 and 3 for .ht3
   int file_format_version;
 } g2_properties;
+
+struct{
+  int channels;
+} convert_properties;
+
+
 
 int read_header(FILE *fpin)
 {
@@ -192,18 +200,31 @@ int read_header(FILE *fpin)
     return(-1);
   }
 
+  // Print header information
+  printf("\n***************************** Header Information *****************************\n");
+  printf("File Mode: T%d\n", BinHdr.MeasMode);
+  printf("File Version: %s\n", TxtHdr.FormatVersion);
+  printf("Number of channels: %d\n", MainHardwareHdr.InpChansPresent);
+  printf("Sync Rate: %g MHz\n", (double)TTTRHdr.SyncRate*1e-6);
+  printf("Sync Period: %g ns\n", 1e9/TTTRHdr.SyncRate);
+  printf("Resolution: %g ps\n", BinHdr.Resolution);
+  printf("Acquisition Time: %g s\n", ((double)BinHdr.Tacq)/1e3);
+  printf("Number of Records: %" PRIu64 "\n", TTTRHdr.nRecords);
 
   // Multiply TTTRHdr.ImgHdrSize by 4 because each entry is a 4-byte (32 bit) record
   fseek(fpin, TTTRHdr.ImgHdrSize*4, SEEK_CUR);
 
 
-  // Argument Processing
+  // g2 mode argument processing
   g2_properties.sync_period = 1e12/TTTRHdr.SyncRate;
   g2_properties.resolution = BinHdr.Resolution;
   g2_properties.correlation_window = cli_args.correlation_window;
   g2_properties.bin_time = cli_args.bin_time;
   int channels = MainHardwareHdr.InpChansPresent;
   g2_properties.channel_pairs = channels * (channels - 1)/2; 
+
+  // convert mode argument prcoessing
+  convert_properties.channels = channels; 
 
   return(0);
 }
