@@ -18,33 +18,27 @@ typedef struct {
   int start;		      // Index of oldest element 
   unsigned int count;	      // Number of active elements 
   unsigned int channel;	      // Channel this buffer corresponds to 
-  int overwrites;      // Track overwrites. This should always be 0 
 
   uint64_t total_counts; // Tally up all counts on this channel 
 
   double duration; 		// Time photons are active for 
-  double rate_window;		// How long to integrate counts for long term tracking 
 
   TimeType   *times;		// Ring buffer vector 
-  RateType *rates;		// Long term rate vector 
 } TimeBuffer;
 
 typedef struct { TimeBuffer buffer; } TimeBufferGroup;
 
-void tbInit(TimeBuffer *tb, int channel, int size, double duration, double Tacq) {
-  tb->channel = channel;
+void tbInit(TimeBuffer *tb, int channel, int size, double duration) {
   tb->size  = size;
   tb->start = 0;
   tb->count = 0;
-  
+  tb->channel = channel;
+
   tb->total_counts = 0;
 
   tb->duration = duration;
-  tb->rate_window = global_args.rate_window;
-  
 
   tb->times = (TimeType *)malloc(tb->size * sizeof(TimeType));
-  tb->rates = (RateType *)malloc((int64_t)(Tacq / global_args.rate_window + 0.5) * sizeof(RateType));
 }
 
 double tbGet(TimeBuffer *tb, int offset) {
@@ -56,24 +50,15 @@ double tbLastTime(TimeBuffer *tb) {
 }
  
 void tbWrite(TimeBuffer *tb, double time) {
-  ++ tb->rates[(int64_t)floor(time / tb->rate_window + 0.5)].counts;
   ++ tb->total_counts;
-
   int end = (tb->start + tb->count) % tb->size;
 
   tb->times[end] = (TimeType){ time };
 
-  if (tb->count == tb->size) {
-    tb->start = (tb->start + 1) % tb->size; 
-    ++ tb->overwrites;
-  }
-  else
-    ++ tb->count;
+  ++ tb->count;
 }
 
 void tbPrune(TimeBuffer *tb, double time) {
-  if (tb->count == 0) {
-  }
   while (tb->count > 0) {
     if ((time - tb->times[tb->start].time) > tb->duration) {
       tb->start = (tb->start + 1) % tb->size;
@@ -82,9 +67,5 @@ void tbPrune(TimeBuffer *tb, double time) {
     else break;
   }
 }
-
-typedef struct { uint64_t counts; } Histogram;
-
-
 
 #endif /* TIMEBUFFER_SEEN */

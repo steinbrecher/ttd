@@ -4,7 +4,6 @@
 struct global_args_t {
   double bin_time; // '-b' option
   double correlation_window; // '-c' option
-  int pages; // '-p' option
   double rate_window; // '-r' option
 } global_args;
 
@@ -20,9 +19,9 @@ static const char *optstring = "b:c:r:";
 int read_cli(int argc, char* argv[]) 
 {
   // Default values
-  global_args.bin_time = 10;
-  global_args.correlation_window = 100;
-  global_args.rate_window = 1e8;
+  global_args.bin_time = 10*1000;
+  global_args.correlation_window = 100*1000;
+  global_args.rate_window = 1e10;
 
   if((argc % 2) != 0)
     {
@@ -41,13 +40,13 @@ int read_cli(int argc, char* argv[])
       switch (opt) 
 	{
 	case 'b':
-	  global_args.bin_time = atof(optarg);
+	  global_args.bin_time = atof(optarg)*1e3;
 	  break;
 	case 'c':
-	  global_args.correlation_window = atof(optarg);
+	  global_args.correlation_window = atof(optarg)*1e3;
 	  break;
 	case 'r':
-	  global_args.rate_window = atof(optarg);
+	  global_args.rate_window = atof(optarg)*1e3;
 	  break;
 	default: 
 	  // Shouldn't actually get here
