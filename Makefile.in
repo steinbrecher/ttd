@@ -76,12 +76,12 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = read_hh$(EXEEXT)
+bin_PROGRAMS = picoquant$(EXEEXT)
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
-	$(srcdir)/config.h.in depcomp AUTHORS COPYING ChangeLog NEWS \
-	README compile install-sh missing
+	$(srcdir)/config.h.in depcomp AUTHORS COPYING ChangeLog \
+	INSTALL NEWS README TODO compile install-sh missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -95,9 +95,9 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
-am_read_hh_OBJECTS = src/read_hh.$(OBJEXT)
-read_hh_OBJECTS = $(am_read_hh_OBJECTS)
-read_hh_LDADD = $(LDADD)
+am_picoquant_OBJECTS = src/picoquant.$(OBJEXT)
+picoquant_OBJECTS = $(am_picoquant_OBJECTS)
+picoquant_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -126,8 +126,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(read_hh_SOURCES)
-DIST_SOURCES = $(read_hh_SOURCES)
+SOURCES = $(picoquant_SOURCES)
+DIST_SOURCES = $(picoquant_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -260,7 +260,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = subdir-objects
-read_hh_SOURCES = src/read_hh.c
+picoquant_SOURCES = src/picoquant.c
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -363,12 +363,12 @@ src/$(am__dirstamp):
 src/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) src/$(DEPDIR)
 	@: > src/$(DEPDIR)/$(am__dirstamp)
-src/read_hh.$(OBJEXT): src/$(am__dirstamp) \
+src/picoquant.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 
-read_hh$(EXEEXT): $(read_hh_OBJECTS) $(read_hh_DEPENDENCIES) $(EXTRA_read_hh_DEPENDENCIES) 
-	@rm -f read_hh$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(read_hh_OBJECTS) $(read_hh_LDADD) $(LIBS)
+picoquant$(EXEEXT): $(picoquant_OBJECTS) $(picoquant_DEPENDENCIES) $(EXTRA_picoquant_DEPENDENCIES) 
+	@rm -f picoquant$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(picoquant_OBJECTS) $(picoquant_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -377,7 +377,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/read_hh.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/picoquant.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
