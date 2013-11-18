@@ -158,8 +158,9 @@ struct{
   double resolution;
   double correlation_window;
   double bin_time;
+  int channels;
   int channel_pairs;
-  int ht_mode; // 2 for .ht2 and 3 for .ht3
+  int meas_mode; // 2 for .ht2 and 3 for .ht3
   int file_format_version;
 } g2_properties;
 
@@ -221,7 +222,15 @@ int read_header(FILE *fpin)
   g2_properties.correlation_window = cli_args.correlation_window;
   g2_properties.bin_time = cli_args.bin_time;
   int channels = MainHardwareHdr.InpChansPresent;
+  g2_properties.channels = channels;
   g2_properties.channel_pairs = channels * (channels - 1)/2; 
+  g2_properties.meas_mode = BinHdr.MeasMode;
+  if (strcmp(TxtHdr.FormatVersion, "1.0")==0) {
+    g2_properties.file_format_version = 1;
+  }
+  else if (strcmp(TxtHdr.FormatVersion, "2.0")==0) {
+    g2_properties.file_format_version = 2;
+  }
 
   // convert mode argument prcoessing
   convert_properties.channels = channels; 

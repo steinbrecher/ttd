@@ -184,9 +184,11 @@ uint64_t run_g2(FILE *fpin) {
   double correlation_window = g2_properties.correlation_window;
 
 
-  // Initialize memory structures for the g2 calculation
-  int channels = (int)MainHardwareHdr.InpChansPresent;
+  // Read out necessary g2_properties
+  int channels = g2_properties.channels;
   int pairs = g2_properties.channel_pairs;
+  int meas_mode = g2_properties.meas_mode;
+  int file_format_version = g2_properties.file_format_version;
 
   TimeBufferGroup tbs[channels]; // Container of ring buffers for arrival times 
   CorrelationGroup correlations[pairs]; // Container of correlation tracking objects 
@@ -210,22 +212,22 @@ uint64_t run_g2(FILE *fpin) {
   void (*g2)(tTRec, double *, TimeBufferGroup *, CorrelationGroup *);
 
   // Select which function to use to g2 photon records
-  if (BinHdr.MeasMode == 2) {
-    if (strcmp(TxtHdr.FormatVersion, "1.0")==0) {
+  if (meas_mode == 2) {
+    if (file_format_version == 1) {
       g2 = &ht2_v1_g2;
     }
-    else if (strcmp(TxtHdr.FormatVersion, "2.0")==0) {
+    else if (file_format_version == 2) {
       g2 = &ht2_v2_g2;
     }
     else {
       return(-1);
     }
   }
-  else if (BinHdr.MeasMode == 3) {
-    if (strcmp(TxtHdr.FormatVersion, "1.0")==0) {
+  else if (meas_mode == 3) {
+    if (file_format_version == 1) {
       g2 = &ht3_v1_g2;
     }
-    else if (strcmp(TxtHdr.FormatVersion, "2.0")==0) {
+    else if (file_format_version == 2) {
       g2 = &ht3_v2_g2;
     }
     else {
