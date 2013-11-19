@@ -47,7 +47,6 @@ int read_cli(int argc, char* argv[])  {
   printf("\n******************************** User Settings *******************************\n");
   printf("Bin Time: %g ps\n", cli_args.bin_time);
   printf("Correlation Window: %g ps\n", cli_args.correlation_window);
-  //  printf("Running in %s mode\n", cli_args.mode);
   return(num_args);
 }
 

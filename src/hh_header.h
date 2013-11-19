@@ -142,7 +142,7 @@ struct{
 
 int32_t InputRate[MAXINPCHANS];
 
-//the following exists only once				
+//The following exists only once				
 
 struct{	
   int32_t SyncRate;
@@ -152,7 +152,6 @@ struct{
   int64_t nRecords;	} TTTRHdr;
 
 
-// TODO: Finish moving g2 properties in here, like # of channels
 struct{
   double sync_period;
   double resolution;
@@ -164,13 +163,6 @@ struct{
   int file_format_version;
 } g2_properties;
 
-struct{
-  int channels;
-  int meas_mode; // 2 for .ht2 and 3 for .ht3
-  int file_format_version;
-  double resolution;
-  double sync_period;
-} convert_properties;
 
 #ifdef PQ_G2_HEADER_SEEN
 void write_g2_properties() {
@@ -202,10 +194,18 @@ void write_g2_properties() {
 #endif
 
 #ifdef PQ_CONVERT_HEADER_SEEN
+struct{
+  int channels;
+  int meas_mode; // 2 for .ht2 and 3 for .ht3
+  int file_format_version;
+  uint64_t resolution;
+  uint64_t sync_period;
+} convert_properties;
+
 void write_convert_properties() {
   // Calculations for arguments
-  double sync_period = 1e12/TTTRHdr.SyncRate;
-  double resolution = BinHdr.Resolution;
+  uint64_t sync_period = (uint64_t)round(1e12/TTTRHdr.SyncRate);
+  uint64_t resolution = (uint64_t)round(BinHdr.Resolution);
   int channels = MainHardwareHdr.InpChansPresent;
   int channel_pairs = channels * (channels-1)/2;
   int meas_mode = BinHdr.MeasMode;

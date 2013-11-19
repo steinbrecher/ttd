@@ -13,10 +13,8 @@
 #include "hh_header.h"
 #include "hhg2.h"
 
-
 int main(int argc, char* argv[]) {
   FILE *ht_file;
-  uint64_t n, m; 
 
   // Write command line input to cli_args struct
   read_cli(argc, argv);
@@ -40,7 +38,7 @@ int main(int argc, char* argv[]) {
   clock_t start, diff; 		// Benchmarking timers for read_file function call 
   
   start = clock();
-run_g2(ht_file);
+  run_g2(ht_file);
 
   diff = clock() - start;
 

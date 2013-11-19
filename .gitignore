@@ -1,11 +1,11 @@
 *.csv
 *.pqb
+*.o
 
-read_hh
-src/read_hh.o
-
-picoquant
-src/picoquant.o
+pq_g2
+pq_convert
+pq_doqkd
+pqb_dump
 
 autom4te.cache
 autom4te.cache/*

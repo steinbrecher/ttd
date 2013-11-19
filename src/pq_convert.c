@@ -10,11 +10,9 @@
 
 #include "pq_convert.h"
 #include "hh_header.h"
-#include "convert.h"
 
 int main(int argc, char* argv[]) {
   FILE *ht_file;
-  uint64_t n, m; 
 
   // Try to open the input file
   if((ht_file = fopen(argv[argc-1],"rb")) == NULL) { 
@@ -29,9 +27,10 @@ int main(int argc, char* argv[]) {
     }
   write_convert_properties();
 
-  clock_t start, diff; 		// Benchmarking timers for read_file function call 
+  // Benchmarking timers
+  clock_t start, diff; 		
 
-  printf("\n\n");
+  printf("\n");
   start = clock();
   run_hh_convert(ht_file);
   diff = clock() - start;
