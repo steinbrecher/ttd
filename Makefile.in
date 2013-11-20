@@ -76,7 +76,8 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = pq_g2$(EXEEXT) pq_convert$(EXEEXT) pqb_dump$(EXEEXT)
+bin_PROGRAMS = pq_g2$(EXEEXT) pq_convert$(EXEEXT) pqb_dump$(EXEEXT) \
+	pqb_doqkd$(EXEEXT)
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
@@ -101,6 +102,9 @@ pq_convert_LDADD = $(LDADD)
 am_pq_g2_OBJECTS = src/pq_g2.$(OBJEXT)
 pq_g2_OBJECTS = $(am_pq_g2_OBJECTS)
 pq_g2_LDADD = $(LDADD)
+am_pqb_doqkd_OBJECTS = src/pqb_doqkd.$(OBJEXT)
+pqb_doqkd_OBJECTS = $(am_pqb_doqkd_OBJECTS)
+pqb_doqkd_LDADD = $(LDADD)
 am_pqb_dump_OBJECTS = src/pqb_dump.$(OBJEXT)
 pqb_dump_OBJECTS = $(am_pqb_dump_OBJECTS)
 pqb_dump_LDADD = $(LDADD)
@@ -132,9 +136,10 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(pq_convert_SOURCES) $(pq_g2_SOURCES) $(pqb_dump_SOURCES)
-DIST_SOURCES = $(pq_convert_SOURCES) $(pq_g2_SOURCES) \
+SOURCES = $(pq_convert_SOURCES) $(pq_g2_SOURCES) $(pqb_doqkd_SOURCES) \
 	$(pqb_dump_SOURCES)
+DIST_SOURCES = $(pq_convert_SOURCES) $(pq_g2_SOURCES) \
+	$(pqb_doqkd_SOURCES) $(pqb_dump_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -270,6 +275,7 @@ AUTOMAKE_OPTIONS = subdir-objects
 pq_g2_SOURCES = src/pq_g2.c
 pq_convert_SOURCES = src/pq_convert.c
 pqb_dump_SOURCES = src/pqb_dump.c
+pqb_doqkd_SOURCES = src/pqb_doqkd.c
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -383,6 +389,12 @@ src/pq_g2.$(OBJEXT): src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 pq_g2$(EXEEXT): $(pq_g2_OBJECTS) $(pq_g2_DEPENDENCIES) $(EXTRA_pq_g2_DEPENDENCIES) 
 	@rm -f pq_g2$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(pq_g2_OBJECTS) $(pq_g2_LDADD) $(LIBS)
+src/pqb_doqkd.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+
+pqb_doqkd$(EXEEXT): $(pqb_doqkd_OBJECTS) $(pqb_doqkd_DEPENDENCIES) $(EXTRA_pqb_doqkd_DEPENDENCIES) 
+	@rm -f pqb_doqkd$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(pqb_doqkd_OBJECTS) $(pqb_doqkd_LDADD) $(LIBS)
 src/pqb_dump.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 
@@ -399,6 +411,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pq_convert.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pq_g2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pqb_doqkd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pqb_dump.Po@am__quote@
 
 .c.o:

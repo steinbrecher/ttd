@@ -14,7 +14,6 @@
 #define PHOTONBLOCK 32768
 #endif
 
-
 int main (int argc, char* argv[]) {
   FILE *pqb_file;
 

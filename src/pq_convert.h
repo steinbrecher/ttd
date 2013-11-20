@@ -25,7 +25,6 @@
 
 
 int ht2_v1_to_pqb(tTRec TRec, pqb_t *pqb_rec, uint64_t *overflow_correction) {
-
   // Unpack TRec
   int special = TRec.T2bits.special;
   int channel = TRec.T2bits.channel;
@@ -37,10 +36,18 @@ int ht2_v1_to_pqb(tTRec TRec, pqb_t *pqb_rec, uint64_t *overflow_correction) {
     if (channel==0x3F) {
       *overflow_correction += OLDHT2WRAPAROUND;
     }
+    // Sync record
+    else if (channel == 0) {
+      // TODO: Implement proper rounding here
+      pqb_rec->time = (*overflow_correction + timetag)/2;
+      // Channel indices are 0, 1, ... convert_properties.channels, so this is the 'extra' index for sync
+      return(convert_properties.channels); 
+    }
     return(-1);
   }
   else {
     // Resolution of ht2 version 1 was 1/2 picosecond
+    // TODO: Implement proper rounding here
     pqb_rec->time = (*overflow_correction + timetag)/2;
     return(channel);
   }
@@ -59,6 +66,12 @@ int ht2_v2_to_pqb(tTRec TRec, pqb_t *pqb_rec, uint64_t *overflow_correction) {
       else {
 	*overflow_correction += OLDHT2WRAPAROUND * timetag;
       }
+    }
+    // Sync record
+    else if (channel==0) {
+      pqb_rec->time = *overflow_correction + timetag;
+      // Channel indices are 0, 1, ... convert_properties.channels, so this is the 'extra' index for sync
+      return(convert_properties.channels); 
     }
   }
   else {
@@ -121,6 +134,12 @@ uint64_t run_hh_convert(FILE *fpin) {
   int channels = convert_properties.channels;
   int meas_mode = convert_properties.meas_mode;
   int file_format_version = convert_properties.file_format_version;
+
+  // Output sync records as well in HT2 mode
+  // TODO: Make this a command line switch
+  if (meas_mode == 2) {
+    channels++;
+  }
 
   pqb_buffer_group_t pqb_buffer_group[channels];
 

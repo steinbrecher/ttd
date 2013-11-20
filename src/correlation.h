@@ -3,7 +3,6 @@
 
 typedef struct { uint64_t counts; } Histogram;
 
-
 typedef struct {
   int chan1;
   int chan2;

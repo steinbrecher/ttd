@@ -257,7 +257,7 @@ uint64_t run_g2(FILE *fpin) {
     }
   }
 
-  // Output Results
+  // Output Statistics
   printf("\n*********************************** g2 Results ***********************************\n");
   for(n=0; n<channels; n++) {
       printf("Total Photons on Channel %" PRIu64 ": %" PRIu64 "\n", n, tbs[n].buffer.total_counts);
@@ -267,6 +267,9 @@ uint64_t run_g2(FILE *fpin) {
     printf("Total Counts in Correlation %d->%d: %" PRIu64 "\n", 
 	   correlations[n].corr.chan1, correlations[n].corr.chan2, correlations[n].corr.total);
   }
+
+  // Write to files
+  output_g2_csv(correlations);
 
   // Free allocated memory
   free(file_block);
@@ -285,6 +288,9 @@ uint64_t run_g2(FILE *fpin) {
   if (total_read != TTTRHdr.nRecords) {
     printf("\nWARNING: Did not reach end of file.\n");
   }
+
+
+  
   return(total_read);
 }
 
