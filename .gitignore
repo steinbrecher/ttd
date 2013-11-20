@@ -4,8 +4,10 @@
 
 pq_g2
 pq_convert
-pq_doqkd
+pqb_doqkd
 pqb_dump
+pqb_merge
+pqb_g2
 
 autom4te.cache
 autom4te.cache/*
