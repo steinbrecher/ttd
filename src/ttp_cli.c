@@ -75,12 +75,12 @@ int ttp_read_cli(int argc, char* argv[]) {
 
     case 'V':
       ttp_print_version(argv[0]);
-      exit(0);
+      return(0);
       break;
 
     case 'h':
       ttp_cli_print_help(argv[0]);
-      exit(0);
+      return(0);
       break;
 
     case 'i':

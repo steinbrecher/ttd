@@ -27,7 +27,7 @@ int ttp_g2() {
   // Initialize buffers
   ttd_fb_init(&fb1, ttp_cli_args.block_size, ttp_cli_args.infile1);
   ttd_fb_init(&fb2, ttp_cli_args.block_size, ttp_cli_args.infile2);
-
+  printf("Got here.");
   while((fb1.empty == 0) && (fb2.empty == 0)) {
     if (t1 <= t2) {
       ttd_ccorr_update(ccorr, 0, t1);
@@ -39,7 +39,7 @@ int ttp_g2() {
       output_buffer_count ++;
     }
   }
-
+  printf("Got here 2.");
   while (fb1.empty == 0) {
     ttd_ccorr_update(ccorr, 0, t1);
     t1 = ttd_fb_pop(&fb1);
@@ -62,7 +62,13 @@ int ttp_g2() {
 
 
 int main(int argc, char* argv[]) {
-  ttp_read_cli(argc, argv);
+  int retcode;
+  printf("Got here...");
+  retcode = ttp_read_cli(argc, argv);
+  if (retcode < 0) {
+    exit(retcode);
+  }
+  printf("Got here...");
 
   ttp_g2();
 

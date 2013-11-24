@@ -76,7 +76,8 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = pq-g2$(EXEEXT) ttd-dump$(EXEEXT) ttp-g2$(EXEEXT)
+bin_PROGRAMS = pq-g2$(EXEEXT) pq-convert$(EXEEXT) ttd-dump$(EXEEXT) \
+	ttp-g2$(EXEEXT)
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
@@ -95,6 +96,9 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
+am_pq_convert_OBJECTS = src/pq_convert.$(OBJEXT) src/ttd.$(OBJEXT)
+pq_convert_OBJECTS = $(am_pq_convert_OBJECTS)
+pq_convert_LDADD = $(LDADD)
 am_pq_g2_OBJECTS = src/pq_g2.$(OBJEXT)
 pq_g2_OBJECTS = $(am_pq_g2_OBJECTS)
 pq_g2_LDADD = $(LDADD)
@@ -139,8 +143,10 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(pq_g2_SOURCES) $(ttd_dump_SOURCES) $(ttp_g2_SOURCES)
-DIST_SOURCES = $(pq_g2_SOURCES) $(ttd_dump_SOURCES) $(ttp_g2_SOURCES)
+SOURCES = $(pq_convert_SOURCES) $(pq_g2_SOURCES) $(ttd_dump_SOURCES) \
+	$(ttp_g2_SOURCES)
+DIST_SOURCES = $(pq_convert_SOURCES) $(pq_g2_SOURCES) \
+	$(ttd_dump_SOURCES) $(ttp_g2_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -274,7 +280,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = subdir-objects
 pq_g2_SOURCES = src/pq_g2.c
-#pq_convert_SOURCES = src/pq_convert.c
+pq_convert_SOURCES = src/pq_convert.c src/ttd.c
 ttd_dump_SOURCES = src/ttd_dump.c
 #ttd_doqkd_SOURCES = src/ttd_doqkd.c
 #ttd_merge_SOURCES = src/ttd_merge.c
@@ -386,6 +392,13 @@ src/$(am__dirstamp):
 src/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) src/$(DEPDIR)
 	@: > src/$(DEPDIR)/$(am__dirstamp)
+src/pq_convert.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/ttd.$(OBJEXT): src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+
+pq-convert$(EXEEXT): $(pq_convert_OBJECTS) $(pq_convert_DEPENDENCIES) $(EXTRA_pq_convert_DEPENDENCIES) 
+	@rm -f pq-convert$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(pq_convert_OBJECTS) $(pq_convert_LDADD) $(LIBS)
 src/pq_g2.$(OBJEXT): src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 
 pq-g2$(EXEEXT): $(pq_g2_OBJECTS) $(pq_g2_DEPENDENCIES) $(EXTRA_pq_g2_DEPENDENCIES) 
@@ -406,7 +419,6 @@ src/ttd_ringbuffer.$(OBJEXT): src/$(am__dirstamp) \
 src/ttp_cli.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/ttp.$(OBJEXT): src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
-src/ttd.$(OBJEXT): src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/ttd_filebuffer.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 
@@ -421,6 +433,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pq_convert.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pq_g2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_crosscorr.Po@am__quote@

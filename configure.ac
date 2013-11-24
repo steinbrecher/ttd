@@ -6,6 +6,7 @@ AC_INIT([picoquant], [0.01])
 AC_CONFIG_SRCDIR([src/pq_g2.c])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([1.9 foreign])
+AM_SILENT_RULES([yes])
 
 # Checks for programs.
 AC_PROG_CC

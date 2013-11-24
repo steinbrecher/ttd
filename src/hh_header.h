@@ -193,7 +193,7 @@ void write_g2_properties() {
 }
 #endif
 
-#ifdef PQ_CONVERT_HEADER_SEEN
+#ifdef PQ_CONVERT
 struct{
   int channels;
   int meas_mode; // 2 for .ht2 and 3 for .ht3
