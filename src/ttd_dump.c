@@ -8,26 +8,26 @@
 #include <time.h>
 #include <string.h>
 
-#include "pqb.h"
+#include "ttd.h"
 
 #ifndef PHOTONBLOCK
 #define PHOTONBLOCK 32768
 #endif
 
 int main (int argc, char* argv[]) {
-  FILE *pqb_file;
+  FILE *ttd_file;
 
   // Try to open the input file
-  if((pqb_file = fopen(argv[argc-1],"rb")) == NULL) { 
+  if((ttd_file = fopen(argv[argc-1],"rb")) == NULL) { 
       printf("\n ERROR: Input file cannot be opened.\n"); 
       exit(-1);
     }
 
-  pqb_t *file_block = (pqb_t *) malloc(PHOTONBLOCK*sizeof(pqb_t));
+  ttd_t *file_block = (ttd_t *) malloc(PHOTONBLOCK*sizeof(ttd_t));
   uint64_t k, num_photons=PHOTONBLOCK;
 
   while (num_photons == PHOTONBLOCK) {
-    num_photons = fread(file_block, sizeof(pqb_t), PHOTONBLOCK, pqb_file);
+    num_photons = fread(file_block, sizeof(ttd_t), PHOTONBLOCK, ttd_file);
     for (k=0; k<num_photons; k++) {
       printf("%" PRIu64 "\n", file_block[k]);
     }

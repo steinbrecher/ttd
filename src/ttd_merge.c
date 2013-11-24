@@ -8,9 +8,8 @@
 #include <time.h>
 #include <string.h>
 
-
-#include "pqb.h"
-#include "pqb_merge.h"
+#include "ttd.h"
+#include "ttd_merge.h"
 
 int main(int argc, char* argv[]) {
   if (argc != 4) {
@@ -43,7 +42,7 @@ int main(int argc, char* argv[]) {
   
   // Run the merge operation
   int ret;
-  ret = pqb_merge(&in1, &in2, outfile);
+  ret = ttd_merge(&in1, &in2, outfile);
   if (ret  < 0) {
     exit(ret);
   }

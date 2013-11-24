@@ -18,13 +18,12 @@
 #define PQ_CONVERT_HEADER_SEEN
 
 #include "hh_header.h"
-#include "pqb.h"
 
 //NOTE: Potential improvement is to pass the channel array structure to the various
-// '_to_pqb' functions and have them handle the updates
+// '_to_ttd' functions and have them handle the updates
 
 
-int ht2_v1_to_pqb(tTRec TRec, pqb_t *pqb_rec, uint64_t *overflow_correction) {
+int ht2_v1_to_ttd(tTRec TRec, ttd_t *ttd_rec, uint64_t *overflow_correction) {
   // Unpack TRec
   int special = TRec.T2bits.special;
   int channel = TRec.T2bits.channel;
@@ -39,7 +38,7 @@ int ht2_v1_to_pqb(tTRec TRec, pqb_t *pqb_rec, uint64_t *overflow_correction) {
     // Sync record
     else if (channel == 0) {
       // TODO: Implement proper rounding here
-      *pqb_rec = (*overflow_correction + timetag)/2;
+      *ttd_rec = (*overflow_correction + timetag)/2;
       // Channel indices are 0, 1, ... convert_properties.channels, so this is the 'extra' index for sync
       return(convert_properties.channels); 
     }
@@ -48,12 +47,12 @@ int ht2_v1_to_pqb(tTRec TRec, pqb_t *pqb_rec, uint64_t *overflow_correction) {
   else {
     // Resolution of ht2 version 1 was 1/2 picosecond
     // TODO: Implement proper rounding here
-    *pqb_rec = (*overflow_correction + timetag)/2;
+    *ttd_rec = (*overflow_correction + timetag)/2;
     return(channel);
   }
 }
 
-int ht2_v2_to_pqb(tTRec TRec, pqb_t *pqb_rec, uint64_t *overflow_correction) {
+int ht2_v2_to_ttd(tTRec TRec, ttd_t *ttd_rec, uint64_t *overflow_correction) {
   int special = TRec.T2bits.special;
   int channel = TRec.T2bits.channel;
   int timetag = TRec.T2bits.timetag;
@@ -69,19 +68,19 @@ int ht2_v2_to_pqb(tTRec TRec, pqb_t *pqb_rec, uint64_t *overflow_correction) {
     }
     // Sync record
     else if (channel==0) {
-      *pqb_rec = *overflow_correction + timetag;
+      *ttd_rec = *overflow_correction + timetag;
       // Channel indices are 0, 1, ... convert_properties.channels, so this is the 'extra' index for sync
       return(convert_properties.channels); 
     }
   }
   else {
-    *pqb_rec = *overflow_correction + timetag;
+    *ttd_rec = *overflow_correction + timetag;
     return(channel);
   }
   return(-1);
 }
 
-int ht3_v1_to_pqb(tTRec TRec, pqb_t *pqb_rec, uint64_t *overflow_correction) {
+int ht3_v1_to_ttd(tTRec TRec, ttd_t *ttd_rec, uint64_t *overflow_correction) {
   uint64_t sync_period = convert_properties.sync_period;
   uint64_t resolution = convert_properties.resolution;
   int special = TRec.T3bits.special;
@@ -95,14 +94,14 @@ int ht3_v1_to_pqb(tTRec TRec, pqb_t *pqb_rec, uint64_t *overflow_correction) {
     }
   }
   else {
-    *pqb_rec = (*overflow_correction + nsync) * sync_period + dtime * resolution;
+    *ttd_rec = (*overflow_correction + nsync) * sync_period + dtime * resolution;
     return(channel);
   }
   return(-1);
 }
 
 
-int ht3_v2_to_pqb(tTRec TRec, pqb_t *pqb_rec, uint64_t *overflow_correction) {
+int ht3_v2_to_ttd(tTRec TRec, ttd_t *ttd_rec, uint64_t *overflow_correction) {
   uint64_t sync_period = convert_properties.sync_period;
   uint64_t resolution = convert_properties.resolution;
   int special = TRec.T3bits.special;
@@ -121,7 +120,7 @@ int ht3_v2_to_pqb(tTRec TRec, pqb_t *pqb_rec, uint64_t *overflow_correction) {
     }
   }
   else {
-    *pqb_rec = (*overflow_correction + nsync) * sync_period + dtime * resolution;
+    *ttd_rec = (*overflow_correction + nsync) * sync_period + dtime * resolution;
     return(channel);
   }
   return(-1);
@@ -141,21 +140,21 @@ uint64_t run_hh_convert(FILE *fpin) {
     channels++;
   }
 
-  pqb_buffer_group_t pqb_buffer_group[channels];
+  ttd_buffer_group_t ttd_buffer_group[channels];
 
   int j, k;
   for (k=0; k<channels; k++) {
-    pqb_buffer_group[k].buffer = (pqb_buffer_t *) malloc(PHOTONBLOCK * sizeof(pqb_t));
+    ttd_buffer_group[k].buffer = (ttd_buffer_t *) malloc(PHOTONBLOCK * sizeof(ttd_t));
   }
 
-  // Select appropriate version of to_pqb
-  int (*to_pqb)(tTRec, pqb_t *, uint64_t *);
+  // Select appropriate version of to_ttd
+  int (*to_ttd)(tTRec, ttd_t *, uint64_t *);
   if (meas_mode == 2) {
     if (file_format_version == 1) {
-      to_pqb = &ht2_v1_to_pqb;
+      to_ttd = &ht2_v1_to_ttd;
     }
     else if (file_format_version == 2) {
-      to_pqb = &ht2_v2_to_pqb;
+      to_ttd = &ht2_v2_to_ttd;
     }
     else {
       return(-1);
@@ -163,10 +162,10 @@ uint64_t run_hh_convert(FILE *fpin) {
   }
   else if (meas_mode == 3) {
     if (file_format_version == 1) {
-      to_pqb = &ht3_v1_to_pqb;
+      to_ttd = &ht3_v1_to_ttd;
     }
     else if (file_format_version == 2) {
-      to_pqb = &ht3_v2_to_pqb;
+      to_ttd = &ht3_v2_to_ttd;
     }
     else {
       return(-1);
@@ -177,8 +176,8 @@ uint64_t run_hh_convert(FILE *fpin) {
   uint64_t total_read=0;
   uint64_t overflow_correction = 0;
 
-  pqb_t pqb_record;
-  int pqb_buffer_count[channels];
+  ttd_t ttd_record;
+  int ttd_buffer_count[channels];
 
   tTRec *file_block = (tTRec *) malloc(PHOTONBLOCK*sizeof(tTRec));
   int ret, channel;
@@ -187,7 +186,7 @@ uint64_t run_hh_convert(FILE *fpin) {
   file_group_t outfiles[channels];
   char fname[80];
   for (k=0; k<channels; k++) {
-    snprintf(fname, sizeof(fname), "channel%d.pqb", k);
+    snprintf(fname, sizeof(fname), "channel%d.ttd", k);
     outfiles[k].fp = fopen(fname, "wb");
   }
 
@@ -198,23 +197,23 @@ uint64_t run_hh_convert(FILE *fpin) {
 
     // Set buffer counters to 0
     for (k=0; k<channels; k++) {
-      pqb_buffer_count[k] = 0;
+      ttd_buffer_count[k] = 0;
     }
 
     // Read data into per-channel buffers
     for (n=0; n < num_photons; n++) {
       total_read++;
-      channel = to_pqb(file_block[n], &pqb_record, &overflow_correction);
+      channel = to_ttd(file_block[n], &ttd_record, &overflow_correction);
       if (channel != -1) {
-	pqb_buffer_group[channel].buffer[pqb_buffer_count[channel]] = (pqb_buffer_t){ pqb_record };
-	++ pqb_buffer_count[channel];
+	ttd_buffer_group[channel].buffer[ttd_buffer_count[channel]] = (ttd_buffer_t){ ttd_record };
+	++ ttd_buffer_count[channel];
       }
     }
     
     // Write data to outfiles
     // fwrite(data, sizeof(element), sizeof(array), file);
     for (k=0; k<channels; k++) {
-	fwrite(&(pqb_buffer_group[k].buffer[j]), sizeof(pqb_record), pqb_buffer_count[k], outfiles[k].fp);
+	fwrite(&(ttd_buffer_group[k].buffer[j]), sizeof(ttd_record), ttd_buffer_count[k], outfiles[k].fp);
     }
   }
   // Close the output files
@@ -225,7 +224,7 @@ uint64_t run_hh_convert(FILE *fpin) {
   // Deallocate malloc'd memory
   free(file_block);
   for (k=0; k < channels; k++) {
-    free(pqb_buffer_group[k].buffer);
+    free(ttd_buffer_group[k].buffer);
   }
 
   printf("Records Read: %" PRIu64 "\n", total_read);
