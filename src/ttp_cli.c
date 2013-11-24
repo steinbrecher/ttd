@@ -74,20 +74,20 @@ int ttp_read_cli(int argc, char* argv[]) {
       break;
 
     case 'i':
-      ttp_cli_args.infile1 = (char *)malloc(sizeof(optarg));
+      ttp_cli_args.infile1 = (char *)malloc((strlen(optarg)+1)*sizeof(char));
       strcpy(ttp_cli_args.infile1, optarg);
       break;
     case 'I':
-      ttp_cli_args.infile2 = (char *)malloc(sizeof(optarg));
+      ttp_cli_args.infile2 = (char *)malloc((strlen(optarg)+1)*sizeof(char));
       strcpy(ttp_cli_args.infile2, optarg);
       break;
 
     case 'o':
-      ttp_cli_args.outfile1 = (char *)malloc(sizeof(optarg));
+      ttp_cli_args.outfile1 = (char *)malloc((strlen(optarg)+1)*sizeof(char));
       strcpy(ttp_cli_args.outfile1, optarg);
       break;
     case 'O':
-      ttp_cli_args.outfile2 = (char *)malloc(sizeof(optarg));
+      ttp_cli_args.outfile2 = (char *)malloc((strlen(optarg)+1)*sizeof(char));
       strcpy(ttp_cli_args.outfile2, optarg);
       break;
       
