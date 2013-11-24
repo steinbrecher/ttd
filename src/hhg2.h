@@ -64,7 +64,7 @@ void g2_insert(double realtime, int channel, TimeBufferGroup *tbs, CorrelationGr
   }
 }
 
-void ht2_v1_g2(tTRec TRec, double *overflow_correction, 
+void ht2_v1_g2(pq_hh_rec_t TRec, double *overflow_correction, 
 		    TimeBufferGroup *tbs, CorrelationGroup *correlations) {
   // Unpack TRec
   int special = TRec.T2bits.special;
@@ -86,7 +86,7 @@ void ht2_v1_g2(tTRec TRec, double *overflow_correction,
   }
 }
 
-void ht2_v2_g2(tTRec TRec, double *overflow_correction, 
+void ht2_v2_g2(pq_hh_rec_t TRec, double *overflow_correction, 
 		    TimeBufferGroup *tbs, CorrelationGroup *correlations) {
   int other_chan;
   // In version 2, T2 mode resolution changed to 1ps, so we don't need a resolution variable
@@ -112,7 +112,7 @@ void ht2_v2_g2(tTRec TRec, double *overflow_correction,
   }
 }
 
-void ht3_v1_g2(tTRec TRec, double *overflow_correction, 
+void ht3_v1_g2(pq_hh_rec_t TRec, double *overflow_correction, 
 		    TimeBufferGroup *tbs, CorrelationGroup *correlations) {
   int other_chan;
   double realtime;
@@ -136,7 +136,7 @@ void ht3_v1_g2(tTRec TRec, double *overflow_correction,
   }
 }
 
-void ht3_v2_g2(tTRec TRec, double *overflow_correction, 
+void ht3_v2_g2(pq_hh_rec_t TRec, double *overflow_correction, 
 		    TimeBufferGroup *tbs, CorrelationGroup *correlations) {
   double realtime;
   double sync_period = g2_properties.sync_period;
@@ -189,7 +189,7 @@ void output_g2_csv(CorrelationGroup *correlations) {
 
 // NOTE: This assumes that the file pointer is pointing at the part of the file with photon records. 
 uint64_t run_g2(FILE *fpin) { 
-  tTRec TRec;
+  pq_hh_rec_t TRec;
   uint64_t n, m, num_photons, total_read=0;
 
   double overflow_correction=0;
@@ -218,10 +218,10 @@ uint64_t run_g2(FILE *fpin) {
     }
 
   // Allocate memory for mapping blocks of the input file
-  tTRec *file_block = (tTRec *) malloc(PHOTONBLOCK*sizeof(TRec.allbits));
+  pq_hh_rec_t *file_block = (pq_hh_rec_t *) malloc(PHOTONBLOCK*sizeof(TRec.allbits));
 
   // Function pointer to the generic g2 function call (mode and version dependent)
-  void (*g2)(tTRec, double *, TimeBufferGroup *, CorrelationGroup *);
+  void (*g2)(pq_hh_rec_t, double *, TimeBufferGroup *, CorrelationGroup *);
 
   // Select which function to use to g2 photon records
   if (meas_mode == 2) {
@@ -285,7 +285,7 @@ uint64_t run_g2(FILE *fpin) {
     }
 
   printf("Records Read: %" PRIu64 "\n", total_read);
-  if (total_read != TTTRHdr.nRecords) {
+  if (total_read != pq_hh_hdr_tttr.nRecords) {
     printf("\nWARNING: Did not reach end of file.\n");
   }
 

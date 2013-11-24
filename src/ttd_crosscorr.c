@@ -28,16 +28,17 @@ void ttd_ccorr_init(ttd_ccorr_t *ccorr, ttd_rb_t *rb1, ttd_rb_t *rb2) {
   ccorr->rbs[0] = rb1;
   ccorr->rbs[1] = rb2;
   ccorr->hist = (ttd_t *)calloc(num_bins, sizeof(ttd_t));
+  ccorr->hist_allocated = 1;
 }
 
 ttd_ccorr_t *ttd_ccorr_build(int rb_size, ttd_t rb_duration) {
-  ttd_rb_t *rb1 = (ttd_rb_t *)malloc(sizeof(ttd_rb_t));
-  ttd_rb_t *rb2 = (ttd_rb_t *)malloc(sizeof(ttd_rb_t));
-
-  ttd_rb_init(rb1, rb_size, rb_duration);
-  ttd_rb_init(rb2, rb_size, rb_duration);
-
   ttd_ccorr_t *ccorr = (ttd_ccorr_t *)malloc(sizeof(ttd_ccorr_t));
+
+  ttd_rb_t *rb1 = ttd_rb_build(rb_size, rb_duration);
+  ccorr->rbs_allocated[0] = 1;
+
+  ttd_rb_t *rb2 = ttd_rb_build(rb_size, rb_duration);
+  ccorr->rbs_allocated[1] = 1;
 
   ttd_ccorr_init(ccorr, rb1, rb2);
   return ccorr;
@@ -56,10 +57,11 @@ void ttd_ccorr_update(ttd_ccorr_t *ccorr, int rb_num, ttd_t time) {
   int sign = 2*rb_num - 1;
   ttd_rb_t *other_rb = ccorr->rbs[1-rb_num];
   int other_rb_count = other_rb->count;
+  //  printf("%d\n", other_rb_count);
   
   ttd_t delta_t;
   int n, delta_bins;
-
+  
   if (other_rb->count > 0) {
     for (n=0; n < other_rb_count; n++) {
       delta_t = time - ttd_rb_get(other_rb, n);
@@ -83,10 +85,19 @@ void ttd_ccorr_write_csv(ttd_ccorr_t *ccorr, char *file_name) {
 }
 
 void ttd_ccorr_cleanup(ttd_ccorr_t *ccorr) {
-  free(ccorr->rbs[0]);
-  free(ccorr->rbs[1]);
-  free(ccorr->hist);
-  free(ccorr);
+  ttd_rb_cleanup(ccorr->rbs[0]);
+  ttd_rb_cleanup(ccorr->rbs[1]);
+  if (ccorr->rbs_allocated[0]) {
+    free(ccorr->rbs[0]);
+    ccorr->rbs_allocated[0] = 0;
+  }
+  if (ccorr->rbs_allocated[1]) {
+    free(ccorr->rbs[1]);
+    ccorr->rbs_allocated[1] = 0;
+  }
+  if (ccorr->hist_allocated) {
+    free(ccorr->hist);
+  }
 }
 
 

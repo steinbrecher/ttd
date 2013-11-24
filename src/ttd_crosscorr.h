@@ -17,7 +17,10 @@ typedef struct {
 
   ttd_ccorr_stats_t stats;
 
+  int rbs_allocated[2];
   ttd_rb_t *rbs[2];
+
+  int hist_allocated;
   ttd_t *hist;
 } ttd_ccorr_t;
 

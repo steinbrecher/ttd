@@ -17,7 +17,7 @@
 //NOTE: Potential improvement is to pass the channel array structure to the various
 // '_to_ttd' functions and have them handle the updates
 
-int ht2_v1_to_ttd(tTRec TRec, ttd_t *ttd_rec, ttd_t *overflow_correction) {
+int ht2_v1_to_ttd(pq_hh_rec_t TRec, ttd_t *ttd_rec, ttd_t *overflow_correction) {
   // Unpack TRec
   int special = TRec.T2bits.special;
   int channel = TRec.T2bits.channel;
@@ -44,7 +44,7 @@ int ht2_v1_to_ttd(tTRec TRec, ttd_t *ttd_rec, ttd_t *overflow_correction) {
   }
 }
 
-int ht2_v2_to_ttd(tTRec TRec, ttd_t *ttd_rec, ttd_t *overflow_correction) {
+int ht2_v2_to_ttd(pq_hh_rec_t TRec, ttd_t *ttd_rec, ttd_t *overflow_correction) {
   int special = TRec.T2bits.special;
   int channel = TRec.T2bits.channel;
   int timetag = TRec.T2bits.timetag;
@@ -72,7 +72,7 @@ int ht2_v2_to_ttd(tTRec TRec, ttd_t *ttd_rec, ttd_t *overflow_correction) {
   return(-1);
 }
 
-int ht3_v1_to_ttd(tTRec TRec, ttd_t *ttd_rec, ttd_t *overflow_correction) {
+int ht3_v1_to_ttd(pq_hh_rec_t TRec, ttd_t *ttd_rec, ttd_t *overflow_correction) {
   uint64_t sync_period = convert_properties.sync_period;
   uint64_t resolution = convert_properties.resolution;
   int special = TRec.T3bits.special;
@@ -93,7 +93,7 @@ int ht3_v1_to_ttd(tTRec TRec, ttd_t *ttd_rec, ttd_t *overflow_correction) {
 }
 
 
-int ht3_v2_to_ttd(tTRec TRec, ttd_t *ttd_rec, ttd_t *overflow_correction) {
+int ht3_v2_to_ttd(pq_hh_rec_t TRec, ttd_t *ttd_rec, ttd_t *overflow_correction) {
   uint64_t sync_period = convert_properties.sync_period;
   uint64_t resolution = convert_properties.resolution;
   int special = TRec.T3bits.special;
@@ -134,7 +134,7 @@ uint64_t run_hh_convert(FILE *fpin) {
 
   int j, k;
   // Select appropriate version of to_ttd
-  int (*to_ttd)(tTRec, ttd_t *, uint64_t *);
+  int (*to_ttd)(pq_hh_rec_t, ttd_t *, uint64_t *);
   if (meas_mode == 2) {
     if (file_format_version == 1) {
       to_ttd = &ht2_v1_to_ttd;
@@ -165,7 +165,7 @@ uint64_t run_hh_convert(FILE *fpin) {
   ttd_t ttd_record;
   int ttd_buffer_count[channels];
 
-  tTRec *file_block = (tTRec *) malloc(PHOTONBLOCK*sizeof(tTRec));
+  pq_hh_rec_t *file_block = (pq_hh_rec_t *) malloc(PHOTONBLOCK*sizeof(pq_hh_rec_t));
   int ret, channel;
 
   // Open the output files
@@ -179,7 +179,7 @@ uint64_t run_hh_convert(FILE *fpin) {
   uint64_t n;
   while (num_photons == PHOTONBLOCK) {
     // Read file block
-    num_photons = fread(file_block, sizeof(tTRec), PHOTONBLOCK, fpin);
+    num_photons = fread(file_block, sizeof(pq_hh_rec_t), PHOTONBLOCK, fpin);
 
     // Set buffer counters to 0
     for (k=0; k<channels; k++) {
@@ -209,7 +209,7 @@ uint64_t run_hh_convert(FILE *fpin) {
   }
 
   printf("Records Read: %" PRIu64 "\n", total_read);
-  if (total_read != TTTRHdr.nRecords) {
+  if (total_read != pq_hh_hdr_tttr.nRecords) {
     printf("\nWARNING: Did not reach end of file.\n");
   }
 

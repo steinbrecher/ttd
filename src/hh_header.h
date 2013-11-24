@@ -10,15 +10,15 @@
 typedef struct { 
   float Start;
   float Step;
-  float End;  } tParamStruct;
+  float End;  } pq_hh_params_t;
 
 typedef struct { 
   int32_t MapTo;
-  int32_t Show; } tCurveMapping;
+  int32_t Show; } pq_hh_curvemap_t;
 
 typedef	struct { 
   int32_t ModelCode;
-  int32_t VersionCode; } tModuleInfo;
+  int32_t VersionCode; } pq_hh_modinfo_t;
 
 // T2 Record
 typedef union { 
@@ -28,7 +28,7 @@ typedef union {
     unsigned channel  :6;
     unsigned special  :1;
   } bits; 
-} tT2Rec;
+} pq_hh_t2rec_t;
 
 // T3 Record
 typedef union { 
@@ -39,7 +39,7 @@ typedef union {
     unsigned channel	:6;
     unsigned special	:1;
   } bits;
-} tT3Rec;
+} pq_hh_t3rec_t;
 
 // Combining into a union allows the program reading the file script to be agnostic to T2 vs. T3
 // until it actually reads the information out
@@ -56,7 +56,7 @@ typedef union {
     unsigned channel	:6;
     unsigned special	:1;
   } T3bits;
-} tTRec;
+} pq_hh_rec_t;
 
 ////////////////////////////////////////////////////////////////////////////////
 //                     Begin Header Format Definition.                        //
@@ -71,7 +71,7 @@ struct {
   char CreatorVersion[12];	// version of creating software
   char FileTime[18];
   char CRLF[2];
-  char CommentField[256]; } TxtHdr;
+  char CommentField[256]; } pq_hh_hdr_txt;
 
 // The following is binary file header information indentical to that in HHD files.
 // Note that some items are not meaningful in the time tagging modes.
@@ -94,13 +94,13 @@ struct {
   int32_t DispTimeTo;
   int32_t DispCountsFrom;
   int32_t DispCountsTo;
-  tCurveMapping DispCurves[8];	
-  tParamStruct Params[3];
+  pq_hh_curvemap_t DispCurves[8];	
+  pq_hh_params_t Params[3];
   int32_t RepeatMode;
   int32_t RepeatsPerCurve;
   int32_t RepeatTime;
   int32_t RepeatWaitTime;
-  char ScriptName[20];	} BinHdr;
+  char ScriptName[20];	} pq_hh_hdr_bin;
 
 double SyncPeriod;
 
@@ -112,7 +112,7 @@ struct {
   char HardwarePartNo[8]; 
   int32_t  HardwareSerial; 
   int32_t  nModulesPresent;     
-  tModuleInfo ModuleInfo[10]; //up to 10 modules can exist
+  pq_hh_modinfo_t ModuleInfo[10]; //up to 10 modules can exist
   double BaseResolution;
   int64_t InputsEnabled;   //a bitfield
   int32_t InpChansPresent;  //this determines the number of ChannelHeaders below!
@@ -122,7 +122,7 @@ struct {
   int32_t SyncDivider;
   int32_t SyncCFDLevel;
   int32_t SyncCFDZeroCross;
-  int32_t SyncOffset;			} MainHardwareHdr;
+  int32_t SyncOffset;			} pq_hh_hdr_hardware;
 
 
 //How many of the following array elements are actually present in the file 
@@ -132,7 +132,7 @@ struct{
   int32_t InputModuleIndex;
   int32_t InputCFDLevel;
   int32_t InputCFDZeroCross; 
-  int32_t InputOffset;		} InputChannelSettings[MAXINPCHANS]; 
+  int32_t InputOffset;		} pq_hh_hdr_chansettings[MAXINPCHANS]; 
 
 //Up to here the header was identical to that of HHD files.
 //The following header sections are specific for the TT modes 
@@ -140,7 +140,7 @@ struct{
 //How many of the following array elements are actually present in the file 
 //is indicated by InpChansPresent above. Here we allocate the possible maximum.
 
-int32_t InputRate[MAXINPCHANS];
+int32_t pq_hh_hdr_inprate[MAXINPCHANS];
 
 //The following exists only once				
 
@@ -149,7 +149,7 @@ struct{
   int32_t StopAfter;
   int32_t StopReason;
   int32_t ImgHdrSize;
-  int64_t nRecords;	} TTTRHdr;
+  int64_t nRecords;	} pq_hh_hdr_tttr;
 
 
 struct{
@@ -167,17 +167,17 @@ struct{
 #ifdef PQ_G2_HEADER_SEEN
 void write_g2_properties() {
   // Calculations for arguments
-  double sync_period = 1e12/TTTRHdr.SyncRate;
-  double resolution = BinHdr.Resolution;
-  int channels = MainHardwareHdr.InpChansPresent;
+  double sync_period = 1e12/pq_hh_hdr_tttr.SyncRate;
+  double resolution = pq_hh_hdr_bin.Resolution;
+  int channels = pq_hh_hdr_hardware.InpChansPresent;
   int channel_pairs = channels * (channels-1)/2;
-  int meas_mode = BinHdr.MeasMode;
+  int meas_mode = pq_hh_hdr_bin.MeasMode;
 
   int file_format_version;
-  if (strcmp(TxtHdr.FormatVersion, "1.0")==0) {
+  if (strcmp(pq_hh_hdr_txt.FormatVersion, "1.0")==0) {
     file_format_version = 1;
   }
-  else if (strcmp(TxtHdr.FormatVersion, "2.0")==0) {
+  else if (strcmp(pq_hh_hdr_txt.FormatVersion, "2.0")==0) {
     file_format_version = 2;
   }
 
@@ -204,17 +204,17 @@ struct{
 
 void write_convert_properties() {
   // Calculations for arguments
-  uint64_t sync_period = (uint64_t)round(1e12/TTTRHdr.SyncRate);
-  uint64_t resolution = (uint64_t)round(BinHdr.Resolution);
-  int channels = MainHardwareHdr.InpChansPresent;
+  uint64_t sync_period = (uint64_t)round(1e12/pq_hh_hdr_tttr.SyncRate);
+  uint64_t resolution = (uint64_t)round(pq_hh_hdr_bin.Resolution);
+  int channels = pq_hh_hdr_hardware.InpChansPresent;
   int channel_pairs = channels * (channels-1)/2;
-  int meas_mode = BinHdr.MeasMode;
+  int meas_mode = pq_hh_hdr_bin.MeasMode;
 
   int file_format_version;
-  if (strcmp(TxtHdr.FormatVersion, "1.0")==0) {
+  if (strcmp(pq_hh_hdr_txt.FormatVersion, "1.0")==0) {
     file_format_version = 1;
   }
-  else if (strcmp(TxtHdr.FormatVersion, "2.0")==0) {
+  else if (strcmp(pq_hh_hdr_txt.FormatVersion, "2.0")==0) {
     file_format_version = 2;
   }
 
@@ -231,46 +231,46 @@ int read_header(FILE *fpin)
 {
   int i;
   
-  if (fread(&TxtHdr, 1, sizeof(TxtHdr), fpin) != sizeof(TxtHdr)) {
+  if (fread(&pq_hh_hdr_txt, 1, sizeof(pq_hh_hdr_txt), fpin) != sizeof(pq_hh_hdr_txt)) {
     return(-1);
   }
 
-  if (fread( &BinHdr, 1, sizeof(BinHdr) ,fpin) != sizeof(BinHdr)) {
+  if (fread( &pq_hh_hdr_bin, 1, sizeof(pq_hh_hdr_bin) ,fpin) != sizeof(pq_hh_hdr_bin)) {
     return(-1);
   }
 
-  if (fread( &MainHardwareHdr, 1, sizeof(MainHardwareHdr) ,fpin) != sizeof(MainHardwareHdr)) {
+  if (fread( &pq_hh_hdr_hardware, 1, sizeof(pq_hh_hdr_hardware) ,fpin) != sizeof(pq_hh_hdr_hardware)) {
     return(-1);
   }
 
-  for(i=0;i<MainHardwareHdr.InpChansPresent;++i) {
-      if (fread( &(InputChannelSettings[i]), 1, sizeof(InputChannelSettings[i]) ,fpin) 
-	  != sizeof(InputChannelSettings[i]))
+  for(i=0;i<pq_hh_hdr_hardware.InpChansPresent;++i) {
+      if (fread( &(pq_hh_hdr_chansettings[i]), 1, sizeof(pq_hh_hdr_chansettings[i]) ,fpin) 
+	  != sizeof(pq_hh_hdr_chansettings[i]))
 	return(-1);
     }
 
-  for(i=0;i<MainHardwareHdr.InpChansPresent;++i) {
-      if (fread( &(InputRate[i]), 1, sizeof(InputRate[i]) ,fpin) != sizeof(InputRate[i]))
+  for(i=0;i<pq_hh_hdr_hardware.InpChansPresent;++i) {
+      if (fread( &(pq_hh_hdr_inprate[i]), 1, sizeof(pq_hh_hdr_inprate[i]) ,fpin) != sizeof(pq_hh_hdr_inprate[i]))
 	return(-1);
     }
 
-  if (fread(&TTTRHdr, 1, sizeof(TTTRHdr), fpin) != sizeof(TTTRHdr)) {
+  if (fread(&pq_hh_hdr_tttr, 1, sizeof(pq_hh_hdr_tttr), fpin) != sizeof(pq_hh_hdr_tttr)) {
     return(-1);
   }
 
   // Print header information
   printf("\n***************************** Header Information *****************************\n");
-  printf("File Mode: T%d\n", BinHdr.MeasMode);
-  printf("File Version: %s\n", TxtHdr.FormatVersion);
-  printf("Number of channels: %d\n", MainHardwareHdr.InpChansPresent);
-  printf("Sync Rate: %g MHz\n", (double)TTTRHdr.SyncRate*1e-6);
-  printf("Sync Period: %g ns\n", 1e9/TTTRHdr.SyncRate);
-  printf("Resolution: %g ps\n", BinHdr.Resolution);
-  printf("Acquisition Time: %g s\n", ((double)BinHdr.Tacq)/1e3);
-  printf("Number of Records: %" PRIu64 "\n", TTTRHdr.nRecords);
+  printf("File Mode: T%d\n", pq_hh_hdr_bin.MeasMode);
+  printf("File Version: %s\n", pq_hh_hdr_txt.FormatVersion);
+  printf("Number of channels: %d\n", pq_hh_hdr_hardware.InpChansPresent);
+  printf("Sync Rate: %g MHz\n", (double)pq_hh_hdr_tttr.SyncRate*1e-6);
+  printf("Sync Period: %g ns\n", 1e9/pq_hh_hdr_tttr.SyncRate);
+  printf("Resolution: %g ps\n", pq_hh_hdr_bin.Resolution);
+  printf("Acquisition Time: %g s\n", ((double)pq_hh_hdr_bin.Tacq)/1e3);
+  printf("Number of Records: %" PRIu64 "\n", pq_hh_hdr_tttr.nRecords);
 
-  // Multiply TTTRHdr.ImgHdrSize by 4 because each entry is a 4-byte (32 bit) record
-  fseek(fpin, TTTRHdr.ImgHdrSize*4, SEEK_CUR);
+  // Multiply pq_hh_hdr_tttr.ImgHdrSize by 4 because each entry is a 4-byte (32 bit) record
+  fseek(fpin, pq_hh_hdr_tttr.ImgHdrSize*4, SEEK_CUR);
 
 
   return(0);

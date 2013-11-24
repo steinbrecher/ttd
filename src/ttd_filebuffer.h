@@ -16,7 +16,7 @@ typedef struct {
   FILE *fp;
 } ttd_fb_t;
 
-void ttd_fb_init(ttd_fb_t *buffer, uint64_t buffer_size, char* filename);
+int ttd_fb_init(ttd_fb_t *buffer, uint64_t buffer_size, char* filename);
 int ttd_fb_openfile(ttd_fb_t *buffer);
 int ttd_fb_cleanup(ttd_fb_t *buffer);
 ttd_t ttd_fb_pop(ttd_fb_t *buffer);
