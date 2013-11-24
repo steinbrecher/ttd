@@ -1,9 +1,9 @@
 #ifndef PQB_HEADER_SEEN
 #define PQB_HEADER_SEEN
 
+#define __STDC_FORMAT_MACROS
 #include <inttypes.h>
 #include <stddef.h>
-
 
 typedef struct {
   uint64_t time;

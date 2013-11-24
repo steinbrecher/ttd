@@ -3,13 +3,14 @@
 
 #include "pqb.h"
 
+/*
 struct cli_args_t {
   uint64_t bin_time; // -b
-  uint64_t correlation_window; // -w
+  uint64_t window_time; // -w
   char infile1[80]; // -i
   char infile2[80]; // -I
-  char outfile[80]; // -o
-} pqb_g2_cli_args;
+  char outfile1[80]; // -o
+} ttp_cli_args;
 
 static const struct option pqb_g2_longopts[] = {
   { "bin-time", required_argument, NULL, 'b'},
@@ -23,11 +24,11 @@ static const char *pqb_g2_optstring = "b:w:i:I:o:";
 
 int pqb_g2_read_cli(int argc, char* argv[])  {
   // Default values
-  pqb_g2_cli_args.bin_time = 100;
-  pqb_g2_cli_args.correlation_window = 10000;
-  strcpy(pqb_g2_cli_args.infile1, "");
-  strcpy(pqb_g2_cli_args.infile2, "");
-  strcpy(pqb_g2_cli_args.outfile, "cross_corr.csv");
+  ttp_cli_args.bin_time = 100;
+  ttp_cli_args.window_time = 10000;
+  strcpy(ttp_cli_args.infile1, "");
+  strcpy(ttp_cli_args.infile2, "");
+  strcpy(ttp_cli_args.outfile1, "cross_corr.csv");
 
   int option_index, opt, num_args=0;
 
@@ -36,19 +37,19 @@ int pqb_g2_read_cli(int argc, char* argv[])  {
     num_args++;
     switch (opt) {
     case 'b':
-      pqb_g2_cli_args.bin_time = atof(optarg);
+      ttp_cli_args.bin_time = atof(optarg);
       break;
     case 'w':
-      pqb_g2_cli_args.correlation_window = atof(optarg);
+      ttp_cli_args.window_time = atof(optarg);
       break;
     case 'i':
-      strcpy(pqb_g2_cli_args.infile1, optarg);
+      strcpy(ttp_cli_args.infile1, optarg);
       break;
     case 'I':
-      strcpy(pqb_g2_cli_args.infile2, optarg);
+      strcpy(ttp_cli_args.infile2, optarg);
       break;
     case 'o':
-      strcpy(pqb_g2_cli_args.outfile, optarg);
+      strcpy(ttp_cli_args.outfile1, optarg);
       break;
     default: 
       // Shouldn't actually get here
@@ -58,13 +59,14 @@ int pqb_g2_read_cli(int argc, char* argv[])  {
   }
 
   printf("\n******************************** User Settings *******************************\n");
-  printf("Bin Time: %" PRIu64 " ps\n", (uint64_t)pqb_g2_cli_args.bin_time);
-  printf("Correlation Window: %" PRIu64 " ps\n", (uint64_t)pqb_g2_cli_args.correlation_window);
-  printf("Input file 1: %s\n", pqb_g2_cli_args.infile1);
-  printf("Input file 2: %s\n", pqb_g2_cli_args.infile2);
-  printf("Output file: %s\n", pqb_g2_cli_args.outfile);
+  printf("Bin Time: %" PRIu64 " ps\n", (uint64_t)ttp_cli_args.bin_time);
+  printf("Correlation Window: %" PRIu64 " ps\n", (uint64_t)ttp_cli_args.window_time);
+  printf("Input file 1: %s\n", ttp_cli_args.infile1);
+  printf("Input file 2: %s\n", ttp_cli_args.infile2);
+  printf("Output file: %s\n", ttp_cli_args.outfile1);
   return(0);
 }
+*/
 
 typedef struct {
   int size;		      // Max number of elems 
@@ -124,7 +126,7 @@ typedef struct {
   int num_bins;
   int center_bin;
 
-  uint64_t correlation_window;
+  uint64_t window_time;
   uint64_t bin_time;
 
   uint64_t total;
@@ -134,8 +136,8 @@ typedef struct {
 
 void pqb_g2_corr_init(pqb_g2_correlation_t *corr, pqb_g2_timebuffer_t *tb1, pqb_g2_timebuffer_t *tb2) {
   int num_bins;
-  uint64_t correlation_window = pqb_g2_cli_args.correlation_window;
-  uint64_t bin_time = pqb_g2_cli_args.bin_time;
+  uint64_t window_time = ttp_cli_args.window_time;
+  uint64_t bin_time = ttp_cli_args.bin_time;
 
   corr->tb1 = tb1;
   corr->tb2 = tb2;
@@ -143,9 +145,9 @@ void pqb_g2_corr_init(pqb_g2_correlation_t *corr, pqb_g2_timebuffer_t *tb1, pqb_
   corr->chan1 = tb1->channel;
   corr->chan2 = tb2->channel;
 
-  corr->num_bins = (int)(2*round(correlation_window / bin_time) + 1);
+  corr->num_bins = (int)(2*round(window_time / bin_time) + 1);
   corr->center_bin = (corr->num_bins - 1)/2;
-  corr->correlation_window = correlation_window;
+  corr->window_time = window_time;
   corr->bin_time = bin_time;
   
   corr->total = 0;
@@ -183,17 +185,17 @@ void pqb_g2_correlation_update(pqb_g2_correlation_t *corr, int new_chan, uint64_
 
 void pqb_g2_correlation_output(pqb_g2_correlation_t *correlation) {
   FILE *output_file;
-  output_file = fopen(pqb_g2_cli_args.outfile, "wb");
+  output_file = fopen(ttp_cli_args.outfile1, "wb");
   int m;
-  int64_t correlation_window = pqb_g2_cli_args.correlation_window;
-  int64_t bin_time = pqb_g2_cli_args.bin_time;
+  int64_t window_time = ttp_cli_args.window_time;
+  int64_t bin_time = ttp_cli_args.bin_time;
 
   printf("Bin Time: %" PRId64 "\n", bin_time);
-  printf("Correlation Window: %" PRId64 "\n", correlation_window);
+  printf("Correlation Window: %" PRId64 "\n", window_time);
   
   for (m=0; m < correlation->num_bins; m++) {
     fprintf(output_file, "%" PRId64", %" PRIu64 "\n", 
-	    ((m*bin_time) - correlation_window), (correlation->hist[m]));
+	    ((m*bin_time) - window_time), (correlation->hist[m]));
   }	
   fclose(output_file);
 }

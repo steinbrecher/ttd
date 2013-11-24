@@ -76,8 +76,8 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = pq_g2$(EXEEXT) pq_convert$(EXEEXT) pqb_dump$(EXEEXT) \
-	pqb_doqkd$(EXEEXT) pqb_merge$(EXEEXT) pqb_g2$(EXEEXT)
+bin_PROGRAMS = pq-g2$(EXEEXT) pq-convert$(EXEEXT) pqb-dump$(EXEEXT) \
+	pqb-doqkd$(EXEEXT) pqb-merge$(EXEEXT) pqb-g2$(EXEEXT)
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
@@ -108,7 +108,8 @@ pqb_doqkd_LDADD = $(LDADD)
 am_pqb_dump_OBJECTS = src/pqb_dump.$(OBJEXT)
 pqb_dump_OBJECTS = $(am_pqb_dump_OBJECTS)
 pqb_dump_LDADD = $(LDADD)
-am_pqb_g2_OBJECTS = src/pqb_g2.$(OBJEXT)
+am_pqb_g2_OBJECTS = src/pqb_g2.$(OBJEXT) src/ttp_cli.$(OBJEXT) \
+	src/ttp.$(OBJEXT)
 pqb_g2_OBJECTS = $(am_pqb_g2_OBJECTS)
 pqb_g2_LDADD = $(LDADD)
 am_pqb_merge_OBJECTS = src/pqb_merge.$(OBJEXT)
@@ -284,7 +285,7 @@ pq_convert_SOURCES = src/pq_convert.c
 pqb_dump_SOURCES = src/pqb_dump.c
 pqb_doqkd_SOURCES = src/pqb_doqkd.c
 pqb_merge_SOURCES = src/pqb_merge.c
-pqb_g2_SOURCES = src/pqb_g2.c
+pqb_g2_SOURCES = src/pqb_g2.c src/ttp_cli.c src/ttp.c
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -390,37 +391,40 @@ src/$(DEPDIR)/$(am__dirstamp):
 src/pq_convert.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 
-pq_convert$(EXEEXT): $(pq_convert_OBJECTS) $(pq_convert_DEPENDENCIES) $(EXTRA_pq_convert_DEPENDENCIES) 
-	@rm -f pq_convert$(EXEEXT)
+pq-convert$(EXEEXT): $(pq_convert_OBJECTS) $(pq_convert_DEPENDENCIES) $(EXTRA_pq_convert_DEPENDENCIES) 
+	@rm -f pq-convert$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(pq_convert_OBJECTS) $(pq_convert_LDADD) $(LIBS)
 src/pq_g2.$(OBJEXT): src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 
-pq_g2$(EXEEXT): $(pq_g2_OBJECTS) $(pq_g2_DEPENDENCIES) $(EXTRA_pq_g2_DEPENDENCIES) 
-	@rm -f pq_g2$(EXEEXT)
+pq-g2$(EXEEXT): $(pq_g2_OBJECTS) $(pq_g2_DEPENDENCIES) $(EXTRA_pq_g2_DEPENDENCIES) 
+	@rm -f pq-g2$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(pq_g2_OBJECTS) $(pq_g2_LDADD) $(LIBS)
 src/pqb_doqkd.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 
-pqb_doqkd$(EXEEXT): $(pqb_doqkd_OBJECTS) $(pqb_doqkd_DEPENDENCIES) $(EXTRA_pqb_doqkd_DEPENDENCIES) 
-	@rm -f pqb_doqkd$(EXEEXT)
+pqb-doqkd$(EXEEXT): $(pqb_doqkd_OBJECTS) $(pqb_doqkd_DEPENDENCIES) $(EXTRA_pqb_doqkd_DEPENDENCIES) 
+	@rm -f pqb-doqkd$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(pqb_doqkd_OBJECTS) $(pqb_doqkd_LDADD) $(LIBS)
 src/pqb_dump.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 
-pqb_dump$(EXEEXT): $(pqb_dump_OBJECTS) $(pqb_dump_DEPENDENCIES) $(EXTRA_pqb_dump_DEPENDENCIES) 
-	@rm -f pqb_dump$(EXEEXT)
+pqb-dump$(EXEEXT): $(pqb_dump_OBJECTS) $(pqb_dump_DEPENDENCIES) $(EXTRA_pqb_dump_DEPENDENCIES) 
+	@rm -f pqb-dump$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(pqb_dump_OBJECTS) $(pqb_dump_LDADD) $(LIBS)
 src/pqb_g2.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/ttp_cli.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/ttp.$(OBJEXT): src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 
-pqb_g2$(EXEEXT): $(pqb_g2_OBJECTS) $(pqb_g2_DEPENDENCIES) $(EXTRA_pqb_g2_DEPENDENCIES) 
-	@rm -f pqb_g2$(EXEEXT)
+pqb-g2$(EXEEXT): $(pqb_g2_OBJECTS) $(pqb_g2_DEPENDENCIES) $(EXTRA_pqb_g2_DEPENDENCIES) 
+	@rm -f pqb-g2$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(pqb_g2_OBJECTS) $(pqb_g2_LDADD) $(LIBS)
 src/pqb_merge.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 
-pqb_merge$(EXEEXT): $(pqb_merge_OBJECTS) $(pqb_merge_DEPENDENCIES) $(EXTRA_pqb_merge_DEPENDENCIES) 
-	@rm -f pqb_merge$(EXEEXT)
+pqb-merge$(EXEEXT): $(pqb_merge_OBJECTS) $(pqb_merge_DEPENDENCIES) $(EXTRA_pqb_merge_DEPENDENCIES) 
+	@rm -f pqb-merge$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(pqb_merge_OBJECTS) $(pqb_merge_LDADD) $(LIBS)
 
 mostlyclean-compile:
@@ -436,6 +440,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pqb_dump.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pqb_g2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pqb_merge.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttp_cli.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\

@@ -8,6 +8,9 @@
 #include <time.h>
 #include <string.h>
 
+#include "ttp.h"
+#include "ttp_cli.h"
+
 #include "pqb.h"
 #include "timebuffer.h"
 #include "pqb_merge.h"
@@ -33,8 +36,8 @@ int64_t pqb_g2(doqkd_buffer_t *in1, doqkd_buffer_t *in2) {
   uint64_t t1, t2;
 
   pqb_g2_timebuffer_t tb1, tb2;
-  pqb_g2_tb_init(&tb1, 1, 1024, pqb_g2_cli_args.correlation_window);
-  pqb_g2_tb_init(&tb2, 2, 1024, pqb_g2_cli_args.correlation_window);
+  pqb_g2_tb_init(&tb1, 1, 1024, ttp_cli_args.window_time);
+  pqb_g2_tb_init(&tb2, 2, 1024, ttp_cli_args.window_time);
 
   pqb_g2_correlation_t correlation;
   pqb_g2_corr_init(&correlation, &tb1, &tb2);
@@ -90,20 +93,19 @@ int64_t pqb_g2(doqkd_buffer_t *in1, doqkd_buffer_t *in2) {
 
 int main(int argc, char* argv[]) {
   // Write command line input to cli_args struct
-  pqb_g2_read_cli(argc, argv);
+  ttp_read_cli(argc, argv);
 
   doqkd_buffer_t in1;
   doqkd_buffer_t in2;
-  FILE *outfile;
 
   // Try to open files
-  if ((in1.fp = fopen(pqb_g2_cli_args.infile1, "rb")) == NULL) {
+  if ((in1.fp = fopen(ttp_cli_args.infile1, "rb")) == NULL) {
     printf("ERROR: Could not open %s for reading.\n", argv[1]);
     exit(-1);
   }
   in1.file_open = 1;
 
-  if ((in2.fp = fopen(pqb_g2_cli_args.infile2, "rb")) == NULL) {
+  if ((in2.fp = fopen(ttp_cli_args.infile2, "rb")) == NULL) {
     printf("ERROR: Could not open %s for reading.\n", argv[2]);
     exit(-1);
   }
