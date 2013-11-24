@@ -36,7 +36,9 @@ int ttd_fb_init(ttd_fb_t *buffer, uint64_t buffer_size, char* filename) {
   buffer->buffered_records = (ttd_t *)malloc(buffer->buffer_size * sizeof(ttd_t));
   buffer->buffer_allocated = 1;
 
+
   buffer->filename = (char *)malloc((strlen(filename)+1)*sizeof(char));
+  buffer->filename_allocated = 1;
   strcpy(buffer->filename, filename);
 
   buffer->file_open = 0;
@@ -50,7 +52,11 @@ int ttd_fb_init(ttd_fb_t *buffer, uint64_t buffer_size, char* filename) {
 }
 
 int ttd_fb_cleanup(ttd_fb_t *buffer) {
-  if (buffer->file_open == 1) {
+  if (buffer->filename_allocated) {
+    free(buffer->filename);
+    buffer->filename_allocated = 0;
+  }
+  if (buffer->file_open) {
     fclose(buffer->fp);
     buffer->file_open = 0;
   }

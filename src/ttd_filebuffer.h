@@ -11,8 +11,10 @@ typedef struct {
   ttd_t *buffered_records;
   int buffer_allocated;
 
-  int file_open;
   char *filename;
+  int filename_allocated;
+
+  int file_open;
   FILE *fp;
 } ttd_fb_t;
 
