@@ -61,8 +61,8 @@ int ttp_read_cli(int argc, char* argv[]) {
   // Initialize default values
   ttp_cli_args.verbose = 0;
 
-  ttp_cli_args.bin_time = 0;
-  ttp_cli_args.window_time = 0;
+  ttp_cli_args.bin_time = 10;
+  ttp_cli_args.window_time = 10000;
 
   // Read command line options
   int option_index, opt;
