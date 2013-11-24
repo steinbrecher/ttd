@@ -1,5 +1,5 @@
-#ifndef TTD_G2_HEADER_SEEN
-#define TTD_G2_HEADER_SEEN
+#ifndef TTP_G2_HEADER_SEEN
+#define TTP_G2_HEADER_SEEN
 
 typedef struct {
   int size;		      // Max number of elems 
@@ -11,9 +11,9 @@ typedef struct {
 
   uint64_t duration;
   uint64_t *times;
-} ttd_g2_timebuffer_t;
+} ttp_g2_timebuffer_t;
 
-void ttd_g2_tb_init(ttd_g2_timebuffer_t *tb, int channel, int size, uint64_t duration) {
+void ttp_g2_tb_init(ttp_g2_timebuffer_t *tb, int channel, int size, uint64_t duration) {
   tb->size  = size;
   tb->start = 0;
   tb->count = 0;
@@ -26,11 +26,11 @@ void ttd_g2_tb_init(ttd_g2_timebuffer_t *tb, int channel, int size, uint64_t dur
   tb->times = (uint64_t *)malloc(tb->size * sizeof(TimeType));
 }
 
-uint64_t ttd_g2_tb_get(ttd_g2_timebuffer_t *tb, int offset) {
+uint64_t ttp_g2_tb_get(ttp_g2_timebuffer_t *tb, int offset) {
   return(tb->times[(tb->start + offset) % tb->size]);
 }
 
-void ttd_g2_tb_write(ttd_g2_timebuffer_t *tb, uint64_t time) {
+void ttp_g2_tb_write(ttp_g2_timebuffer_t *tb, uint64_t time) {
   ++ tb->total_counts;
   int end = (tb->start + tb->count) % tb->size;
 
@@ -39,7 +39,7 @@ void ttd_g2_tb_write(ttd_g2_timebuffer_t *tb, uint64_t time) {
   ++ tb->count;
 }
 
-void ttd_g2_tb_prune(ttd_g2_timebuffer_t *tb, uint64_t time) {
+void ttp_g2_tb_prune(ttp_g2_timebuffer_t *tb, uint64_t time) {
   while (tb->count > 0) {
     if ((time - tb->times[tb->start]) > tb->duration) {
       tb->start = (tb->start + 1) % tb->size;
@@ -53,8 +53,8 @@ typedef struct {
   int chan1;
   int chan2;
 
-  ttd_g2_timebuffer_t *tb1;
-  ttd_g2_timebuffer_t *tb2;
+  ttp_g2_timebuffer_t *tb1;
+  ttp_g2_timebuffer_t *tb2;
   
   int num_bins;
   int center_bin;
@@ -65,9 +65,9 @@ typedef struct {
   uint64_t total;
   
   uint64_t *hist;
-} ttd_g2_correlation_t;
+} ttp_g2_correlation_t;
 
-void ttd_g2_corr_init(ttd_g2_correlation_t *corr, ttd_g2_timebuffer_t *tb1, ttd_g2_timebuffer_t *tb2) {
+void ttp_g2_corr_init(ttp_g2_correlation_t *corr, ttp_g2_timebuffer_t *tb1, ttp_g2_timebuffer_t *tb2) {
   int num_bins;
   uint64_t window_time = ttp_cli_args.window_time;
   uint64_t bin_time = ttp_cli_args.bin_time;
@@ -87,11 +87,12 @@ void ttd_g2_corr_init(ttd_g2_correlation_t *corr, ttd_g2_timebuffer_t *tb1, ttd_
   corr->hist = (uint64_t *)calloc(corr->num_bins, sizeof(uint64_t));
 }
 
-void ttd_g2_correlation_update(ttd_g2_correlation_t *corr, int new_chan, uint64_t new_time) {
+// NOTE: new_chan is the channel the photon did *NOT* arrive on
+void ttp_g2_correlation_update(ttp_g2_correlation_t *corr, int new_chan, uint64_t new_time) {
   int n, sign=1;
   int64_t delta;
   int delta_b;
-  ttd_g2_timebuffer_t *tb;
+  ttp_g2_timebuffer_t *tb;
   if (new_chan == 1) {
     tb = corr->tb1;
   }
@@ -107,7 +108,7 @@ void ttd_g2_correlation_update(ttd_g2_correlation_t *corr, int new_chan, uint64_
       }
     
     for (n=0; n < tb->count; n++) {
-      delta = new_time - ttd_g2_tb_get(tb, n);
+      delta = new_time - ttp_g2_tb_get(tb, n);
       delta_b = (int)(corr->center_bin + sign*(delta / corr->bin_time));
       ++ corr->hist[delta_b];
       ++ corr->total;
@@ -116,7 +117,7 @@ void ttd_g2_correlation_update(ttd_g2_correlation_t *corr, int new_chan, uint64_
   }
 }
 
-void ttd_g2_correlation_output(ttd_g2_correlation_t *correlation) {
+void ttp_g2_correlation_output(ttp_g2_correlation_t *correlation) {
   FILE *output_file;
   output_file = fopen(ttp_cli_args.outfile1, "wb");
   int m;

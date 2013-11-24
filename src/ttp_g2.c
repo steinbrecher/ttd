@@ -12,35 +12,15 @@
 #include "ttp_cli.h"
 
 #include "ttd.h"
-#include "timebuffer.h"
 #include "ttd_merge.h"
-#include "ttd_g2.h"
+#include "ttd_ringbuffer.h"
+#include "ttd_crosscorr.h"
 
-void ttd_g2_push(ttd_g2_correlation_t *correlation, int channel, uint64_t time) {
-  int other_channel;
-  if (channel == 1) {
-    ttd_g2_tb_write(correlation->tb1, time);
-    other_channel = 2;
-  }
-  else if (channel == 2) {
-    ttd_g2_tb_write(correlation->tb2, time);
-    other_channel = 1;
-  }
-  ttd_g2_tb_prune(correlation->tb1, time);
-  ttd_g2_tb_prune(correlation->tb2, time);
-  ttd_g2_correlation_update(correlation, other_channel, time);
-}
-
-int64_t ttd_g2(doqkd_buffer_t *in1, doqkd_buffer_t *in2) {
+int64_t ttp_g2(doqkd_buffer_t *in1, doqkd_buffer_t *in2) {
   int64_t output_buffer_count = 0;
   uint64_t t1, t2;
 
-  ttd_g2_timebuffer_t tb1, tb2;
-  ttd_g2_tb_init(&tb1, 1, 1024, ttp_cli_args.window_time);
-  ttd_g2_tb_init(&tb2, 2, 1024, ttp_cli_args.window_time);
-
-  ttd_g2_correlation_t correlation;
-  ttd_g2_corr_init(&correlation, &tb1, &tb2);
+  ttd_ccorr_t *ccorr = ttd_ccorr_build(1024, ttp_cli_args.window_time);
 
   // Initialize buffers
   // TODO: Adapt ttd_doqkd_buffers to be more general (i.e. not dokd-specific)
@@ -64,28 +44,28 @@ int64_t ttd_g2(doqkd_buffer_t *in1, doqkd_buffer_t *in2) {
 
   while((in1->empty == 0) && (in2->empty == 0)) {
     if (t1 <= t2) {
-      ttd_g2_push(&correlation, 1, t1);
+      ttd_ccorr_update(ccorr, 0, t1);
       t1 = ttd_buffer_pop(in1);
     }
     else {
-      ttd_g2_push(&correlation, 2, t2);
+      ttd_ccorr_update(ccorr, 1, t2);
       t2 = ttd_buffer_pop(in2);
       output_buffer_count ++;
     }
   }
 
   while (in1->empty == 0) {
-    ttd_g2_push(&correlation, 1, t1);
+    ttd_ccorr_update(ccorr, 0, t1);
     t1 = ttd_buffer_pop(in1);
   }
 
   while (in2->empty == 0) {
-    ttd_g2_push(&correlation, 2, t1);
+    ttd_ccorr_update(ccorr, 1, t1);
     t2 = ttd_buffer_pop(in2);
     output_buffer_count ++;
   }
 
-  ttd_g2_correlation_output(&correlation);
+  ttd_ccorr_write_csv(ccorr, ttp_cli_args.outfile1);
 
   return(0);
 }
@@ -111,7 +91,7 @@ int main(int argc, char* argv[]) {
   }
   in2.file_open = 1;
 
-  ttd_g2(&in1, &in2);
+  ttp_g2(&in1, &in2);
 
 
   exit(0);

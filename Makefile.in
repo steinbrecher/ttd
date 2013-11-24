@@ -77,7 +77,7 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 bin_PROGRAMS = pq-g2$(EXEEXT) pq-convert$(EXEEXT) ttd-dump$(EXEEXT) \
-	ttd-doqkd$(EXEEXT) ttd-merge$(EXEEXT) ttd-g2$(EXEEXT)
+	ttd-doqkd$(EXEEXT) ttd-merge$(EXEEXT) ttp-g2$(EXEEXT)
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
@@ -108,13 +108,17 @@ ttd_doqkd_LDADD = $(LDADD)
 am_ttd_dump_OBJECTS = src/ttd_dump.$(OBJEXT)
 ttd_dump_OBJECTS = $(am_ttd_dump_OBJECTS)
 ttd_dump_LDADD = $(LDADD)
-am_ttd_g2_OBJECTS = src/ttd_g2.$(OBJEXT) src/ttp_cli.$(OBJEXT) \
-	src/ttp.$(OBJEXT)
-ttd_g2_OBJECTS = $(am_ttd_g2_OBJECTS)
-ttd_g2_LDADD = $(LDADD)
 am_ttd_merge_OBJECTS = src/ttd_merge.$(OBJEXT)
 ttd_merge_OBJECTS = $(am_ttd_merge_OBJECTS)
 ttd_merge_LDADD = $(LDADD)
+am__objects_1 = src/ttp_cli.$(OBJEXT) src/ttp.$(OBJEXT)
+am__objects_2 = src/ttd.$(OBJEXT)
+am__objects_3 = src/ttd_ringbuffer.$(OBJEXT) $(am__objects_1) \
+	$(am__objects_2)
+am__objects_4 = src/ttd_crosscorr.$(OBJEXT) $(am__objects_3)
+am_ttp_g2_OBJECTS = src/ttp_g2.$(OBJEXT) $(am__objects_4)
+ttp_g2_OBJECTS = $(am_ttp_g2_OBJECTS)
+ttp_g2_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -144,10 +148,10 @@ am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 SOURCES = $(pq_convert_SOURCES) $(pq_g2_SOURCES) $(ttd_doqkd_SOURCES) \
-	$(ttd_dump_SOURCES) $(ttd_g2_SOURCES) $(ttd_merge_SOURCES)
+	$(ttd_dump_SOURCES) $(ttd_merge_SOURCES) $(ttp_g2_SOURCES)
 DIST_SOURCES = $(pq_convert_SOURCES) $(pq_g2_SOURCES) \
-	$(ttd_doqkd_SOURCES) $(ttd_dump_SOURCES) $(ttd_g2_SOURCES) \
-	$(ttd_merge_SOURCES)
+	$(ttd_doqkd_SOURCES) $(ttd_dump_SOURCES) $(ttd_merge_SOURCES) \
+	$(ttp_g2_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -285,7 +289,11 @@ pq_convert_SOURCES = src/pq_convert.c
 ttd_dump_SOURCES = src/ttd_dump.c
 ttd_doqkd_SOURCES = src/ttd_doqkd.c
 ttd_merge_SOURCES = src/ttd_merge.c
-ttd_g2_SOURCES = src/ttd_g2.c src/ttp_cli.c src/ttp.c
+ttd = src/ttd.c
+ttp_cli = src/ttp_cli.c src/ttp.c
+ttd_ringbuffer = src/ttd_ringbuffer.c ${ttp_cli} ${ttd}
+ttd_crosscorr = src/ttd_crosscorr.c ${ttd_ringbuffer}
+ttp_g2_SOURCES = src/ttp_g2.c ${ttd_crosscorr}
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -411,21 +419,26 @@ src/ttd_dump.$(OBJEXT): src/$(am__dirstamp) \
 ttd-dump$(EXEEXT): $(ttd_dump_OBJECTS) $(ttd_dump_DEPENDENCIES) $(EXTRA_ttd_dump_DEPENDENCIES) 
 	@rm -f ttd-dump$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(ttd_dump_OBJECTS) $(ttd_dump_LDADD) $(LIBS)
-src/ttd_g2.$(OBJEXT): src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/ttp_cli.$(OBJEXT): src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/ttp.$(OBJEXT): src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
-
-ttd-g2$(EXEEXT): $(ttd_g2_OBJECTS) $(ttd_g2_DEPENDENCIES) $(EXTRA_ttd_g2_DEPENDENCIES) 
-	@rm -f ttd-g2$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(ttd_g2_OBJECTS) $(ttd_g2_LDADD) $(LIBS)
 src/ttd_merge.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 
 ttd-merge$(EXEEXT): $(ttd_merge_OBJECTS) $(ttd_merge_DEPENDENCIES) $(EXTRA_ttd_merge_DEPENDENCIES) 
 	@rm -f ttd-merge$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(ttd_merge_OBJECTS) $(ttd_merge_LDADD) $(LIBS)
+src/ttp_g2.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/ttd_crosscorr.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/ttd_ringbuffer.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/ttp_cli.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/ttp.$(OBJEXT): src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/ttd.$(OBJEXT): src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+
+ttp-g2$(EXEEXT): $(ttp_g2_OBJECTS) $(ttp_g2_DEPENDENCIES) $(EXTRA_ttp_g2_DEPENDENCIES) 
+	@rm -f ttp-g2$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(ttp_g2_OBJECTS) $(ttp_g2_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -436,12 +449,15 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pq_convert.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pq_g2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_crosscorr.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_doqkd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_dump.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_g2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_merge.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_ringbuffer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttp_cli.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttp_g2.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
