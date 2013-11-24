@@ -29,5 +29,7 @@ void ttd_ccorr_update(ttd_ccorr_t *ccorr, int rb_num, ttd_t time);
 
 void ttd_ccorr_write_csv(ttd_ccorr_t *ccorr, char *file_name);
 
+void ttd_ccorr_cleanup(ttd_ccorr_t *ccorr);
+
 
 #endif // _TTD_CROSSCORR_HEADER

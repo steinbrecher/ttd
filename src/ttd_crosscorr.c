@@ -27,7 +27,7 @@ void ttd_ccorr_init(ttd_ccorr_t *ccorr, ttd_rb_t *rb1, ttd_rb_t *rb2) {
   
   ccorr->rbs[0] = rb1;
   ccorr->rbs[1] = rb2;
-  ccorr->hist = (ttd_t *)malloc(num_bins * sizeof(ttd_t));
+  ccorr->hist = (ttd_t *)calloc(num_bins, sizeof(ttd_t));
 }
 
 ttd_ccorr_t *ttd_ccorr_build(int rb_size, ttd_t rb_duration) {
@@ -80,6 +80,13 @@ void ttd_ccorr_write_csv(ttd_ccorr_t *ccorr, char *file_name) {
   }
 
   fclose(output_file);
+}
+
+void ttd_ccorr_cleanup(ttd_ccorr_t *ccorr) {
+  free(ccorr->rbs[0]);
+  free(ccorr->rbs[1]);
+  free(ccorr->hist);
+  free(ccorr);
 }
 
 

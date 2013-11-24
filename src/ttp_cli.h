@@ -19,6 +19,8 @@ struct {
   uint64_t bin_time; // -b
   uint64_t window_time; // -w
 
+  int block_size; // -B
+
 } ttp_cli_args;
 
 #endif

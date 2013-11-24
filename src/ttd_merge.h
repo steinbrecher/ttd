@@ -5,8 +5,6 @@
 #define PHOTONBLOCK 16384
 #endif
 
-#include "ttd_doqkd_buffers.h"
-
 void ttd_merge_output(uint64_t *records, int64_t num_records, FILE *outfile) {
   fwrite(records, sizeof(uint64_t), num_records, outfile); 
 }
