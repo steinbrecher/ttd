@@ -151,7 +151,6 @@ struct{
   int32_t ImgHdrSize;
   int64_t nRecords;	} pq_hh_hdr_tttr;
 
-
 struct{
   double sync_period;
   double resolution;
@@ -163,37 +162,6 @@ struct{
   int file_format_version;
 } g2_properties;
 
-
-#ifdef PQ_G2_HEADER_SEEN
-void write_g2_properties() {
-  // Calculations for arguments
-  double sync_period = 1e12/pq_hh_hdr_tttr.SyncRate;
-  double resolution = pq_hh_hdr_bin.Resolution;
-  int channels = pq_hh_hdr_hardware.InpChansPresent;
-  int channel_pairs = channels * (channels-1)/2;
-  int meas_mode = pq_hh_hdr_bin.MeasMode;
-
-  int file_format_version;
-  if (strcmp(pq_hh_hdr_txt.FormatVersion, "1.0")==0) {
-    file_format_version = 1;
-  }
-  else if (strcmp(pq_hh_hdr_txt.FormatVersion, "2.0")==0) {
-    file_format_version = 2;
-  }
-
-  // g2 mode argument processing
-  g2_properties.sync_period = sync_period;
-  g2_properties.resolution = resolution;
-  g2_properties.correlation_window = cli_args.correlation_window;
-  g2_properties.bin_time = cli_args.bin_time;
-  g2_properties.channels = channels;
-  g2_properties.channel_pairs = channel_pairs;
-  g2_properties.meas_mode = meas_mode;
-  g2_properties.file_format_version = file_format_version;
-}
-#endif
-
-#ifdef PQ_CONVERT
 struct{
   int channels;
   int meas_mode; // 2 for .ht2 and 3 for .ht3
@@ -202,78 +170,5 @@ struct{
   uint64_t sync_period;
 } convert_properties;
 
-void write_convert_properties() {
-  // Calculations for arguments
-  uint64_t sync_period = (uint64_t)round(1e12/pq_hh_hdr_tttr.SyncRate);
-  uint64_t resolution = (uint64_t)round(pq_hh_hdr_bin.Resolution);
-  int channels = pq_hh_hdr_hardware.InpChansPresent;
-  int channel_pairs = channels * (channels-1)/2;
-  int meas_mode = pq_hh_hdr_bin.MeasMode;
-
-  int file_format_version;
-  if (strcmp(pq_hh_hdr_txt.FormatVersion, "1.0")==0) {
-    file_format_version = 1;
-  }
-  else if (strcmp(pq_hh_hdr_txt.FormatVersion, "2.0")==0) {
-    file_format_version = 2;
-  }
-
-  // convert mode argument prcoessing
-  convert_properties.channels = channels; 
-  convert_properties.meas_mode = meas_mode;
-  convert_properties.resolution = resolution;
-  convert_properties.sync_period = sync_period;
-  convert_properties.file_format_version = file_format_version;
-}
-#endif
-
-int read_header(FILE *fpin)
-{
-  int i;
-  
-  if (fread(&pq_hh_hdr_txt, 1, sizeof(pq_hh_hdr_txt), fpin) != sizeof(pq_hh_hdr_txt)) {
-    return(-1);
-  }
-
-  if (fread( &pq_hh_hdr_bin, 1, sizeof(pq_hh_hdr_bin) ,fpin) != sizeof(pq_hh_hdr_bin)) {
-    return(-1);
-  }
-
-  if (fread( &pq_hh_hdr_hardware, 1, sizeof(pq_hh_hdr_hardware) ,fpin) != sizeof(pq_hh_hdr_hardware)) {
-    return(-1);
-  }
-
-  for(i=0;i<pq_hh_hdr_hardware.InpChansPresent;++i) {
-      if (fread( &(pq_hh_hdr_chansettings[i]), 1, sizeof(pq_hh_hdr_chansettings[i]) ,fpin) 
-	  != sizeof(pq_hh_hdr_chansettings[i]))
-	return(-1);
-    }
-
-  for(i=0;i<pq_hh_hdr_hardware.InpChansPresent;++i) {
-      if (fread( &(pq_hh_hdr_inprate[i]), 1, sizeof(pq_hh_hdr_inprate[i]) ,fpin) != sizeof(pq_hh_hdr_inprate[i]))
-	return(-1);
-    }
-
-  if (fread(&pq_hh_hdr_tttr, 1, sizeof(pq_hh_hdr_tttr), fpin) != sizeof(pq_hh_hdr_tttr)) {
-    return(-1);
-  }
-
-  // Print header information
-  printf("\n***************************** Header Information *****************************\n");
-  printf("File Mode: T%d\n", pq_hh_hdr_bin.MeasMode);
-  printf("File Version: %s\n", pq_hh_hdr_txt.FormatVersion);
-  printf("Number of channels: %d\n", pq_hh_hdr_hardware.InpChansPresent);
-  printf("Sync Rate: %g MHz\n", (double)pq_hh_hdr_tttr.SyncRate*1e-6);
-  printf("Sync Period: %g ns\n", 1e9/pq_hh_hdr_tttr.SyncRate);
-  printf("Resolution: %g ps\n", pq_hh_hdr_bin.Resolution);
-  printf("Acquisition Time: %g s\n", ((double)pq_hh_hdr_bin.Tacq)/1e3);
-  printf("Number of Records: %" PRIu64 "\n", pq_hh_hdr_tttr.nRecords);
-
-  // Multiply pq_hh_hdr_tttr.ImgHdrSize by 4 because each entry is a 4-byte (32 bit) record
-  fseek(fpin, pq_hh_hdr_tttr.ImgHdrSize*4, SEEK_CUR);
-
-
-  return(0);
-}
 
 #endif /* HH_HEADER_SEEN */

@@ -38,6 +38,33 @@ static inline int pair_lookup (int a, int b) {
     }
 }
 
+void write_g2_properties() {
+  // Calculations for arguments
+  double sync_period = 1e12/pq_hh_hdr_tttr.SyncRate;
+  double resolution = pq_hh_hdr_bin.Resolution;
+  int channels = pq_hh_hdr_hardware.InpChansPresent;
+  int channel_pairs = channels * (channels-1)/2;
+  int meas_mode = pq_hh_hdr_bin.MeasMode;
+
+  int file_format_version;
+  if (strcmp(pq_hh_hdr_txt.FormatVersion, "1.0")==0) {
+    file_format_version = 1;
+  }
+  else if (strcmp(pq_hh_hdr_txt.FormatVersion, "2.0")==0) {
+    file_format_version = 2;
+  }
+
+  // g2 mode argument processing
+  g2_properties.sync_period = sync_period;
+  g2_properties.resolution = resolution;
+  g2_properties.correlation_window = cli_args.correlation_window;
+  g2_properties.bin_time = cli_args.bin_time;
+  g2_properties.channels = channels;
+  g2_properties.channel_pairs = channel_pairs;
+  g2_properties.meas_mode = meas_mode;
+  g2_properties.file_format_version = file_format_version;
+}
+
 void g2_insert(double realtime, int channel, TimeBufferGroup *tbs, CorrelationGroup *correlations) {
   static int lookup_others[4][3] = {
     { 1, 2, 3 },

@@ -9,13 +9,36 @@
 #include <string.h>
 
 #include "ttd.h"
-#define PQ_CONVERT
 #include "hh_header.h"
+#include "pq_parse.h"
 #include "pq_convert.h"
-#include "ttd.h"
 
 //NOTE: Potential improvement is to pass the channel array structure to the various
 // '_to_ttd' functions and have them handle the updates
+
+void write_convert_properties() {
+  // Calculations for arguments
+  uint64_t sync_period = (uint64_t)round(1e12/pq_hh_hdr_tttr.SyncRate);
+  uint64_t resolution = (uint64_t)round(pq_hh_hdr_bin.Resolution);
+  int channels = pq_hh_hdr_hardware.InpChansPresent;
+  int channel_pairs = channels * (channels-1)/2;
+  int meas_mode = pq_hh_hdr_bin.MeasMode;
+
+  int file_format_version;
+  if (strcmp(pq_hh_hdr_txt.FormatVersion, "1.0")==0) {
+    file_format_version = 1;
+  }
+  else if (strcmp(pq_hh_hdr_txt.FormatVersion, "2.0")==0) {
+    file_format_version = 2;
+  }
+
+  // convert mode argument prcoessing
+  convert_properties.channels = channels; 
+  convert_properties.meas_mode = meas_mode;
+  convert_properties.resolution = resolution;
+  convert_properties.sync_period = sync_period;
+  convert_properties.file_format_version = file_format_version;
+}
 
 int ht2_v1_to_ttd(pq_hh_rec_t TRec, ttd_t *ttd_rec, ttd_t *overflow_correction) {
   // Unpack TRec

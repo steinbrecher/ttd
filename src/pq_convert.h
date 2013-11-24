@@ -1,10 +1,14 @@
-#ifndef PQ_CONVERT_HEADER_SEEN
-#define PQ_CONVERT_HEADER_SEEN
+#ifndef _PQ_CONVERT_HEADER_SEEN
+#define _PQ_CONVERT_HEADER_SEEN
 
 #define PHOTONBLOCK 32768
 #define HT2WRAPAROUND 33554432 // 2^25
 #define OLDHT2WRAPAROUND 33552000 // 2^25 - 2,432
 #define HT3WRAPAROUND 1024 // 2^10
+
+int read_header(FILE *fpin);
+
+void write_convert_propeties();
 
 int ht2_v1_to_ttd(pq_hh_rec_t TRec, ttd_t *ttd_rec, uint64_t *overflow_correction);
 
