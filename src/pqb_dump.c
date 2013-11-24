@@ -29,7 +29,7 @@ int main (int argc, char* argv[]) {
   while (num_photons == PHOTONBLOCK) {
     num_photons = fread(file_block, sizeof(pqb_t), PHOTONBLOCK, pqb_file);
     for (k=0; k<num_photons; k++) {
-      printf("%" PRIu64 "\n", file_block[k].time);
+      printf("%" PRIu64 "\n", file_block[k]);
     }
   }
   exit(0);

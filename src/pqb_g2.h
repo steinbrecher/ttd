@@ -1,73 +1,6 @@
 #ifndef PQB_G2_HEADER_SEEN
 #define PQB_G2_HEADER_SEEN
 
-#include "pqb.h"
-
-/*
-struct cli_args_t {
-  uint64_t bin_time; // -b
-  uint64_t window_time; // -w
-  char infile1[80]; // -i
-  char infile2[80]; // -I
-  char outfile1[80]; // -o
-} ttp_cli_args;
-
-static const struct option pqb_g2_longopts[] = {
-  { "bin-time", required_argument, NULL, 'b'},
-  { "correlation-window", required_argument, NULL, 'w'},
-  { "input-1", required_argument, NULL, 'i' },
-  { "input-2", required_argument, NULL, 'I' },
-  { "output", required_argument, NULL, 'o' },
-};
-
-static const char *pqb_g2_optstring = "b:w:i:I:o:";
-
-int pqb_g2_read_cli(int argc, char* argv[])  {
-  // Default values
-  ttp_cli_args.bin_time = 100;
-  ttp_cli_args.window_time = 10000;
-  strcpy(ttp_cli_args.infile1, "");
-  strcpy(ttp_cli_args.infile2, "");
-  strcpy(ttp_cli_args.outfile1, "cross_corr.csv");
-
-  int option_index, opt, num_args=0;
-
-  opt = getopt_long( argc, argv, pqb_g2_optstring, pqb_g2_longopts, &option_index );
-  while (opt != -1) {
-    num_args++;
-    switch (opt) {
-    case 'b':
-      ttp_cli_args.bin_time = atof(optarg);
-      break;
-    case 'w':
-      ttp_cli_args.window_time = atof(optarg);
-      break;
-    case 'i':
-      strcpy(ttp_cli_args.infile1, optarg);
-      break;
-    case 'I':
-      strcpy(ttp_cli_args.infile2, optarg);
-      break;
-    case 'o':
-      strcpy(ttp_cli_args.outfile1, optarg);
-      break;
-    default: 
-      // Shouldn't actually get here
-      break;
-    }
-    opt = getopt_long( argc, argv, pqb_g2_optstring, pqb_g2_longopts, &option_index );
-  }
-
-  printf("\n******************************** User Settings *******************************\n");
-  printf("Bin Time: %" PRIu64 " ps\n", (uint64_t)ttp_cli_args.bin_time);
-  printf("Correlation Window: %" PRIu64 " ps\n", (uint64_t)ttp_cli_args.window_time);
-  printf("Input file 1: %s\n", ttp_cli_args.infile1);
-  printf("Input file 2: %s\n", ttp_cli_args.infile2);
-  printf("Output file: %s\n", ttp_cli_args.outfile1);
-  return(0);
-}
-*/
-
 typedef struct {
   int size;		      // Max number of elems 
   int start;		      // Index of oldest element 
@@ -151,7 +84,7 @@ void pqb_g2_corr_init(pqb_g2_correlation_t *corr, pqb_g2_timebuffer_t *tb1, pqb_
   corr->bin_time = bin_time;
   
   corr->total = 0;
-  corr->hist = (uint64_t *)calloc(corr->num_bins, sizeof(pqb_t));
+  corr->hist = (uint64_t *)calloc(corr->num_bins, sizeof(uint64_t));
 }
 
 void pqb_g2_correlation_update(pqb_g2_correlation_t *corr, int new_chan, uint64_t new_time) {

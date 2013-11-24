@@ -39,7 +39,7 @@ int ht2_v1_to_pqb(tTRec TRec, pqb_t *pqb_rec, uint64_t *overflow_correction) {
     // Sync record
     else if (channel == 0) {
       // TODO: Implement proper rounding here
-      pqb_rec->time = (*overflow_correction + timetag)/2;
+      *pqb_rec = (*overflow_correction + timetag)/2;
       // Channel indices are 0, 1, ... convert_properties.channels, so this is the 'extra' index for sync
       return(convert_properties.channels); 
     }
@@ -48,7 +48,7 @@ int ht2_v1_to_pqb(tTRec TRec, pqb_t *pqb_rec, uint64_t *overflow_correction) {
   else {
     // Resolution of ht2 version 1 was 1/2 picosecond
     // TODO: Implement proper rounding here
-    pqb_rec->time = (*overflow_correction + timetag)/2;
+    *pqb_rec = (*overflow_correction + timetag)/2;
     return(channel);
   }
 }
@@ -69,13 +69,13 @@ int ht2_v2_to_pqb(tTRec TRec, pqb_t *pqb_rec, uint64_t *overflow_correction) {
     }
     // Sync record
     else if (channel==0) {
-      pqb_rec->time = *overflow_correction + timetag;
+      *pqb_rec = *overflow_correction + timetag;
       // Channel indices are 0, 1, ... convert_properties.channels, so this is the 'extra' index for sync
       return(convert_properties.channels); 
     }
   }
   else {
-    pqb_rec->time = *overflow_correction + timetag;
+    *pqb_rec = *overflow_correction + timetag;
     return(channel);
   }
   return(-1);
@@ -95,7 +95,7 @@ int ht3_v1_to_pqb(tTRec TRec, pqb_t *pqb_rec, uint64_t *overflow_correction) {
     }
   }
   else {
-    pqb_rec->time = (*overflow_correction + nsync) * sync_period + dtime * resolution;
+    *pqb_rec = (*overflow_correction + nsync) * sync_period + dtime * resolution;
     return(channel);
   }
   return(-1);
@@ -121,7 +121,7 @@ int ht3_v2_to_pqb(tTRec TRec, pqb_t *pqb_rec, uint64_t *overflow_correction) {
     }
   }
   else {
-    pqb_rec->time = (*overflow_correction + nsync) * sync_period + dtime * resolution;
+    *pqb_rec = (*overflow_correction + nsync) * sync_period + dtime * resolution;
     return(channel);
   }
   return(-1);
