@@ -1,5 +1,6 @@
 *.csv
 *.pqb
+*.ttd
 *.o
 
 pq_g2
