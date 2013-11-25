@@ -160,8 +160,10 @@ uint64_t run_hh_convert(FILE *fpin, pq_fileinfo_t *file_info) {
 
   // Output sync records as well in HT2 mode
   // TODO: Make this a command line switch
+  int output_sync = 0;
   if ((file_info->instrument == PQ_HH) && (meas_mode == 2)) {
     channels++;
+    output_sync = 1;
   }
 
   ttd_t ttd_blocks[channels][PHOTONBLOCK];
@@ -221,9 +223,17 @@ uint64_t run_hh_convert(FILE *fpin, pq_fileinfo_t *file_info) {
   // Open the output files
   FILE* outfiles[channels];
   char fname[80];
-  for (k=0; k<channels; k++) {
-    snprintf(fname, sizeof(fname), "channel%d.ttd", k);
+  for (k=0; k<channels-1; k++) {
+    snprintf(fname, sizeof(fname), "channel-%d.ttd", k+1);
     outfiles[k] = fopen(fname, "wb");
+  }
+  // If we're outputting sync, change name of the last file
+  if (output_sync) {
+    outfiles[channels-1] = fopen("channel-sync.ttd", "wb");
+  }
+  else {
+    snprintf(fname, sizeof(fname), "channel-%d.ttd", channels);
+    outfiles[channels-1] = fopen(fname, "wb");
   }
 
   uint64_t n;

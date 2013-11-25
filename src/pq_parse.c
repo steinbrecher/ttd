@@ -9,7 +9,6 @@
 #include <string.h>
 
 #include "ttd.h"
-#include "hh_header.h"
 #include "pq_parse.h"
 
 

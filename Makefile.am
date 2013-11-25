@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = subdir-objects
-bin_PROGRAMS = ttp-translate ttp-g2
-ttp_translate_SOURCES = src/pq_convert.c src/pq_parse.c src/ttd.c
+bin_PROGRAMS = pq-ttd ttd-g2
+pq_ttd_SOURCES = src/pq_convert.c src/pq_parse.c src/ttd.c
 #ttd_dump_SOURCES = src/ttd_dump.c
 #ttd_merge_SOURCES = src/ttd_merge.c
 ttd = src/ttd.c
@@ -8,4 +8,4 @@ ttp_cli = src/ttp_cli.c src/ttp.c
 ttd_ringbuffer = src/ttd_ringbuffer.c ${ttp_cli} ${ttd}
 ttd_crosscorr = src/ttd_crosscorr.c ${ttd_ringbuffer}
 ttd_filebuffer = src/ttd_filebuffer.c
-ttp_g2_SOURCES = src/ttp_g2.c ${ttd_crosscorr} ${ttd_filebuffer}
+ttd_g2_SOURCES = src/ttp_g2.c ${ttd_crosscorr} ${ttd_filebuffer}
