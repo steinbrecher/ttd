@@ -9,6 +9,7 @@
 #include <string.h>
 
 #include "ttd.h"
+#include "ttd_filebuffer.h"
 #include "ttd_merge.h"
 
 int main(int argc, char* argv[]) {
@@ -16,24 +17,7 @@ int main(int argc, char* argv[]) {
     printf("ERROR: Incorrect number of inputs.\n");
     printf("Usage: %s infile1 infile2 outfile", argv[0]);
   }
-  doqkd_buffer_t in1;
-  doqkd_buffer_t in2;
   FILE *outfile;
-
-  printf(argv[1], "rb");
-  
-  // Try to open files
-  if ((in1.fp = fopen(argv[1], "rb")) == NULL) {
-    printf("ERROR: Could not open %s for reading.\n", argv[1]);
-    exit(-1);
-  }
-  in1.file_open = 1;
-
-  if ((in2.fp = fopen(argv[2], "rb")) == NULL) {
-    printf("ERROR: Could not open %s for reading.\n", argv[2]);
-    exit(-1);
-  }
-  in2.file_open = 1;
 
   if ((outfile = fopen(argv[3], "wb")) == NULL) {
       printf("ERROR: Could not open %s for writing.\n", argv[3]);
@@ -42,7 +26,7 @@ int main(int argc, char* argv[]) {
   
   // Run the merge operation
   int ret;
-  ret = ttd_merge(&in1, &in2, outfile);
+  ret = ttd_merge(argv[1], argv[2], outfile);
   if (ret  < 0) {
     exit(ret);
   }
