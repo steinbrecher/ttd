@@ -101,8 +101,8 @@ pq_ttd_OBJECTS = $(am_pq_ttd_OBJECTS)
 pq_ttd_LDADD = $(LDADD)
 am__objects_1 = src/ttd_filebuffer.$(OBJEXT)
 am__objects_2 = src/ttd.$(OBJEXT)
-am_ttd_doqkd_OBJECTS = src/ttd_doqkd.$(OBJEXT) $(am__objects_1) \
-	$(am__objects_2)
+am_ttd_doqkd_OBJECTS = src/ttd_doqkd.$(OBJEXT) \
+	src/ttd_doqkd_cli.$(OBJEXT) $(am__objects_1) $(am__objects_2)
 ttd_doqkd_OBJECTS = $(am_ttd_doqkd_OBJECTS)
 ttd_doqkd_LDADD = $(LDADD)
 am__objects_3 = src/ttp.$(OBJEXT)
@@ -287,7 +287,7 @@ ttd_ringbuffer = src/ttd_ringbuffer.c ${ttp_cli}
 ttd_crosscorr = src/ttd_crosscorr.c ${ttd_ringbuffer}
 ttd_filebuffer = src/ttd_filebuffer.c
 ttd_g2_SOURCES = src/ttp_g2.c ${ttd_crosscorr} ${ttd_filebuffer}
-ttd_doqkd_SOURCES = src/ttd_doqkd.c ${ttd_filebuffer} ${ttd}
+ttd_doqkd_SOURCES = src/ttd_doqkd.c src/ttd_doqkd_cli.c ${ttd_filebuffer} ${ttd}
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -404,6 +404,8 @@ pq-ttd$(EXEEXT): $(pq_ttd_OBJECTS) $(pq_ttd_DEPENDENCIES) $(EXTRA_pq_ttd_DEPENDE
 	$(AM_V_CCLD)$(LINK) $(pq_ttd_OBJECTS) $(pq_ttd_LDADD) $(LIBS)
 src/ttd_doqkd.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/ttd_doqkd_cli.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 src/ttd_filebuffer.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 
@@ -436,6 +438,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_crosscorr.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_doqkd.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_doqkd_cli.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_filebuffer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_ringbuffer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttp.Po@am__quote@
