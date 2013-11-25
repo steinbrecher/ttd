@@ -93,6 +93,7 @@ int pq_parse_header(FILE *fp, pq_fileinfo_t *file_info) {
     file_info->resolution = (ttd_t) round(pq_hh_header.resolution);
     file_info->sync_rate = pq_hh_tttr.sync_rate;
     file_info->num_records = pq_hh_tttr.num_records;
+    file_info->num_channels = pq_hh_header.num_input_channels;
   }
   else if (file_info->instrument == PQ_PH) {
     // Reads through everything but the image header. PicoHarp has a nice static header!
@@ -111,6 +112,7 @@ int pq_parse_header(FILE *fp, pq_fileinfo_t *file_info) {
     }
     file_info->sync_rate = pq_ph_header.chan0_inp_rate;
     file_info->num_records = pq_ph_header.num_records;
+    file_info->num_channels = 2;
   }
 
   file_info->sync_period = (ttd_t) round(1e12 / ((double)file_info->sync_rate));
@@ -144,14 +146,6 @@ void pq_printf_file_info(pq_fileinfo_t *file_info) {
   printf("Timing Resolution: %" PRIu64 " ps\n", file_info->resolution);
   printf("Sync Period: %" PRIu64 " ps\n", file_info->sync_period);
   printf("Sync Rate: %d Hz\n", file_info->sync_rate);
-}
-
-int main(int argc, char *argv[]) {
-  FILE *fp = fopen(argv[1], "rb");
-  pq_fileinfo_t file_info;
-  pq_parse_header(fp, &file_info);
-  pq_printf_file_info(&file_info);
-  exit(0);
 }
 
   

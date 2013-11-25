@@ -2,22 +2,19 @@
 #define _PQ_CONVERT_HEADER_SEEN
 
 #define PHOTONBLOCK 32768
-#define HT2WRAPAROUND 33554432 // 2^25
-#define OLDHT2WRAPAROUND 33552000 // 2^25 - 2,432
-#define HT3WRAPAROUND 1024 // 2^10
 
 int read_header(FILE *fpin);
 
 void write_convert_propeties();
 
-int ht2_v1_to_ttd(pq_hh_rec_t TRec, ttd_t *ttd_rec, uint64_t *overflow_correction);
+int ht2_v1_to_ttd(pq_rec_t TRec, ttd_t *ttd_rec, uint64_t *overflow_correction, pq_fileinfo_t *file_info);
 
-int ht2_v2_to_ttd(pq_hh_rec_t TRec, ttd_t *ttd_rec, uint64_t *overflow_correction);
+int ht2_v2_to_ttd(pq_rec_t TRec, ttd_t *ttd_rec, uint64_t *overflow_correction, pq_fileinfo_t *file_info);
 
-int ht3_v1_to_ttd(pq_hh_rec_t TRec, ttd_t *ttd_rec, uint64_t *overflow_correction);
+int ht3_v1_to_ttd(pq_rec_t TRec, ttd_t *ttd_rec, uint64_t *overflow_correction, pq_fileinfo_t *file_info);
 
-int ht3_v2_to_ttd(pq_hh_rec_t TRec, ttd_t *ttd_rec, uint64_t *overflow_correction);
+int ht3_v2_to_ttd(pq_rec_t TRec, ttd_t *ttd_rec, uint64_t *overflow_correction, pq_fileinfo_t *file_info);
 
-uint64_t run_hh_convert(FILE *fpin);
+uint64_t run_hh_convert(FILE *fpin, pq_fileinfo_t *file_info);
 
 #endif // HT_CONVERT_SEEN

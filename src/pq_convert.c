@@ -9,54 +9,64 @@
 #include <string.h>
 
 #include "ttd.h"
-#include "hh_header.h"
 #include "pq_parse.h"
+#include "pq_records.h"
 #include "pq_convert.h"
 
 //NOTE: Potential improvement is to pass the channel array structure to the various
 // '_to_ttd' functions and have them handle the updates
 
-void write_convert_properties() {
-  // Calculations for arguments
-  uint64_t sync_period = (uint64_t)round(1e12/pq_hh_hdr_tttr.SyncRate);
-  uint64_t resolution = (uint64_t)round(pq_hh_hdr_bin.Resolution);
-  int channels = pq_hh_hdr_hardware.InpChansPresent;
-  int channel_pairs = channels * (channels-1)/2;
-  int meas_mode = pq_hh_hdr_bin.MeasMode;
+int pt2_v2_to_ttd(pq_rec_t TRec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
+  int channel = TRec.ph_t2_bits.channel;
+  int timetag = TRec.ph_t2_bits.timetag;
 
-  int file_format_version;
-  if (strcmp(pq_hh_hdr_txt.FormatVersion, "1.0")==0) {
-    file_format_version = 1;
+  if (channel == 0xF) { // Special record
+    if ((timetag & 0xF) == 0) { // Overflow Record
+      *overflow_correction += PQ_PT2_V2_WRAP;
+    }
   }
-  else if (strcmp(pq_hh_hdr_txt.FormatVersion, "2.0")==0) {
-    file_format_version = 2;
+  else {
+    // Resolution is always 4ps here
+    *ttd_rec = (*overflow_correction + timetag)*4;
+    return(channel);
   }
-
-  // convert mode argument prcoessing
-  convert_properties.channels = channels; 
-  convert_properties.meas_mode = meas_mode;
-  convert_properties.resolution = resolution;
-  convert_properties.sync_period = sync_period;
-  convert_properties.file_format_version = file_format_version;
+  return(-1);
 }
 
-int ht2_v1_to_ttd(pq_hh_rec_t TRec, ttd_t *ttd_rec, ttd_t *overflow_correction) {
+int pt3_v2_to_ttd(pq_rec_t TRec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
+  int channel = TRec.ph_t3_bits.channel;
+  int timetag = TRec.ph_t3_bits.timetag;
+  int nsync = TRec.ph_t3_bits.nsync;
+  if (channel == 0xF) { // Overflow
+    if (timetag  == 0) { // Overflow Record
+      *overflow_correction += PQ_PT3_V2_WRAP;
+    }
+  }
+  else {
+    *ttd_rec = (*overflow_correction + nsync)*file_info->sync_period + timetag*file_info->resolution;
+    return(channel);
+  }
+  return(-1);
+}
+
+
+int ht2_v1_to_ttd(pq_rec_t TRec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
   // Unpack TRec
-  int special = TRec.T2bits.special;
-  int channel = TRec.T2bits.channel;
-  int timetag = TRec.T2bits.timetag;
+  int special = TRec.hh_t2_bits.special;
+  int channel = TRec.hh_t2_bits.channel;
+  int timetag = TRec.hh_t2_bits.timetag;
   
   uint64_t realtime;
 
   if (special == 1) {
     if (channel==0x3F) {
-      *overflow_correction += OLDHT2WRAPAROUND;
+      *overflow_correction += PQ_HT2_V1_WRAP;
     }
     // Sync record
     else if (channel == 0) {
-      // Channel indices are 0, 1, ... convert_properties.channels, so this is the 'extra' index for sync
+      // Channel indices are 0, 1, ... file_info->num_channels, so this is the 'extra' index for sync
       *ttd_rec = ttd_rounded_divide((*overflow_correction + timetag), 2);
-      return(convert_properties.channels); 
+      return(file_info->num_channels); 
     }
     return(-1);
   }
@@ -67,25 +77,25 @@ int ht2_v1_to_ttd(pq_hh_rec_t TRec, ttd_t *ttd_rec, ttd_t *overflow_correction) 
   }
 }
 
-int ht2_v2_to_ttd(pq_hh_rec_t TRec, ttd_t *ttd_rec, ttd_t *overflow_correction) {
-  int special = TRec.T2bits.special;
-  int channel = TRec.T2bits.channel;
-  int timetag = TRec.T2bits.timetag;
+int ht2_v2_to_ttd(pq_rec_t TRec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
+  int special = TRec.hh_t2_bits.special;
+  int channel = TRec.hh_t2_bits.channel;
+  int timetag = TRec.hh_t2_bits.timetag;
 
   if (special == 1) {
     if (channel==0x3F) {
       if (timetag < 2) {
-	*overflow_correction += HT2WRAPAROUND;
+	*overflow_correction += PQ_HT2_V2_WRAP;
       }
       else {
-	*overflow_correction += HT2WRAPAROUND * timetag;
+	*overflow_correction += PQ_HT2_V2_WRAP * timetag;
       }
     }
     // Sync record
     else if (channel==0) {
       *ttd_rec = *overflow_correction + timetag;
-      // Channel indices are 0, 1, ... convert_properties.channels, so this is the 'extra' index for sync
-      return(convert_properties.channels); 
+      // Channel indices are 0, 1, ... file_info->num_channels, so this is the 'extra' index for sync
+      return(file_info->num_channels); 
     }
   }
   else {
@@ -95,17 +105,17 @@ int ht2_v2_to_ttd(pq_hh_rec_t TRec, ttd_t *ttd_rec, ttd_t *overflow_correction) 
   return(-1);
 }
 
-int ht3_v1_to_ttd(pq_hh_rec_t TRec, ttd_t *ttd_rec, ttd_t *overflow_correction) {
-  uint64_t sync_period = convert_properties.sync_period;
-  uint64_t resolution = convert_properties.resolution;
-  int special = TRec.T3bits.special;
-  int channel = TRec.T3bits.channel;
-  int nsync = TRec.T3bits.nsync;
-  int dtime = TRec.T3bits.dtime;
+int ht3_v1_to_ttd(pq_rec_t TRec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
+  uint64_t sync_period = file_info->sync_period;
+  uint64_t resolution = file_info->resolution;
+  int special = TRec.hh_t3_bits.special;
+  int channel = TRec.hh_t3_bits.channel;
+  int nsync = TRec.hh_t3_bits.nsync;
+  int dtime = TRec.hh_t3_bits.dtime;
 
   if (special == 1) {
-    if (TRec.T3bits.channel==0x3F) {
-      *overflow_correction += HT3WRAPAROUND;
+    if (TRec.hh_t3_bits.channel==0x3F) {
+      *overflow_correction += PQ_HT3_V1_WRAP;
     }
   }
   else {
@@ -116,21 +126,21 @@ int ht3_v1_to_ttd(pq_hh_rec_t TRec, ttd_t *ttd_rec, ttd_t *overflow_correction) 
 }
 
 
-int ht3_v2_to_ttd(pq_hh_rec_t TRec, ttd_t *ttd_rec, ttd_t *overflow_correction) {
-  uint64_t sync_period = convert_properties.sync_period;
-  uint64_t resolution = convert_properties.resolution;
-  int special = TRec.T3bits.special;
-  int channel = TRec.T3bits.channel;
-  int nsync = TRec.T3bits.nsync;
-  int dtime = TRec.T3bits.dtime;
+int ht3_v2_to_ttd(pq_rec_t TRec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
+  uint64_t sync_period = file_info->sync_period;
+  uint64_t resolution = file_info->resolution;
+  int special = TRec.hh_t3_bits.special;
+  int channel = TRec.hh_t3_bits.channel;
+  int nsync = TRec.hh_t3_bits.nsync;
+  int dtime = TRec.hh_t3_bits.dtime;
 
   if (special == 1) {
     if (channel==0x3F) {
       if (nsync < 2) {
-	*overflow_correction += HT3WRAPAROUND;
+	*overflow_correction += PQ_HT3_V2_WRAP;
       }
       else {
-	*overflow_correction += nsync*HT3WRAPAROUND;
+	*overflow_correction += nsync*PQ_HT3_V2_WRAP;
       }
     }
   }
@@ -142,14 +152,15 @@ int ht3_v2_to_ttd(pq_hh_rec_t TRec, ttd_t *ttd_rec, ttd_t *overflow_correction) 
 }
 
 
-uint64_t run_hh_convert(FILE *fpin) {
-  int channels = convert_properties.channels;
-  int meas_mode = convert_properties.meas_mode;
-  int file_format_version = convert_properties.file_format_version;
+uint64_t run_hh_convert(FILE *fpin, pq_fileinfo_t *file_info) {
+  int channels = file_info->num_channels;
+  int instrument = file_info->instrument;
+  int meas_mode = file_info->meas_mode;
+  int fmt_version = file_info->fmt_version;
 
   // Output sync records as well in HT2 mode
   // TODO: Make this a command line switch
-  if (meas_mode == 2) {
+  if ((file_info->instrument == PQ_HH) && (meas_mode == 2)) {
     channels++;
   }
 
@@ -157,28 +168,44 @@ uint64_t run_hh_convert(FILE *fpin) {
 
   int j, k;
   // Select appropriate version of to_ttd
-  int (*to_ttd)(pq_hh_rec_t, ttd_t *, uint64_t *);
-  if (meas_mode == 2) {
-    if (file_format_version == 1) {
-      to_ttd = &ht2_v1_to_ttd;
+  int (*to_ttd)(pq_rec_t, ttd_t *, uint64_t *, pq_fileinfo_t *);
+  if (instrument == PQ_PH) {
+    if (meas_mode == 2) {
+      to_ttd = &pt2_v2_to_ttd;
     }
-    else if (file_format_version == 2) {
-      to_ttd = &ht2_v2_to_ttd;
+    else if(meas_mode == 3) {
+      to_ttd = &pt3_v2_to_ttd;
     }
     else {
       return(-1);
     }
   }
-  else if (meas_mode == 3) {
-    if (file_format_version == 1) {
-      to_ttd = &ht3_v1_to_ttd;
+  else if (instrument == (PQ_HH)) {
+    if (meas_mode == 2) {
+      if (fmt_version == 1) {
+	to_ttd = &ht2_v1_to_ttd;
+      }
+      else if (fmt_version == 2) {
+	to_ttd = &ht2_v2_to_ttd;
+      }
+      else {
+	return(-1);
+      }
     }
-    else if (file_format_version == 2) {
-      to_ttd = &ht3_v2_to_ttd;
+    else if (meas_mode == 3) {
+      if (fmt_version == 1) {
+	to_ttd = &ht3_v1_to_ttd;
+      }
+      else if (fmt_version == 2) {
+	to_ttd = &ht3_v2_to_ttd;
+      }
+      else {
+	return(-1);
+      }
     }
-    else {
-      return(-1);
-    }
+  }
+  else {
+    return(-1);
   }
 
   uint64_t num_photons = PHOTONBLOCK;
@@ -188,7 +215,7 @@ uint64_t run_hh_convert(FILE *fpin) {
   ttd_t ttd_record;
   int ttd_buffer_count[channels];
 
-  pq_hh_rec_t *file_block = (pq_hh_rec_t *) malloc(PHOTONBLOCK*sizeof(pq_hh_rec_t));
+  pq_rec_t *file_block = (pq_rec_t *) malloc(PHOTONBLOCK*sizeof(pq_rec_t));
   int ret, channel;
 
   // Open the output files
@@ -202,7 +229,7 @@ uint64_t run_hh_convert(FILE *fpin) {
   uint64_t n;
   while (num_photons == PHOTONBLOCK) {
     // Read file block
-    num_photons = fread(file_block, sizeof(pq_hh_rec_t), PHOTONBLOCK, fpin);
+    num_photons = fread(file_block, sizeof(pq_rec_t), PHOTONBLOCK, fpin);
 
     // Set buffer counters to 0
     for (k=0; k<channels; k++) {
@@ -212,7 +239,7 @@ uint64_t run_hh_convert(FILE *fpin) {
     // Read data into per-channel buffers
     for (n=0; n < num_photons; n++) {
       total_read++;
-      channel = to_ttd(file_block[n], &ttd_record, &overflow_correction);
+      channel = to_ttd(file_block[n], &ttd_record, &overflow_correction, file_info);
       if (channel != -1) {
 	ttd_blocks[channel][ttd_buffer_count[channel]] = ttd_record;
 	++ ttd_buffer_count[channel];
@@ -232,7 +259,7 @@ uint64_t run_hh_convert(FILE *fpin) {
   }
 
   printf("Records Read: %" PRIu64 "\n", total_read);
-  if (total_read != pq_hh_hdr_tttr.nRecords) {
+  if (total_read != file_info->num_records) {
     printf("\nWARNING: Did not reach end of file.\n");
   }
 
@@ -241,31 +268,34 @@ uint64_t run_hh_convert(FILE *fpin) {
 
 int main(int argc, char* argv[]) {
   FILE *ht_file;
+  int retcode;
 
   // Try to open the input file
   if((ht_file = fopen(argv[argc-1],"rb")) == NULL) { 
       printf("\n ERROR: Input file cannot be opened.\n"); 
-      return(-1);
+      goto clean_file;
     }
-
-  if (read_header(ht_file) < 0) { 
-      fclose(ht_file);
-      printf("\n ERROR: Cannot read header. Is %s an HT2 or HT3 file?", argv[1]);
-      return(-1);
-    }
-  write_convert_properties();
+  
+  pq_fileinfo_t file_info;
+  retcode = pq_parse_header(ht_file, &file_info);
+  if (retcode < 0) {
+    goto clean_file;
+  }
+  pq_printf_file_info(&file_info);
 
   // Benchmarking timers
   clock_t start, diff; 		
 
   printf("\n");
   start = clock();
-  run_hh_convert(ht_file);
+  run_hh_convert(ht_file, &file_info);
   diff = clock() - start;
 
   double read_time = (double)diff / CLOCKS_PER_SEC;
   printf("Elapsed Time: %g seconds\n", read_time);
-
+  
+ clean_file:
   fclose(ht_file);
+  
   exit(0);
 }

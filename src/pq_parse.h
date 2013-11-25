@@ -22,8 +22,9 @@
 #define PQ_T2_MODE 2
 #define PQ_T3_MODE 3
 
-#define PQ_V2_PT2_WRAP 210698240
-#define PQ_V2_PT3_WRAP 65536
+// Errors
+#define PQ_FILETYPE_INSTRUMENT_NOT_RECOGNIZED -1
+#define PQ_FILETYPE_VERSION_NOT_RECOGNIZED -2
 
 // Structures for parsing header
 static struct {
@@ -183,15 +184,13 @@ typedef struct {
   int32_t sync_rate;
   ttd_t sync_period;
   int64_t num_records;
+  int32_t num_channels;
 } pq_fileinfo_t;
 
-// Errors
-#define PQ_FILETYPE_INSTRUMENT_NOT_RECOGNIZED -1
-#define PQ_FILETYPE_VERSION_NOT_RECOGNIZED -2
 
 // Function API
-int pq_parse_header(FILE *fpin, pq_fileinfo_t *file_info);
-int pq_parse_filetype(FILE *fpin, pq_fileinfo_t *file_info);
+int pq_parse_header(FILE *fp, pq_fileinfo_t *file_info);
+int pq_parse_filetype(FILE *fp, pq_fileinfo_t *file_info);
 void pq_printf_file_info(pq_fileinfo_t *file_info);
 
 #endif // _PQ_PARSE_HEADER_SEEN
