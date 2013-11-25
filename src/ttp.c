@@ -8,6 +8,10 @@
 
 #include "ttp.h"
 
-void ttp_print_version(char *program_name) {
-  printf("%s Version %s\n", program_name, _ttp_version_string);
+void ttp_print_version() {
+  printf("TTDP %s\n\n", _ttp_version_string);
+  printf("Time tagged data processing software\n");
+  printf("Copyright (c) 2013 Greg Steinbrecher\n");
+  printf("Licensed under the MIT License\n\n");
+
 }

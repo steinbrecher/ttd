@@ -62,6 +62,7 @@ int ttd_fb_cleanup(ttd_fb_t *buffer) {
   }
   if (buffer->buffer_allocated == 1) {
     free(buffer->buffered_records);
+    buffer->buffer_allocated = 0;
   }
   return(0);
 }

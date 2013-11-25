@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = subdir-objects
-bin_PROGRAMS = pq-ttd ttd-g2
-pq_ttd_SOURCES = src/pq_convert.c src/pq_parse.c src/ttd.c
+bin_PROGRAMS = pq-ttd ttd-g2 ttd-doqkd
+pq_ttd_SOURCES = src/pq_ttd.c src/pq_ttd_cli.c src/pq_parse.c src/ttd.c src/ttp.c
 #ttd_dump_SOURCES = src/ttd_dump.c
 #ttd_merge_SOURCES = src/ttd_merge.c
 ttd = src/ttd.c
@@ -10,3 +10,4 @@ ttd_ringbuffer = src/ttd_ringbuffer.c ${ttp_cli}
 ttd_crosscorr = src/ttd_crosscorr.c ${ttd_ringbuffer}
 ttd_filebuffer = src/ttd_filebuffer.c
 ttd_g2_SOURCES = src/ttp_g2.c ${ttd_crosscorr} ${ttd_filebuffer}
+ttd_doqkd_SOURCES = src/ttd_doqkd.c ${ttd_filebuffer} ${ttd}

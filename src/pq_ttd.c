@@ -11,14 +11,15 @@
 #include "ttd.h"
 #include "pq_parse.h"
 #include "pq_records.h"
-#include "pq_convert.h"
+#include "pq_ttd_cli.h"
+#include "pq_ttd.h"
 
 //NOTE: Potential improvement is to pass the channel array structure to the various
 // '_to_ttd' functions and have them handle the updates
 
-int pt2_v2_to_ttd(pq_rec_t TRec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
-  int channel = TRec.ph_t2_bits.channel;
-  int timetag = TRec.ph_t2_bits.timetag;
+int pt2_v2_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
+  int channel = pq_rec.ph_t2_bits.channel;
+  int timetag = pq_rec.ph_t2_bits.timetag;
 
   if (channel == 0xF) { // Special record
     if ((timetag & 0xF) == 0) { // Overflow Record
@@ -33,10 +34,10 @@ int pt2_v2_to_ttd(pq_rec_t TRec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_
   return(-1);
 }
 
-int pt3_v2_to_ttd(pq_rec_t TRec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
-  int channel = TRec.ph_t3_bits.channel;
-  int timetag = TRec.ph_t3_bits.timetag;
-  int nsync = TRec.ph_t3_bits.nsync;
+int pt3_v2_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
+  int channel = pq_rec.ph_t3_bits.channel;
+  int timetag = pq_rec.ph_t3_bits.timetag;
+  int nsync = pq_rec.ph_t3_bits.nsync;
   if (channel == 0xF) { // Overflow
     if (timetag  == 0) { // Overflow Record
       *overflow_correction += PQ_PT3_V2_WRAP;
@@ -50,11 +51,11 @@ int pt3_v2_to_ttd(pq_rec_t TRec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_
 }
 
 
-int ht2_v1_to_ttd(pq_rec_t TRec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
-  // Unpack TRec
-  int special = TRec.hh_t2_bits.special;
-  int channel = TRec.hh_t2_bits.channel;
-  int timetag = TRec.hh_t2_bits.timetag;
+int ht2_v1_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
+  // Unpack pq_rec
+  int special = pq_rec.hh_t2_bits.special;
+  int channel = pq_rec.hh_t2_bits.channel;
+  int timetag = pq_rec.hh_t2_bits.timetag;
   
   uint64_t realtime;
 
@@ -77,10 +78,10 @@ int ht2_v1_to_ttd(pq_rec_t TRec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_
   }
 }
 
-int ht2_v2_to_ttd(pq_rec_t TRec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
-  int special = TRec.hh_t2_bits.special;
-  int channel = TRec.hh_t2_bits.channel;
-  int timetag = TRec.hh_t2_bits.timetag;
+int ht2_v2_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
+  int special = pq_rec.hh_t2_bits.special;
+  int channel = pq_rec.hh_t2_bits.channel;
+  int timetag = pq_rec.hh_t2_bits.timetag;
 
   if (special == 1) {
     if (channel==0x3F) {
@@ -105,16 +106,16 @@ int ht2_v2_to_ttd(pq_rec_t TRec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_
   return(-1);
 }
 
-int ht3_v1_to_ttd(pq_rec_t TRec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
+int ht3_v1_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
   uint64_t sync_period = file_info->sync_period;
   uint64_t resolution = file_info->resolution;
-  int special = TRec.hh_t3_bits.special;
-  int channel = TRec.hh_t3_bits.channel;
-  int nsync = TRec.hh_t3_bits.nsync;
-  int dtime = TRec.hh_t3_bits.dtime;
+  int special = pq_rec.hh_t3_bits.special;
+  int channel = pq_rec.hh_t3_bits.channel;
+  int nsync = pq_rec.hh_t3_bits.nsync;
+  int dtime = pq_rec.hh_t3_bits.dtime;
 
   if (special == 1) {
-    if (TRec.hh_t3_bits.channel==0x3F) {
+    if (pq_rec.hh_t3_bits.channel==0x3F) {
       *overflow_correction += PQ_HT3_V1_WRAP;
     }
   }
@@ -126,13 +127,13 @@ int ht3_v1_to_ttd(pq_rec_t TRec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_
 }
 
 
-int ht3_v2_to_ttd(pq_rec_t TRec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
+int ht3_v2_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
   uint64_t sync_period = file_info->sync_period;
   uint64_t resolution = file_info->resolution;
-  int special = TRec.hh_t3_bits.special;
-  int channel = TRec.hh_t3_bits.channel;
-  int nsync = TRec.hh_t3_bits.nsync;
-  int dtime = TRec.hh_t3_bits.dtime;
+  int special = pq_rec.hh_t3_bits.special;
+  int channel = pq_rec.hh_t3_bits.channel;
+  int nsync = pq_rec.hh_t3_bits.nsync;
+  int dtime = pq_rec.hh_t3_bits.dtime;
 
   if (special == 1) {
     if (channel==0x3F) {
@@ -224,15 +225,16 @@ uint64_t run_hh_convert(FILE *fpin, pq_fileinfo_t *file_info) {
   FILE* outfiles[channels];
   char fname[80];
   for (k=0; k<channels-1; k++) {
-    snprintf(fname, sizeof(fname), "channel-%d.ttd", k+1);
+    snprintf(fname, sizeof(fname), "%s-channel-%d.ttd", pq_ttd_cli_args.output_prefix, k+1);
     outfiles[k] = fopen(fname, "wb");
   }
   // If we're outputting sync, change name of the last file
   if (output_sync) {
-    outfiles[channels-1] = fopen("channel-sync.ttd", "wb");
+    snprintf(fname, sizeof(fname), "%s-channel-sync.ttd", pq_ttd_cli_args.output_prefix);
+    outfiles[channels-1] = fopen(fname, "wb");
   }
   else {
-    snprintf(fname, sizeof(fname), "channel-%d.ttd", channels);
+    snprintf(fname, sizeof(fname), "%s-channel-%d.ttd", pq_ttd_cli_args.output_prefix, channels);
     outfiles[channels-1] = fopen(fname, "wb");
   }
 
@@ -276,16 +278,55 @@ uint64_t run_hh_convert(FILE *fpin, pq_fileinfo_t *file_info) {
   return(total_read);
 }
 
+char *get_prefix(char* filename) {
+  int i, dot_index = -1;
+  char *prefix;
+  for (i=0; i < strlen(filename); i++) {
+    if (filename[i] == '.') {
+      dot_index = i;
+    }
+  }
+  if (dot_index == -1) {
+    prefix = (char *)malloc((strlen(filename)+1)*sizeof(char));
+    strcpy(prefix, filename);
+    return(prefix);
+  }
+  prefix = (char *)malloc((dot_index+2)*sizeof(char));
+  for (i=0; i<dot_index; i++) {
+    prefix[i] = filename[i];
+  }
+  prefix[dot_index] = '\0';
+  return prefix;
+}
 int main(int argc, char* argv[]) {
   FILE *ht_file;
-  int retcode;
+  int retcode,exitcode=0;
+  int prefix_allocated=0;
+  char *output_prefix;
 
-  // Try to open the input file
-  if((ht_file = fopen(argv[argc-1],"rb")) == NULL) { 
-      printf("\n ERROR: Input file cannot be opened.\n"); 
-      goto clean_file;
-    }
-  
+  retcode = pq_ttd_read_cli(argc, argv);
+  if (retcode < 0) {
+    exitcode = retcode;
+    goto cleanup_pq_ttd_cli;
+  }
+  else if (retcode == PQ_TTD_CLI_EXIT_RETCODE) {
+    goto cleanup_pq_ttd_cli;
+  }
+
+  if (pq_ttd_cli_args.infile == NULL) {
+    printf("Error: Please supply input file with '-i [infile]'\n");
+    goto cleanup_pq_ttd_cli;
+  }
+
+  if (pq_ttd_cli_args.output_prefix == NULL) {
+    pq_ttd_cli_args.output_prefix = get_prefix(pq_ttd_cli_args.infile);
+    pq_ttd_cli_args.output_prefix_allocated = 1;
+  }
+
+  printf("Output Prefix: %s\n", pq_ttd_cli_args.output_prefix);
+
+  ht_file = fopen(pq_ttd_cli_args.infile, "rb");
+
   pq_fileinfo_t file_info;
   retcode = pq_parse_header(ht_file, &file_info);
   if (retcode < 0) {
@@ -306,6 +347,9 @@ int main(int argc, char* argv[]) {
   
  clean_file:
   fclose(ht_file);
+
+ cleanup_pq_ttd_cli:
+  pq_ttd_cli_cleanup();
   
-  exit(0);
+  exit(exitcode);
 }
