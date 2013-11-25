@@ -7,10 +7,7 @@
 #include <math.h>
 #include <inttypes.h>
 
-#include "ttp.h"
 #include "ttp_cli.h"
-
-// Common command line options defined here to unify interface across different programs
 
 static const struct option ttp_longopts[] = {
   { "version", no_argument, NULL, 'V' },
@@ -18,19 +15,19 @@ static const struct option ttp_longopts[] = {
 
   { "verbose", no_argument, NULL, 'v' },
 
-  { "input-file-1", required_argument, NULL, 'i' },
-  { "input-file-2", required_argument, NULL, 'I' },
+  { "input1", required_argument, NULL, 'i' },
+  { "input2", required_argument, NULL, 'I' },
 
-  { "output-file-1", required_argument, NULL, 'o' },
-  { "output-file-2", required_argument, NULL, 'O' },
+  { "output-file", required_argument, NULL, 'o' },
 
   { "bin-time", required_argument, NULL, 'b' },
   { "window-time", required_argument, NULL, 'w' },
+  { "input2-offset", required_argument, NULL, 'T' },
 
   { "block-size", required_argument, NULL, 'B' },
 };
 
-static const char *ttp_optstring = "Vhvi:I:o:O:b:w:B:";
+static const char *ttp_optstring = "Vhvi:I:o:T:b:w:B:";
 
 void ttp_cli_print_help(char* program_name) {
   // Need a string of spaces equal in length to the program name
@@ -42,19 +39,20 @@ void ttp_cli_print_help(char* program_name) {
     }
   pn_spaces[len-1] = '\0';
   printf("Usage: %s [-i input_file_1] [-I input_file_2] [-o output_file_1]\n", program_name);
-  printf("       %s [-O output_file_2] [-b bin_time] [-w window_time]\n", pn_spaces);
-  printf("       %s [-B block_size]\n", pn_spaces);
+  printf("       %s [-b bin_time] [-w window_time] [-T input2_offset]\n", pn_spaces);
+  //  printf("       %s [-B block_size]\n", pn_spaces);
 
   printf("\tNotes: \n");
-  printf("\t\t-b (--bin-time):    Specified in picoseconds\n");
-  printf("\t\t-w (--window-time): Window time in picoseconds\n");
-  printf("\t\t-B (--block-size):  Number of photon records to read into RAM at a time.\n");
-  printf("\t\t                    Experimental option; don't change unless you have a good reason.\n");
+  printf("\t\t-b (--bin-time):\tSpecified in picoseconds\n");
+  printf("\t\t-w (--window-time):\tWindow time in picoseconds\n");
+  //  printf("\t\t-B (--block-size):      Number of photon records to read into RAM at a time.\n");
+  //  printf("\t\t                        Experimental option; don't change unless you have a good reason.\n");
+  printf("\t\t-T (--input-offset):\tOffset input2 relative to input1 (input in picoseconds)\n");
 
   printf("\tOther options:\n");
-  printf("\t\t-h (--help):    Print help dialog\n");
-  printf("\t\t-V (--version): Print program version\n");
-  printf("\t\t-v (--verbose): Enable verbose logging\n");
+  printf("\t\t-v (--verbose):\t\tEnable verbose output to stdout\n");
+  printf("\t\t-h (--help):\t\tPrint this help dialog\n");
+  printf("\t\t-V (--version):\t\tPrint program version\n");
 }
 
 int ttp_read_cli(int argc, char* argv[]) {
@@ -63,13 +61,13 @@ int ttp_read_cli(int argc, char* argv[]) {
 
   ttp_cli_args.bin_time = 10;
   ttp_cli_args.window_time = 10000;
+  ttp_cli_args.infile2_offset = 0;
 
   ttp_cli_args.block_size = 16384;
 
   ttp_cli_args.infiles_allocated[0] = 0;
   ttp_cli_args.infiles_allocated[1] = 0;
-  ttp_cli_args.outfiles_allocated[0] = 0;
-  ttp_cli_args.outfiles_allocated[1] = 0;
+  ttp_cli_args.outfile_allocated = 0;
 
   // Read command line options
   int option_index, opt;
@@ -102,22 +100,19 @@ int ttp_read_cli(int argc, char* argv[]) {
       break;
 
     case 'o':
-      ttp_cli_args.outfile1 = (char *)malloc((strlen(optarg)+1)*sizeof(char));
-      ttp_cli_args.outfiles_allocated[0] = 1;
-      strcpy(ttp_cli_args.outfile1, optarg);
+      ttp_cli_args.outfile = (char *)malloc((strlen(optarg)+1)*sizeof(char));
+      ttp_cli_args.outfile_allocated = 1;
+      strcpy(ttp_cli_args.outfile, optarg);
       break;
-    case 'O':
-      ttp_cli_args.outfile2 = (char *)malloc((strlen(optarg)+1)*sizeof(char));
-      ttp_cli_args.outfiles_allocated[1] = 1;
-      strcpy(ttp_cli_args.outfile2, optarg);
-      break;
-      
+
     case 'b':
       ttp_cli_args.bin_time = atoi(optarg);
       break;
     case 'w':
       ttp_cli_args.window_time = atoi(optarg);
       break;
+    case 'T':
+      ttp_cli_args.infile2_offset = atoi(optarg);
 
     case 'B':
       ttp_cli_args.block_size = atoi(optarg);
@@ -142,14 +137,12 @@ void ttp_print_options(int no_verbose) {
   if (ttp_cli_args.infile2 != NULL) {
     printf("Infile 2: %s\n", ttp_cli_args.infile2);
   }
-  if (ttp_cli_args.outfile1 != NULL) {
-    printf("Outfile 1: %s\n", ttp_cli_args.outfile1);
-  }
-  if (ttp_cli_args.outfile2 != NULL) {
-    printf("Outfile 2: %s\n", ttp_cli_args.outfile2);
+  if (ttp_cli_args.outfile != NULL) {
+    printf("Outfile: %s\n", ttp_cli_args.outfile);
   }
   printf("Bin time: %" PRIu64 " ps\n", ttp_cli_args.bin_time);
   printf("Window time: %" PRIu64 " ps\n", ttp_cli_args.window_time);
+  printf("Offset file 2 times by %" PRId64 " ps\n", ttp_cli_args.infile2_offset);
   printf("Block size: %d records\n", ttp_cli_args.block_size);
 }  
 
@@ -163,13 +156,10 @@ void ttp_cli_cleanup() {
     ttp_cli_args.infiles_allocated[1] = 0;
   }
 
-  if(ttp_cli_args.outfiles_allocated[0]) {
-    free(ttp_cli_args.outfile1);
-    ttp_cli_args.outfiles_allocated[0] = 0;
+  if(ttp_cli_args.outfile_allocated) {
+    free(ttp_cli_args.outfile);
+    ttp_cli_args.outfile_allocated = 0;
   }
-  if(ttp_cli_args.outfiles_allocated[1]) {
-    free(ttp_cli_args.outfile2);
-    ttp_cli_args.outfiles_allocated[1] = 0;
-  }
+
 					  
 }

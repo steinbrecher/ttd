@@ -22,9 +22,9 @@ int ttd_fb_openfile(ttd_fb_t *buffer) {
   return(0);
 }
 
-int ttd_fb_init(ttd_fb_t *buffer, uint64_t buffer_size, char* filename) {
+int ttd_fb_init(ttd_fb_t *buffer, uint64_t buffer_size, char* filename, int64_t offset) {
   int retcode = 0;
-  buffer->offset = 0;
+  buffer->offset = offset;
 
   buffer->buffer_size = buffer_size;
   buffer->buffer_fill = 0;

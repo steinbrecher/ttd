@@ -4,6 +4,9 @@
 #define TTP_CLI_EXIT_RETCODE 1
 #define TTP_PRINTOPTIONS_NOVERBOSE 1
 
+#include "ttd.h"
+#include "ttp.h"
+
 struct {
   int verbose; // -v
 
@@ -11,12 +14,13 @@ struct {
   char *infile1; // -i
   char *infile2; // -I
 
-  int outfiles_allocated[2];
-  char *outfile1; // -o
-  char *outfile2; // -O
+  int outfile_allocated;
+  char *outfile; // -o
 
-  uint64_t bin_time; // -b
-  uint64_t window_time; // -w
+
+  ttd_t bin_time; // -b
+  ttd_t window_time; // -w
+  int64_t infile2_offset; // -T (note signed time for negative shifts)
 
   int block_size; // -B
 

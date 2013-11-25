@@ -1,5 +1,5 @@
-#ifndef TTD_HEADER_SEEN
-#define TTD_HEADER_SEEN
+#ifndef _TTD_HEADER_SEEN
+#define _TTD_HEADER_SEEN
 
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
@@ -14,4 +14,4 @@ typedef uint64_t ttd_t;
 ttd_t ttd_rounded_divide(ttd_t t1, ttd_t t2);
 ttd_t ttd_rounded_divide_unsafe(ttd_t t1, ttd_t t2);
 
-#endif // TTD_HEADER_SEEN
+#endif // _TTD_HEADER_SEEN

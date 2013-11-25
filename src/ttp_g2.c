@@ -23,12 +23,14 @@ ttd_ccorr_t *ttp_g2(char* infile1, char* infile2, int *retcode) {
 
   ttd_fb_t fb1, fb2;
 
+  int64_t offset2 = ttp_cli_args.infile2_offset;
+
   // Initialize buffers
-  *retcode = ttd_fb_init(&fb1, ttp_cli_args.block_size, infile1);
+  *retcode = ttd_fb_init(&fb1, ttp_cli_args.block_size, infile1, 0);
   if (retcode < 0) 
     goto fb1_cleanup;
 
-  *retcode = ttd_fb_init(&fb2, ttp_cli_args.block_size, infile2);
+  *retcode = ttd_fb_init(&fb2, ttp_cli_args.block_size, infile2, offset2);
   if (retcode < 0)
     goto fb2_cleanup;
 
@@ -88,7 +90,7 @@ int main(int argc, char* argv[]) {
 
   char *infile1 = ttp_cli_args.infile1;
   char *infile2 = ttp_cli_args.infile2;
-  char *outfile = ttp_cli_args.outfile1;
+  char *outfile = ttp_cli_args.outfile;
   
   if (infile1 == NULL) {
     printf("Error: Missing input file 1. Please specify with the '-i' flag.\n");

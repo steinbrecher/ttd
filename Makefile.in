@@ -99,14 +99,15 @@ am_pq_ttd_OBJECTS = src/pq_convert.$(OBJEXT) src/pq_parse.$(OBJEXT) \
 	src/ttd.$(OBJEXT)
 pq_ttd_OBJECTS = $(am_pq_ttd_OBJECTS)
 pq_ttd_LDADD = $(LDADD)
-am__objects_1 = src/ttp_cli.$(OBJEXT) src/ttp.$(OBJEXT)
-am__objects_2 = src/ttd.$(OBJEXT)
-am__objects_3 = src/ttd_ringbuffer.$(OBJEXT) $(am__objects_1) \
+am__objects_1 = src/ttd.$(OBJEXT)
+am__objects_2 = src/ttp.$(OBJEXT)
+am__objects_3 = src/ttp_cli.$(OBJEXT) $(am__objects_1) \
 	$(am__objects_2)
-am__objects_4 = src/ttd_crosscorr.$(OBJEXT) $(am__objects_3)
-am__objects_5 = src/ttd_filebuffer.$(OBJEXT)
-am_ttd_g2_OBJECTS = src/ttp_g2.$(OBJEXT) $(am__objects_4) \
-	$(am__objects_5)
+am__objects_4 = src/ttd_ringbuffer.$(OBJEXT) $(am__objects_3)
+am__objects_5 = src/ttd_crosscorr.$(OBJEXT) $(am__objects_4)
+am__objects_6 = src/ttd_filebuffer.$(OBJEXT)
+am_ttd_g2_OBJECTS = src/ttp_g2.$(OBJEXT) $(am__objects_5) \
+	$(am__objects_6)
 ttd_g2_OBJECTS = $(am_ttd_g2_OBJECTS)
 ttd_g2_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
@@ -275,8 +276,9 @@ pq_ttd_SOURCES = src/pq_convert.c src/pq_parse.c src/ttd.c
 #ttd_dump_SOURCES = src/ttd_dump.c
 #ttd_merge_SOURCES = src/ttd_merge.c
 ttd = src/ttd.c
-ttp_cli = src/ttp_cli.c src/ttp.c
-ttd_ringbuffer = src/ttd_ringbuffer.c ${ttp_cli} ${ttd}
+ttp = src/ttp.c
+ttp_cli = src/ttp_cli.c ${ttd} ${ttp}
+ttd_ringbuffer = src/ttd_ringbuffer.c ${ttp_cli}
 ttd_crosscorr = src/ttd_crosscorr.c ${ttd_ringbuffer}
 ttd_filebuffer = src/ttd_filebuffer.c
 ttd_g2_SOURCES = src/ttp_g2.c ${ttd_crosscorr} ${ttd_filebuffer}
