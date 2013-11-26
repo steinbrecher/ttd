@@ -118,7 +118,7 @@ am__objects_4 = src/ttp_cli.$(OBJEXT) $(am__objects_2) \
 	$(am__objects_3)
 am__objects_5 = src/ttd_ringbuffer.$(OBJEXT) $(am__objects_4)
 am__objects_6 = src/ttd_crosscorr.$(OBJEXT) $(am__objects_5)
-am_ttd_g2_OBJECTS = src/ttp_g2.$(OBJEXT) $(am__objects_6) \
+am_ttd_g2_OBJECTS = src/ttd_g2.$(OBJEXT) $(am__objects_6) \
 	$(am__objects_1)
 ttd_g2_OBJECTS = $(am_ttd_g2_OBJECTS)
 ttd_g2_LDADD = $(LDADD)
@@ -300,7 +300,7 @@ ttp_cli = src/ttp_cli.c ${ttd} ${ttp}
 ttd_ringbuffer = src/ttd_ringbuffer.c ${ttp_cli}
 ttd_crosscorr = src/ttd_crosscorr.c ${ttd_ringbuffer}
 ttd_filebuffer = src/ttd_filebuffer.c
-ttd_g2_SOURCES = src/ttp_g2.c ${ttd_crosscorr} ${ttd_filebuffer}
+ttd_g2_SOURCES = src/ttd_g2.c ${ttd_crosscorr} ${ttd_filebuffer}
 ttd_doqkd_SOURCES = src/ttd_doqkd.c src/ttd_doqkd_cli.c ${ttd_filebuffer} ${ttd}
 ttd_delay_SOURCES = src/ttd_delay.c ${ttd_filebuffer} ${ttd} ${ttp}
 all: config.h
@@ -439,7 +439,7 @@ src/ttd_dump.$(OBJEXT): src/$(am__dirstamp) \
 ttd-dump$(EXEEXT): $(ttd_dump_OBJECTS) $(ttd_dump_DEPENDENCIES) $(EXTRA_ttd_dump_DEPENDENCIES) 
 	@rm -f ttd-dump$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(ttd_dump_OBJECTS) $(ttd_dump_LDADD) $(LIBS)
-src/ttp_g2.$(OBJEXT): src/$(am__dirstamp) \
+src/ttd_g2.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/ttd_crosscorr.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
@@ -475,11 +475,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_doqkd_cli.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_dump.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_filebuffer.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_g2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_merge.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_ringbuffer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttp_cli.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttp_g2.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\

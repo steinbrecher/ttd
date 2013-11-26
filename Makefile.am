@@ -9,6 +9,6 @@ ttp_cli = src/ttp_cli.c ${ttd} ${ttp}
 ttd_ringbuffer = src/ttd_ringbuffer.c ${ttp_cli}
 ttd_crosscorr = src/ttd_crosscorr.c ${ttd_ringbuffer}
 ttd_filebuffer = src/ttd_filebuffer.c
-ttd_g2_SOURCES = src/ttp_g2.c ${ttd_crosscorr} ${ttd_filebuffer}
+ttd_g2_SOURCES = src/ttd_g2.c ${ttd_crosscorr} ${ttd_filebuffer}
 ttd_doqkd_SOURCES = src/ttd_doqkd.c src/ttd_doqkd_cli.c ${ttd_filebuffer} ${ttd}
 ttd_delay_SOURCES = src/ttd_delay.c ${ttd_filebuffer} ${ttd} ${ttp}

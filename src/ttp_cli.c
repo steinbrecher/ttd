@@ -59,7 +59,10 @@ int ttp_read_cli(int argc, char* argv[]) {
   // Initialize default values
   ttp_cli_args.verbose = 0;
 
+  int bin_time_set = 0;
   ttp_cli_args.bin_time = 10;
+
+  int window_time_set = 0;
   ttp_cli_args.window_time = 10000;
   ttp_cli_args.infile2_offset = 0;
 
@@ -107,9 +110,11 @@ int ttp_read_cli(int argc, char* argv[]) {
 
     case 'b':
       ttp_cli_args.bin_time = atoi(optarg);
+      bin_time_set = 1;
       break;
     case 'w':
       ttp_cli_args.window_time = atoi(optarg);
+      window_time_set = 1;
       break;
     case 'T':
       ttp_cli_args.infile2_offset = atoi(optarg);
@@ -124,6 +129,13 @@ int ttp_read_cli(int argc, char* argv[]) {
     }
     opt = getopt_long(argc, argv, ttp_optstring, ttp_longopts, &option_index);
   }
+
+  if (!(bin_time_set))
+    printf("Warning: Bin time not specified. Using default value of %" PRIu64 " ps", ttp_cli_args.bin_time);
+
+  if (!(bin_time_set))
+    printf("Warning: Window time not specified. Using default value of %" PRIu64 "  ps", ttp_cli_args.window_time);
+
   return(0);
 }
 
