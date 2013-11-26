@@ -50,18 +50,18 @@ void ttd_delay_print_help(char* program_name) {
   printf("Usage: %s [-i infile] [-o outfile] [-T offset_time]\n", program_name);
   
   printf("\tNotes: \n");
-  printf("\t\t-T (--offset): Amount to offset data in picoseconds. This must be positive.");
+  printf("\t\t-T (--offset):\tAmount to offset data in picoseconds. This must be positive.\n");
+  printf("\t\t              \tNote that this option supports scientific notation (i.e. 5e4)\n");
 
   printf("\tOther options:\n");
-  printf("\t\t-v (--verbose):\t\tEnable verbose output to stdout\n");
-  printf("\t\t-h (--help):\t\tPrint this help dialog\n");
-  printf("\t\t-V (--version):\t\tPrint program version\n");
+  printf("\t\t-v (--verbose):\tEnable verbose output to stdout\n");
+  printf("\t\t-h (--help):\tPrint this help dialog\n");
+  printf("\t\t-V (--version):\tPrint program version\n");
 }
 
 #define SCITOLL_MULTIPLE_E -1
-#define SCITOLL_NO_E -2
-#define SCITOLL_NO_MANTISSA -3
-#define SCITOLL_NO_EXPONENT -4
+#define SCITOLL_NO_MANTISSA -2
+#define SCITOLL_NO_EXPONENT -3
 // Converts number in scientific notation to int64_t
 long long scitoll(char* scinum) {
   char *eptr, *Eptr;
@@ -74,11 +74,11 @@ long long scitoll(char* scinum) {
   else if (eptr != NULL) {
     offset = eptr - scinum;
   }
-  else if (eptr != NULL) {
+  else if (Eptr != NULL) {
     offset = Eptr - scinum;
   }
   else {
-    return(SCITOLL_NO_E);
+    return(atoll(scinum));
   }
   
   if (offset == 0) 
@@ -105,6 +105,7 @@ long long scitoll(char* scinum) {
     
 
 int ttd_delay_read_cli(int argc, char* argv[]) {
+  int retcode = 0;
   ttd_delay_cli_args.verbose = 0;
   ttd_delay_cli_args.infile_allocated = 0;
   ttd_delay_cli_args.outfile_allocated = 0;
@@ -142,29 +143,33 @@ int ttd_delay_read_cli(int argc, char* argv[]) {
       break;
 
     case 'T':
-      found_e = strrchr(optarg, 'e');
-      found_E = strrchr(optarg, 'E'); 
-      if ((found_e == NULL) && (found_E == NULL)) {
-	ttd_delay_cli_args.delay = atoll(optarg);
-      }
-      else {
-	//TODO: scitoll error handling here
-	ttd_delay_cli_args.delay = scitoll(optarg);
+      ttd_delay_cli_args.delay = scitoll(optarg);
+      if (ttd_delay_cli_args.delay < 0) {
+	retcode = ttd_delay_cli_args.delay;
+	goto cli_return; 
       }
     default:
       break;
     }
     opt = getopt_long(argc, argv, ttd_delay_optstring, ttd_delay_longopts, &option_index);
   }
-  return(0);
+ cli_return:
+  return(retcode);
 }
 
 
 // TODO: Error handling
 int main(int argc, char *argv[]) {
-  int exitcode = 0;
+  int retcode, exitcode = 0;
   
-  ttd_delay_read_cli(argc, argv);
+  retcode = ttd_delay_read_cli(argc, argv);
+  if (retcode == TTD_DELAY_EXIT) {
+    goto cleanup_cli;
+  }
+  else if (retcode < 0) {
+    exitcode = retcode;
+    goto cleanup_cli;
+  }
 
   int outfile_open=0;
   FILE *outfile;
