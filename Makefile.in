@@ -77,7 +77,7 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 bin_PROGRAMS = pq-ttd$(EXEEXT) ttd-g2$(EXEEXT) ttd-doqkd$(EXEEXT) \
-	ttd-merge$(EXEEXT)
+	ttd-merge$(EXEEXT) ttd-delay$(EXEEXT)
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
@@ -102,11 +102,15 @@ pq_ttd_OBJECTS = $(am_pq_ttd_OBJECTS)
 pq_ttd_LDADD = $(LDADD)
 am__objects_1 = src/ttd_filebuffer.$(OBJEXT)
 am__objects_2 = src/ttd.$(OBJEXT)
+am__objects_3 = src/ttp.$(OBJEXT)
+am_ttd_delay_OBJECTS = src/ttd_delay.$(OBJEXT) $(am__objects_1) \
+	$(am__objects_2) $(am__objects_3)
+ttd_delay_OBJECTS = $(am_ttd_delay_OBJECTS)
+ttd_delay_LDADD = $(LDADD)
 am_ttd_doqkd_OBJECTS = src/ttd_doqkd.$(OBJEXT) \
 	src/ttd_doqkd_cli.$(OBJEXT) $(am__objects_1) $(am__objects_2)
 ttd_doqkd_OBJECTS = $(am_ttd_doqkd_OBJECTS)
 ttd_doqkd_LDADD = $(LDADD)
-am__objects_3 = src/ttp.$(OBJEXT)
 am__objects_4 = src/ttp_cli.$(OBJEXT) $(am__objects_2) \
 	$(am__objects_3)
 am__objects_5 = src/ttd_ringbuffer.$(OBJEXT) $(am__objects_4)
@@ -147,10 +151,10 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(pq_ttd_SOURCES) $(ttd_doqkd_SOURCES) $(ttd_g2_SOURCES) \
-	$(ttd_merge_SOURCES)
-DIST_SOURCES = $(pq_ttd_SOURCES) $(ttd_doqkd_SOURCES) \
+SOURCES = $(pq_ttd_SOURCES) $(ttd_delay_SOURCES) $(ttd_doqkd_SOURCES) \
 	$(ttd_g2_SOURCES) $(ttd_merge_SOURCES)
+DIST_SOURCES = $(pq_ttd_SOURCES) $(ttd_delay_SOURCES) \
+	$(ttd_doqkd_SOURCES) $(ttd_g2_SOURCES) $(ttd_merge_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -294,6 +298,7 @@ ttd_crosscorr = src/ttd_crosscorr.c ${ttd_ringbuffer}
 ttd_filebuffer = src/ttd_filebuffer.c
 ttd_g2_SOURCES = src/ttp_g2.c ${ttd_crosscorr} ${ttd_filebuffer}
 ttd_doqkd_SOURCES = src/ttd_doqkd.c src/ttd_doqkd_cli.c ${ttd_filebuffer} ${ttd}
+ttd_delay_SOURCES = src/ttd_delay.c ${ttd_filebuffer} ${ttd} ${ttp}
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -408,11 +413,17 @@ src/ttp.$(OBJEXT): src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 pq-ttd$(EXEEXT): $(pq_ttd_OBJECTS) $(pq_ttd_DEPENDENCIES) $(EXTRA_pq_ttd_DEPENDENCIES) 
 	@rm -f pq-ttd$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(pq_ttd_OBJECTS) $(pq_ttd_LDADD) $(LIBS)
+src/ttd_delay.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/ttd_filebuffer.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+
+ttd-delay$(EXEEXT): $(ttd_delay_OBJECTS) $(ttd_delay_DEPENDENCIES) $(EXTRA_ttd_delay_DEPENDENCIES) 
+	@rm -f ttd-delay$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(ttd_delay_OBJECTS) $(ttd_delay_LDADD) $(LIBS)
 src/ttd_doqkd.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/ttd_doqkd_cli.$(OBJEXT): src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/ttd_filebuffer.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 
 ttd-doqkd$(EXEEXT): $(ttd_doqkd_OBJECTS) $(ttd_doqkd_DEPENDENCIES) $(EXTRA_ttd_doqkd_DEPENDENCIES) 
@@ -449,6 +460,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pq_ttd_cli.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_crosscorr.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_delay.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_doqkd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_doqkd_cli.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_filebuffer.Po@am__quote@
