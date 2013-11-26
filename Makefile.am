@@ -1,7 +1,7 @@
 AUTOMAKE_OPTIONS = subdir-objects
-bin_PROGRAMS = pq-ttd ttd-g2 ttd-doqkd ttd-merge ttd-delay
+bin_PROGRAMS = pq-ttd ttd-g2 ttd-doqkd ttd-merge ttd-delay ttd-dump
 pq_ttd_SOURCES = src/pq_ttd.c src/pq_ttd_cli.c src/pq_parse.c src/ttd.c src/ttp.c
-#ttd_dump_SOURCES = src/ttd_dump.c
+ttd_dump_SOURCES = src/ttd_dump.c src/ttd.h
 ttd_merge_SOURCES = src/ttd_merge.c src/ttd_filebuffer.c src/ttd.c
 ttd = src/ttd.c
 ttp = src/ttp.c

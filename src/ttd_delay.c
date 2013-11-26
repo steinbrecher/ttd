@@ -184,7 +184,7 @@ int main(int argc, char *argv[]) {
   ttd_fb_t fb;
   ttd_fb_init(&fb, 16384, ttd_delay_cli_args.infile, ttd_delay_cli_args.delay);
 
-  ttd_t time;
+  ttd_t time = ttd_fb_pop(&fb);
   while (!(fb.empty)) {
     fwrite(&time, sizeof(ttd_t), 1, outfile); 
     time = ttd_fb_pop(&fb);
