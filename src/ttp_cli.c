@@ -7,6 +7,7 @@
 #include <math.h>
 #include <inttypes.h>
 
+#include "scitollu.h"
 #include "ttp_cli.h"
 
 static const struct option ttp_longopts[] = {
@@ -109,18 +110,18 @@ int ttp_read_cli(int argc, char* argv[]) {
       break;
 
     case 'b':
-      ttp_cli_args.bin_time = atoi(optarg);
+      ttp_cli_args.bin_time = scitollu(optarg);
       bin_time_set = 1;
       break;
     case 'w':
-      ttp_cli_args.window_time = atoi(optarg);
+      ttp_cli_args.window_time = scitollu(optarg);
       window_time_set = 1;
       break;
     case 'T':
-      ttp_cli_args.infile2_offset = atoi(optarg);
+      ttp_cli_args.infile2_offset = atoll(optarg);
 
     case 'B':
-      ttp_cli_args.block_size = atoi(optarg);
+      ttp_cli_args.block_size = scitollu(optarg);
       break;
 
     default:
@@ -131,10 +132,10 @@ int ttp_read_cli(int argc, char* argv[]) {
   }
 
   if (!(bin_time_set))
-    printf("Warning: Bin time not specified. Using default value of %" PRIu64 " ps", ttp_cli_args.bin_time);
+    printf("Warning: Bin time not specified. Using default value of %" PRIu64 " ps\n", ttp_cli_args.bin_time);
 
   if (!(bin_time_set))
-    printf("Warning: Window time not specified. Using default value of %" PRIu64 "  ps", ttp_cli_args.window_time);
+    printf("Warning: Window time not specified. Using default value of %" PRIu64 " ps\n", ttp_cli_args.window_time);
 
   return(0);
 }

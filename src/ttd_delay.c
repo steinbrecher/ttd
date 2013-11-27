@@ -10,6 +10,7 @@
 #include "ttd.h"
 #include "ttp.h"
 #include "ttd_filebuffer.h"
+#include "scitollu.h"
 
 #define TTD_DELAY_EXIT 1
 
@@ -59,53 +60,8 @@ void ttd_delay_print_help(char* program_name) {
   printf("\t\t-V (--version):\tPrint program version\n");
 }
 
-#define SCITOLL_MULTIPLE_E -1
-#define SCITOLL_NO_MANTISSA -2
-#define SCITOLL_NO_EXPONENT -3
-// Converts number in scientific notation to int64_t
-long long scitoll(char* scinum) {
-  char *eptr, *Eptr;
-  int offset;
-  eptr = strrchr(scinum, 'e');
-  Eptr = strrchr(scinum, 'E'); 
-  if ((eptr != NULL) && (Eptr != NULL)) {
-    return(SCITOLL_MULTIPLE_E);
-  }
-  else if (eptr != NULL) {
-    offset = eptr - scinum;
-  }
-  else if (Eptr != NULL) {
-    offset = Eptr - scinum;
-  }
-  else {
-    return(atoll(scinum));
-  }
-  
-  if (offset == 0) 
-    return(SCITOLL_NO_MANTISSA);
-
-  if (offset == strlen(scinum))
-    return(SCITOLL_NO_EXPONENT);
-
-  char mantissa[strlen(scinum)+1];
-  char exponent[strlen(scinum)+1];
-  int i;
-  for (i=0; i<offset; i++) {
-    mantissa[i] = scinum[i];
-  }
-  mantissa[offset] = '\0';
-  for (i=offset+1; i<strlen(scinum)+1; i++) {
-    exponent[i-offset-1] = scinum[i];
-  }
-  exponent[strlen(scinum)-offset] = '\0';
-  long long output;
-  output = atoll(mantissa)*pow(10,atoll(exponent));
-  return output;
-}
-    
-
 int ttd_delay_read_cli(int argc, char* argv[]) {
-  int retcode = 0;
+  int64_t retcode = 0;
   ttd_delay_cli_args.verbose = 0;
   ttd_delay_cli_args.infile_allocated = 0;
   ttd_delay_cli_args.outfile_allocated = 0;
@@ -143,9 +99,21 @@ int ttd_delay_read_cli(int argc, char* argv[]) {
       break;
 
     case 'T':
-      ttd_delay_cli_args.delay = scitoll(optarg);
+      ttd_delay_cli_args.delay = scitollu(optarg);
       if (ttd_delay_cli_args.delay < 0) {
 	retcode = ttd_delay_cli_args.delay;
+	switch(retcode) {
+	case SCITOLLU_MULTIPLE_E:
+	  printf("Error: Delay is not a number\n");
+	case SCITOLLU_NO_MANTISSA:
+	  printf("Error: Delay missing mantissa\n");
+	case SCITOLLU_NO_EXPONENT:
+	  printf("Error: Delay missing exponent\n");
+	case SCITOLLU_NEGATIVE:
+	  printf("Error: Delay must be positive\n");
+	case SCITOLLU_DECIMAL:
+	  printf("Error: Delay may not have a decimal\n");
+	}
 	goto cli_return; 
       }
     default:
@@ -158,7 +126,6 @@ int ttd_delay_read_cli(int argc, char* argv[]) {
 }
 
 
-// TODO: Error handling
 int main(int argc, char *argv[]) {
   int retcode, exitcode = 0;
   
