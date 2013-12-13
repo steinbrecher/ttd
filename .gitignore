@@ -2,13 +2,14 @@
 *.pqb
 *.ttd
 *.o
+*.exe
 
-pq_g2
-pq_convert
-pqb_doqkd
-pqb_dump
-pqb_merge
-pqb_g2
+pq-ttd
+ttd-delay
+ttd-doqkd
+ttd-dump
+ttd-g2
+ttd-merge
 
 autom4te.cache
 autom4te.cache/*
