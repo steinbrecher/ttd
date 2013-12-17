@@ -1,0 +1,2 @@
+More details in README, but a standard ./configure && make && sudo make install
+should work on most systems.
