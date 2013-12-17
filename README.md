@@ -21,16 +21,14 @@ that's in the future.
 
 2. Install the software. Commands are:
 
-	`% ./configure`
-	
-	`% make`
-	
-	`% sudo make install`
+		% ./configure
+		% make
+		% sudo make install
 
 	I usually break it out like this in case there are errors, but you can do it in 
 	one line also:
 
-	`% ./configure && make && sudo make install`
+		% ./configure && make && sudo make install
 
 	The sudo command will ask you for your password; totally normal.
 
@@ -40,7 +38,7 @@ To run a g2 (really, a cross correlation since they're not normalized):
 
 1. Convert your file from .pt2 (or .pt3, .ht2, or .ht3) to .ttd files:
 
-	`% pq-ttd -i [your file] -o [prefix for per-channel files]`
+		% pq-ttd -i [your file] -o [prefix for per-channel files]
 
 	Note that this breaks out a single file in to one 'ttd' file per channel of the 
 	source data.
@@ -53,8 +51,7 @@ To run a g2 (really, a cross correlation since they're not normalized):
 
 2. Run the cross correlation:
 
-	`% ttd-g2 -i [channel 1 ttd file] -I [channel 2 ttd file] -o [output csv] 
-	   -b [bin time] -w [corelation window time]`
+		% ttd-g2 -i [channel 1 ttd file] -I [channel 2 ttd file] -o [output csv] -b [bin time] -w [corelation window time]
 
 	All times are in picoseconds.
 
@@ -62,7 +59,9 @@ To run a g2 (really, a cross correlation since they're not normalized):
 	corresponds to the bin time, the second corresponds to the number of counts in that
 	bin. I prefer MATLAB for quick plotitng: 
 
-`>> data = csvread('crosscorr.csv'); figure; plot(data(:,1), data(:,2);`
+		>> data = csvread('crosscorr.csv');
+		>> figure;
+		>> plot(data(:,1), data(:,2);
 
 ## Other Notes ##
 
@@ -74,7 +73,7 @@ order). This is more useful when you have HydraHarp data with more than 2 channe
 - ttd-dump prints the times of each record in the file, one per line. This isn't 
 recommended except for debugging. e.g.
 
-	`% ttd-dump blah.ttd | head -n 50`
+		% ttd-dump blah.ttd | head -n 50
 
 	will let you quickly check the first 50 records from the file. 
 
