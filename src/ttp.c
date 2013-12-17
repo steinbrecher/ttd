@@ -1,4 +1,6 @@
+#ifndef __STDC_FORMAT_MACROS
 #define __STDC_FORMAT_MACROS
+#endif
 #include <stdio.h>
 #include <math.h>
 #include <inttypes.h>
