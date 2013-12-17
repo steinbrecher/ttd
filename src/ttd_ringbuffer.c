@@ -45,6 +45,9 @@ void ttd_rb_insert(ttd_rb_t *rb, ttd_t time) {
   int end = (rb->start + rb->count) % rb->size;
   rb->times[end] = time;
   ++ rb->count;
+  if (rb->count == (rb->size-1)) {
+    ttd_rb_grow(rb);
+  }
 }
 
 void ttd_rb_prune(ttd_rb_t *rb, ttd_t time) {
@@ -62,6 +65,19 @@ void ttd_rb_cleanup(ttd_rb_t *rb) {
     free(rb->times);
     rb->times_allocated = 0;
   }
+}
+
+int ttd_rb_grow(ttd_rb_t *rb) {
+  ttd_t *newbuff;
+  if (rb->times_allocated == 1) {
+    newbuff = (ttd_t *) malloc(2*rb->size*sizeof(ttd_t));
+    memcpy(newbuff, rb->times, rb->size);
+    rb->size = rb->size*2;
+    free(rb->times);
+    rb->times = newbuff;
+    return(0);
+  }
+  return(-1);
 }
 
 

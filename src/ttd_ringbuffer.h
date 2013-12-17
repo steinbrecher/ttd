@@ -25,4 +25,6 @@ void ttd_rb_prune(ttd_rb_t *rb, ttd_t time);
 
 void ttd_rb_cleanup(ttd_rb_t *rb);
 
+int ttd_rb_grow(ttd_rb_t *rb);
+
 #endif // _TTD_RINGBUFFER_HEADER_SEEN
