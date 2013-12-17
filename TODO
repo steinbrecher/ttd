@@ -1,15 +1,5 @@
 Ideas for future work:
 
-* Convert handling of time from a double to a 64-bit integer (in picoseconds).
-  2^64 picoseconds is ~213 days so this wouldn't be a practical limit in terms
-  of integration time. 
-
-* Support PicoHarp files.
-  Probably want to separate the file interface from the g^(2) or other 
-  data processing code. 
-  I think there are two file format versions of interest here -- need to get
-  the full specifications for those. 
-
 * Write MATLAB .mex wrappers. 
   Would probably be best accomplished by compiling the g^(2) code as a shared
   library and then linking it to a bare-bones .mex implementation. 
