@@ -74,6 +74,3 @@ recommended except for debugging. e.g.
 will let you quickly check the first 50 records from the file. 
 
 - ttd-delay allows for a permanent time offset for one of the channels.
-
-- ttd-doqkd is for doqkd data; unless you know what this is you probably don't need 
-to touch it

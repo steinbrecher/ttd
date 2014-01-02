@@ -79,6 +79,3 @@ recommended except for debugging. e.g.
 
 - ttd-delay allows for a permanent time offset for one of the channels.
 
-- ttd-doqkd is for doqkd data; unless you know what this is you probably don't need 
-to touch it
-
