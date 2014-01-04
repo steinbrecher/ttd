@@ -23,5 +23,8 @@ int ttd_fb_openfile(ttd_fb_t *buffer, char* filename);
 int ttd_fb_cleanup(ttd_fb_t *buffer);
 ttd_t ttd_fb_pop(ttd_fb_t *buffer);
 
+#define TTD_FB_MALLOC_ERROR -1;
+#define TTD_FB_FILE_OPEN_ERROR -2;
+
 #endif // _TTD_FILEBUFFER_HEADER_SEEN
 

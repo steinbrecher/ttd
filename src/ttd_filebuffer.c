@@ -14,9 +14,10 @@
 int ttd_fb_openfile(ttd_fb_t *buffer, char* filename) {
   if ((buffer->fp = fopen(buffer->filename, "rb")) == NULL) {
     printf("ERROR: Could not open %s for reading\n", buffer->filename);
-    return(-1);
+    return TTD_FB_FILE_OPEN_ERROR;
   }
   buffer->file_open = 1;
+
   return(0);
 }
 
@@ -32,10 +33,18 @@ int ttd_fb_init(ttd_fb_t *buffer, uint64_t buffer_size, char* filename, int64_t 
 
   buffer->buffer_allocated = 0;
   buffer->buffered_records = (ttd_t *)malloc(buffer->buffer_size * sizeof(ttd_t));
+  if (buffer->buffered_records == NULL) {
+    retcode = TTD_FB_MALLOC_ERROR;
+    goto error_cleanup;
+  }
   buffer->buffer_allocated = 1;
 
 
   buffer->filename = (char *)malloc((strlen(filename)+1)*sizeof(char));
+  if (buffer->filename == NULL) {
+    retcode = TTD_FB_MALLOC_ERROR;
+    goto error_cleanup;
+  }
   buffer->filename_allocated = 1;
   strcpy(buffer->filename, filename);
 
@@ -46,6 +55,10 @@ int ttd_fb_init(ttd_fb_t *buffer, uint64_t buffer_size, char* filename, int64_t 
     ttd_fb_cleanup(buffer);
   }
 
+  return(retcode);
+
+ error_cleanup:
+  ttd_fb_cleanup(buffer);
   return(retcode);
 }
 
