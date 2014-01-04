@@ -13,3 +13,6 @@
 #include "pq_parse.h"
 #include "pq_filebuffer.h"
 
+int pq_fb_openfile(pq_fb_t *buffer) {
+
+}

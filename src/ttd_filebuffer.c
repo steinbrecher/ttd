@@ -8,19 +8,15 @@
 #include <math.h>
 #include <string.h>
 
-#include "ttp_cli.h"
 #include "ttd.h"
 #include "ttd_filebuffer.h"
 
-int ttd_fb_openfile(ttd_fb_t *buffer) {
+int ttd_fb_openfile(ttd_fb_t *buffer, char* filename) {
   if ((buffer->fp = fopen(buffer->filename, "rb")) == NULL) {
     printf("ERROR: Could not open %s for reading\n", buffer->filename);
     return(-1);
   }
   buffer->file_open = 1;
-  if (ttp_cli_args.verbose == 1) {
-    printf("ttb_fb_openfile: Opened %s for reading\n", buffer->filename);
-  }
   return(0);
 }
 
@@ -44,7 +40,7 @@ int ttd_fb_init(ttd_fb_t *buffer, uint64_t buffer_size, char* filename, int64_t 
   strcpy(buffer->filename, filename);
 
   buffer->file_open = 0;
-  retcode = ttd_fb_openfile(buffer);
+  retcode = ttd_fb_openfile(buffer, buffer->filename);
 
   if (retcode < 0) {
     ttd_fb_cleanup(buffer);
