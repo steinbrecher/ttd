@@ -4,7 +4,7 @@
 typedef struct {
   uint64_t rbs_counts[2];
   ttd_t most_common_time;
-} ttd_ccorr_stats_t;
+} ttd_ccorr2_stats_t;
 
 typedef struct {
   ttd_t bin_time;
@@ -15,24 +15,24 @@ typedef struct {
 
   int64_t total;
 
-  ttd_ccorr_stats_t stats;
+  ttd_ccorr2_stats_t stats;
 
   int rbs_allocated[2];
   ttd_rb_t *rbs[2];
 
   int hist_allocated;
   ttd_t *hist;
-} ttd_ccorr_t;
+} ttd_ccorr2_t;
 
-void ttd_ccorr_init(ttd_ccorr_t *ccor, ttd_rb_t *rb1, ttd_rb_t *rb2);
+void ttd_ccorr2_init(ttd_ccorr2_t *ccor, ttd_rb_t *rb1, ttd_rb_t *rb2);
 
-ttd_ccorr_t *ttd_ccorr_build(int rb_size, ttd_t rb_duration);
+ttd_ccorr2_t *ttd_ccorr2_build(int rb_size, ttd_t rb_duration);
 
-void ttd_ccorr_update(ttd_ccorr_t *ccorr, int rb_num, ttd_t time);
+void ttd_ccorr2_update(ttd_ccorr2_t *ccorr, int rb_num, ttd_t time);
 
-void ttd_ccorr_write_csv(ttd_ccorr_t *ccorr, char *file_name);
+void ttd_ccorr2_write_csv(ttd_ccorr2_t *ccorr, char *file_name);
 
-void ttd_ccorr_cleanup(ttd_ccorr_t *ccorr);
+void ttd_ccorr2_cleanup(ttd_ccorr2_t *ccorr);
 
 
 #endif // _TTD_CROSSCORR_HEADER

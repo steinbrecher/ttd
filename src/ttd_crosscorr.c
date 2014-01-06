@@ -13,7 +13,7 @@
 #include "ttd_ringbuffer.h"
 #include "ttd_crosscorr.h"
 
-void ttd_ccorr_init(ttd_ccorr_t *ccorr, ttd_rb_t *rb1, ttd_rb_t *rb2) {
+void ttd_ccorr2_init(ttd_ccorr2_t *ccorr, ttd_rb_t *rb1, ttd_rb_t *rb2) {
   ttd_t bin_time = ttp_cli_args.bin_time;
   ttd_t window_time = ttp_cli_args.window_time;
 
@@ -33,8 +33,8 @@ void ttd_ccorr_init(ttd_ccorr_t *ccorr, ttd_rb_t *rb1, ttd_rb_t *rb2) {
   ccorr->hist_allocated = 1;
 }
 
-ttd_ccorr_t *ttd_ccorr_build(int rb_size, ttd_t rb_duration) {
-  ttd_ccorr_t *ccorr = (ttd_ccorr_t *)malloc(sizeof(ttd_ccorr_t));
+ttd_ccorr2_t *ttd_ccorr2_build(int rb_size, ttd_t rb_duration) {
+  ttd_ccorr2_t *ccorr = (ttd_ccorr2_t *)malloc(sizeof(ttd_ccorr2_t));
 
   ttd_rb_t *rb1 = ttd_rb_build(rb_size, rb_duration);
   ccorr->rbs_allocated[0] = 1;
@@ -42,12 +42,12 @@ ttd_ccorr_t *ttd_ccorr_build(int rb_size, ttd_t rb_duration) {
   ttd_rb_t *rb2 = ttd_rb_build(rb_size, rb_duration);
   ccorr->rbs_allocated[1] = 1;
 
-  ttd_ccorr_init(ccorr, rb1, rb2);
+  ttd_ccorr2_init(ccorr, rb1, rb2);
   return ccorr;
 }
 
 // Note: Unlike in previous versions, rb_num is the channel the photon *did* arrive on
-void ttd_ccorr_update(ttd_ccorr_t *ccorr, int rb_num, ttd_t time) {
+void ttd_ccorr2_update(ttd_ccorr2_t *ccorr, int rb_num, ttd_t time) {
   // Insert into the appropriate ringbuffer
   ttd_rb_insert(ccorr->rbs[rb_num], time);
 
@@ -73,7 +73,7 @@ void ttd_ccorr_update(ttd_ccorr_t *ccorr, int rb_num, ttd_t time) {
   }
 }
 
-void ttd_ccorr_write_csv(ttd_ccorr_t *ccorr, char *file_name) {
+void ttd_ccorr2_write_csv(ttd_ccorr2_t *ccorr, char *file_name) {
   FILE *output_file = fopen(file_name, "wb");
   ttd_t bin_time = ccorr->bin_time;
   ttd_t window_time = ccorr->window_time;
@@ -86,7 +86,7 @@ void ttd_ccorr_write_csv(ttd_ccorr_t *ccorr, char *file_name) {
   fclose(output_file);
 }
 
-void ttd_ccorr_cleanup(ttd_ccorr_t *ccorr) {
+void ttd_ccorr2_cleanup(ttd_ccorr2_t *ccorr) {
   ttd_rb_cleanup(ccorr->rbs[0]);
   ttd_rb_cleanup(ccorr->rbs[1]);
   if (ccorr->rbs_allocated[0]) {
