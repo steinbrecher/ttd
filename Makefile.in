@@ -114,7 +114,7 @@ ttd_dump_LDADD = $(LDADD)
 am__objects_5 = src/ttp_cli.$(OBJEXT) $(am__objects_3) \
 	$(am__objects_4)
 am__objects_6 = src/ttd_ringbuffer.$(OBJEXT) $(am__objects_5)
-am__objects_7 = src/ttd_crosscorr.$(OBJEXT) $(am__objects_6)
+am__objects_7 = src/ttd_crosscorr2.$(OBJEXT) $(am__objects_6)
 am_ttd_g2_OBJECTS = src/ttd_g2.$(OBJEXT) $(am__objects_7) \
 	$(am__objects_2) $(am__objects_1)
 ttd_g2_OBJECTS = $(am_ttd_g2_OBJECTS)
@@ -292,12 +292,12 @@ ttd = src/ttd.c
 ttp = src/ttp.c
 ttp_cli = src/ttp_cli.c ${ttd} ${ttp}
 ttd_ringbuffer = src/ttd_ringbuffer.c ${ttp_cli}
-ttd_crosscorr = src/ttd_crosscorr.c ${ttd_ringbuffer}
+ttd_crosscorr2 = src/ttd_crosscorr2.c ${ttd_ringbuffer}
 ttd_filebuffer = src/ttd_filebuffer.c
 pq_ttd_SOURCES = src/pq_ttd.c src/pq_ttd_cli.c src/pq_parse.c src/ttd.c src/ttp.c
 ttd_dump_SOURCES = src/ttd_dump.c src/ttd.h
 ttd_merge_SOURCES = src/ttd_merge.c src/ttd_filebuffer.c src/ttd.c
-ttd_g2_SOURCES = src/ttd_g2.c ${ttd_crosscorr} ${ttd_filebuffer} ${scitollu}
+ttd_g2_SOURCES = src/ttd_g2.c ${ttd_crosscorr2} ${ttd_filebuffer} ${scitollu}
 ttd_delay_SOURCES = src/ttd_delay.c ${scitollu} ${ttd_filebuffer} ${ttd} ${ttp}
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
@@ -431,7 +431,7 @@ ttd-dump$(EXEEXT): $(ttd_dump_OBJECTS) $(ttd_dump_DEPENDENCIES) $(EXTRA_ttd_dump
 	$(AM_V_CCLD)$(LINK) $(ttd_dump_OBJECTS) $(ttd_dump_LDADD) $(LIBS)
 src/ttd_g2.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
-src/ttd_crosscorr.$(OBJEXT): src/$(am__dirstamp) \
+src/ttd_crosscorr2.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/ttd_ringbuffer.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
@@ -460,7 +460,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pq_ttd_cli.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/scitollu.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_crosscorr.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_crosscorr2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_delay.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_dump.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_filebuffer.Po@am__quote@
