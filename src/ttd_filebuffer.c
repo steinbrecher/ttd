@@ -80,6 +80,10 @@ int ttd_fb_cleanup(ttd_fb_t *buffer) {
 
 ttd_t ttd_fb_pop(ttd_fb_t *buffer) {
   ttd_t event_time;
+  if (buffer->empty == 1) {
+    fprintf(stderr, "Error: ttd_fb_pop called on empty buffer. Zero returned; bug present in calling code.\n");
+    return(0);
+  }
   if (buffer->num_read < buffer->buffer_fill) {
     event_time = buffer->buffered_records[buffer->num_read] + buffer->offset;
     buffer->num_read ++;
