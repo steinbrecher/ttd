@@ -134,10 +134,10 @@ int ttp_read_cli(int argc, char* argv[]) {
   }
 
   if (!(bin_time_set))
-    printf("Warning: Bin time not specified. Using default value of %" PRIu64 " ps\n", ttp_cli_args.bin_time);
+    printf(stderr, "Warning: Bin time not specified. Using default value of %" PRIu64 " ps\n", ttp_cli_args.bin_time);
 
-  if (!(bin_time_set))
-    printf("Warning: Window time not specified. Using default value of %" PRIu64 " ps\n", ttp_cli_args.window_time);
+  if (!(window_time_set))
+    fprintf(stderr, "Warning: Window time not specified. Using default value of %" PRIu64 " ps\n", ttp_cli_args.window_time);
 
   return(0);
 }
