@@ -1,5 +1,5 @@
-#ifndef _TTD_CROSSCORR_HEADER
-#define _TTD_CROSSCORR_HEADER
+#ifndef _TTD_CROSSCORR2_HEADER
+#define _TTD_CROSSCORR2_HEADER
 
 typedef struct {
   uint64_t rbs_counts[2];
@@ -35,4 +35,4 @@ void ttd_ccorr2_write_csv(ttd_ccorr2_t *ccorr, char *file_name);
 void ttd_ccorr2_cleanup(ttd_ccorr2_t *ccorr);
 
 
-#endif // _TTD_CROSSCORR_HEADER
+#endif // _TTD_CROSSCORR2_HEADER
