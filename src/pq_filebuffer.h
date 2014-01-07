@@ -19,10 +19,12 @@ typedef struct {
   FILE *fp;
 } pq_fb_t;
 
-int pq_fb_init(pq_fb_t *buffer, uint64_t buffer_size, char* filename);
+int pq_fb_init(pq_fb_t *buffer, uint64_t buffer_size, char* filename, int64_t offset);
 int pq_fb_openfile(pq_fb_t *buffer);
 int pq_fb_cleanup(pq_fb_t *buffer);
 ttd_t pq_fb_pop(pq_fb_t *buffer);
 
+#define TTD_FB_MALLOC_ERROR -1;
+#define TTD_FB_FILE_OPEN_ERROR -2;
 
 #endif //_PQ_FILEBUFFER_HEADER_SEEN
