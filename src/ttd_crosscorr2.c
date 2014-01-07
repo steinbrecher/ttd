@@ -56,18 +56,18 @@ void ttd_ccorr2_update(ttd_ccorr2_t *ccorr, int rb_num, ttd_t time) {
   ttd_rb_prune(ccorr->rbs[1], time);
 
   // Sign is 1 if rb_num is 1, -1 if it's 0 (i.e. delta_t = rb2_time - rb1_time)
-  int sign = 2*rb_num - 1;
-  ttd_rb_t *other_rb = ccorr->rbs[1-rb_num];
+  int other_rb_num = 1-rb_num;
+  ttd_rb_t *other_rb = ccorr->rbs[other_rb_num];
   int other_rb_count = other_rb->count;
-  //  printf("%d\n", other_rb_count);
   
-  ttd_t delta_t;
+  int64_t delta_t;
+  ttd_t times[2];
   int n, delta_bins;
-  
+  times[rb_num] = time;
   if (other_rb->count > 0) {
     for (n=0; n < other_rb_count; n++) {
-      delta_t = time - ttd_rb_get(other_rb, n);
-      delta_bins = (int)(ccorr->center_bin + sign*ttd_rounded_divide(delta_t, ccorr->bin_time));
+      times[other_rb_num] = ttd_rb_get(other_rb, n);
+      delta_bins = (int)(ccorr->center_bin + ttd_rounded_divide(times[1]-times[0], ccorr->bin_time));
       ++ ccorr->hist[delta_bins];
     }
   }
