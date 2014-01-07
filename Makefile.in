@@ -76,8 +76,8 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = pq-ttd$(EXEEXT) ttd-g2$(EXEEXT) ttd-merge$(EXEEXT) \
-	ttd-delay$(EXEEXT) ttd-dump$(EXEEXT)
+bin_PROGRAMS = pq-ttd$(EXEEXT) ttd-g2$(EXEEXT) ttd-g3$(EXEEXT) \
+	ttd-merge$(EXEEXT) ttd-delay$(EXEEXT) ttd-dump$(EXEEXT)
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
@@ -111,14 +111,20 @@ ttd_delay_LDADD = $(LDADD)
 am_ttd_dump_OBJECTS = src/ttd_dump.$(OBJEXT)
 ttd_dump_OBJECTS = $(am_ttd_dump_OBJECTS)
 ttd_dump_LDADD = $(LDADD)
-am__objects_5 = src/ttp_cli.$(OBJEXT) $(am__objects_3) \
+am__objects_5 = src/ttd_ringbuffer.$(OBJEXT)
+am__objects_6 = src/ttd_crosscorr2.$(OBJEXT) $(am__objects_5)
+am__objects_7 = src/ttp_cli.$(OBJEXT) $(am__objects_3) \
 	$(am__objects_4)
-am__objects_6 = src/ttd_ringbuffer.$(OBJEXT) $(am__objects_5)
-am__objects_7 = src/ttd_crosscorr2.$(OBJEXT) $(am__objects_6)
-am_ttd_g2_OBJECTS = src/ttd_g2.$(OBJEXT) $(am__objects_7) \
-	$(am__objects_2) $(am__objects_1)
+am_ttd_g2_OBJECTS = src/ttd_g2.$(OBJEXT) $(am__objects_6) \
+	$(am__objects_2) $(am__objects_7) $(am__objects_1)
 ttd_g2_OBJECTS = $(am_ttd_g2_OBJECTS)
 ttd_g2_LDADD = $(LDADD)
+am__objects_8 = src/ttd_crosscorr3.$(OBJEXT) $(am__objects_5)
+am__objects_9 = src/g3_cli.$(OBJEXT) $(am__objects_3) $(am__objects_4)
+am_ttd_g3_OBJECTS = src/ttd_g3.$(OBJEXT) $(am__objects_8) \
+	$(am__objects_2) $(am__objects_9) $(am__objects_1)
+ttd_g3_OBJECTS = $(am_ttd_g3_OBJECTS)
+ttd_g3_LDADD = $(LDADD)
 am_ttd_merge_OBJECTS = src/ttd_merge.$(OBJEXT) \
 	src/ttd_filebuffer.$(OBJEXT) src/ttd.$(OBJEXT)
 ttd_merge_OBJECTS = $(am_ttd_merge_OBJECTS)
@@ -152,9 +158,10 @@ am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 SOURCES = $(pq_ttd_SOURCES) $(ttd_delay_SOURCES) $(ttd_dump_SOURCES) \
-	$(ttd_g2_SOURCES) $(ttd_merge_SOURCES)
+	$(ttd_g2_SOURCES) $(ttd_g3_SOURCES) $(ttd_merge_SOURCES)
 DIST_SOURCES = $(pq_ttd_SOURCES) $(ttd_delay_SOURCES) \
-	$(ttd_dump_SOURCES) $(ttd_g2_SOURCES) $(ttd_merge_SOURCES)
+	$(ttd_dump_SOURCES) $(ttd_g2_SOURCES) $(ttd_g3_SOURCES) \
+	$(ttd_merge_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -291,13 +298,16 @@ scitollu = src/scitollu.c
 ttd = src/ttd.c
 ttp = src/ttp.c
 ttp_cli = src/ttp_cli.c ${ttd} ${ttp}
-ttd_ringbuffer = src/ttd_ringbuffer.c ${ttp_cli}
+g3_cli = src/g3_cli.c ${ttd} ${ttp}
+ttd_ringbuffer = src/ttd_ringbuffer.c
 ttd_crosscorr2 = src/ttd_crosscorr2.c ${ttd_ringbuffer}
+ttd_crosscorr3 = src/ttd_crosscorr3.c ${ttd_ringbuffer}
 ttd_filebuffer = src/ttd_filebuffer.c
 pq_ttd_SOURCES = src/pq_ttd.c src/pq_ttd_cli.c src/pq_parse.c src/ttd.c src/ttp.c
 ttd_dump_SOURCES = src/ttd_dump.c src/ttd.h
 ttd_merge_SOURCES = src/ttd_merge.c src/ttd_filebuffer.c src/ttd.c
-ttd_g2_SOURCES = src/ttd_g2.c ${ttd_crosscorr2} ${ttd_filebuffer} ${scitollu}
+ttd_g2_SOURCES = src/ttd_g2.c ${ttd_crosscorr2} ${ttd_filebuffer} ${ttp_cli} ${scitollu}
+ttd_g3_SOURCES = src/ttd_g3.c ${ttd_crosscorr3} ${ttd_filebuffer} ${g3_cli} ${scitollu}
 ttd_delay_SOURCES = src/ttd_delay.c ${scitollu} ${ttd_filebuffer} ${ttd} ${ttp}
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
@@ -441,6 +451,16 @@ src/ttp_cli.$(OBJEXT): src/$(am__dirstamp) \
 ttd-g2$(EXEEXT): $(ttd_g2_OBJECTS) $(ttd_g2_DEPENDENCIES) $(EXTRA_ttd_g2_DEPENDENCIES) 
 	@rm -f ttd-g2$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(ttd_g2_OBJECTS) $(ttd_g2_LDADD) $(LIBS)
+src/ttd_g3.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/ttd_crosscorr3.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/g3_cli.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+
+ttd-g3$(EXEEXT): $(ttd_g3_OBJECTS) $(ttd_g3_DEPENDENCIES) $(EXTRA_ttd_g3_DEPENDENCIES) 
+	@rm -f ttd-g3$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(ttd_g3_OBJECTS) $(ttd_g3_LDADD) $(LIBS)
 src/ttd_merge.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 
@@ -455,16 +475,19 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/g3_cli.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pq_parse.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pq_ttd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pq_ttd_cli.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/scitollu.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_crosscorr2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_crosscorr3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_delay.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_dump.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_filebuffer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_g2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_g3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_merge.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_ringbuffer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttp.Po@am__quote@

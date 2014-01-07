@@ -3,3 +3,8 @@ Ideas for future work:
 * Write MATLAB .mex wrappers. 
   Would probably be best accomplished by compiling the g^(2) code as a shared
   library and then linking it to a bare-bones .mex implementation. 
+
+* Fix edge errors for g2 correlations. Probably need to extend window by 1 bin 
+  and drop first/last bins before output.
+
+* Output timing information in g3 correlations
