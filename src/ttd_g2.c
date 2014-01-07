@@ -58,7 +58,7 @@ ttd_ccorr2_t *ttd_g2(char* infile1, char* infile2, int *retcode) {
   }
 
   while (fb2.empty == 0) {
-    ttd_ccorr2_update(ccorr, 1, t1);
+    ttd_ccorr2_update(ccorr, 1, t2);
     t2 = ttd_fb_pop(&fb2);
     output_buffer_count ++;
   }
