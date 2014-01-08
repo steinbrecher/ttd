@@ -76,7 +76,7 @@ ttd_ccorr2_t *ttd_g2(char* infile1, char* infile2, int *retcode) {
 int main(int argc, char* argv[]) {
   int retcode, exitcode=0;
 
-  retcode = ttp_read_cli(argc, argv);
+  retcode = ttd_g2_read_cli(argc, argv);
 
   if (retcode < 0) {
     exitcode = retcode;
@@ -87,7 +87,7 @@ int main(int argc, char* argv[]) {
   }
 
   if (ttd_g2_cli_args.verbose) {
-    ttp_print_options(TTP_PRINTOPTIONS_NOVERBOSE);
+    ttd_g2_print_options(TTD_G2_PRINTOPTIONS_NOVERBOSE);
   }
 
   char *infile1 = ttd_g2_cli_args.infile1;

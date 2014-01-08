@@ -9,6 +9,9 @@
 
 typedef uint64_t ttd_t;
 
+static const char _ttd_version_string[] = "0.3.0";
+void ttd_print_version();
+
 //typedef struct { ttd_t record; } ttd_buffer_t;
 
 //typedef struct { ttd_buffer_t *buffer; } ttd_buffer_group_t;

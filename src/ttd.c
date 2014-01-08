@@ -36,3 +36,10 @@ ttd_t ttd_rounded_divide(ttd_t t1, ttd_t t2) {
 ttd_t ttd_rounded_divide_unsafe(ttd_t t1, ttd_t t2) {
   return (ttd_t) round( ((double)t1) / ((double)t2) );
 }
+
+void ttd_print_version() {
+  printf("TTD %s\n\n", _ttd_version_string);
+  printf("Time tagged data processing software\n");
+  printf("Copyright (c) 2013-2014 Greg Steinbrecher\n");
+  printf("Licensed under the MIT License\n\n");
+}

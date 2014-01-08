@@ -2,17 +2,16 @@
 #define _TTD_G2_CLI_HEADER
 
 #define TTD_G2_CLI_EXIT_RETCODE 1
-#define TTP_PRINTOPTIONS_NOVERBOSE 1
+#define TTD_G2_PRINTOPTIONS_NOVERBOSE 1
 
 #include "ttd.h"
-#include "ttp.h"
 
 struct {
   int verbose; // -v
 
   int infiles_allocated[2];
-  char *infile1; // -i
-  char *infile2; // -I
+  char *infile1; // -1
+  char *infile2; // -2
 
   int outfile_allocated;
   char *outfile; // -o
@@ -28,9 +27,9 @@ struct {
 
 void ttd_g2_cli_print_help(char* program_name);
 
-void ttp_print_options();
+void ttd_g2_print_options();
 
-int ttp_read_cli(int argc, char* argv[]);
+int ttd_g2_read_cli(int argc, char* argv[]);
 
 void ttd_g2_cli_cleanup();
 

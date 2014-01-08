@@ -10,16 +10,17 @@
 #include <inttypes.h>
 
 #include "scitollu.h"
+#include "ttd.h"
 #include "ttd_g2_cli.h"
 
-static const struct option ttp_longopts[] = {
+static const struct option ttd_g2_longopts[] = {
   { "version", no_argument, NULL, 'V' },
   { "help", no_argument, NULL, 'h' },
 
   { "verbose", no_argument, NULL, 'v' },
 
-  { "input1", required_argument, NULL, 'i' },
-  { "input2", required_argument, NULL, 'I' },
+  { "input1", required_argument, NULL, '1' },
+  { "input2", required_argument, NULL, '2' },
 
   { "output-file", required_argument, NULL, 'o' },
 
@@ -30,7 +31,7 @@ static const struct option ttp_longopts[] = {
   { "block-size", required_argument, NULL, 'B' },
 };
 
-static const char *ttp_optstring = "Vhvi:I:o:T:b:w:B:";
+static const char *ttd_g2_optstring = "Vhv1:2:o:T:b:w:B:";
 
 void ttd_g2_cli_print_help(char* program_name) {
   // Need a string of spaces equal in length to the program name
@@ -41,7 +42,7 @@ void ttd_g2_cli_print_help(char* program_name) {
       pn_spaces[i] = ' ';
     }
   pn_spaces[len-1] = '\0';
-  printf("Usage: %s [-i input_file_1] [-I input_file_2] [-o output_file_1]\n", program_name);
+  printf("Usage: %s [-1 input_file_1] [-2 input_file_2] [-o output_file_1]\n", program_name);
   printf("       %s [-b bin_time] [-w window_time] [-T input2_offset]\n", pn_spaces);
   //  printf("       %s [-B block_size]\n", pn_spaces);
 
@@ -58,7 +59,7 @@ void ttd_g2_cli_print_help(char* program_name) {
   printf("\t\t-V (--version):\t\tPrint program version\n");
 }
 
-int ttp_read_cli(int argc, char* argv[]) {
+int ttd_g2_read_cli(int argc, char* argv[]) {
   // Initialize default values
   ttd_g2_cli_args.verbose = 0;
 
@@ -77,7 +78,7 @@ int ttp_read_cli(int argc, char* argv[]) {
 
   // Read command line options
   int option_index, opt;
-  opt = getopt_long(argc, argv, ttp_optstring, ttp_longopts, &option_index);
+  opt = getopt_long(argc, argv, ttd_g2_optstring, ttd_g2_longopts, &option_index);
   while (opt != -1) {
     switch (opt) {
     case 'v':
@@ -85,7 +86,7 @@ int ttp_read_cli(int argc, char* argv[]) {
       break;
 
     case 'V':
-      ttp_print_version(argv[0]);
+      ttd_print_version(argv[0]);
       return(TTD_G2_CLI_EXIT_RETCODE);
       break;
 
@@ -130,7 +131,7 @@ int ttp_read_cli(int argc, char* argv[]) {
       // Shouldn't actually get here
       break;
     }
-    opt = getopt_long(argc, argv, ttp_optstring, ttp_longopts, &option_index);
+    opt = getopt_long(argc, argv, ttd_g2_optstring, ttd_g2_longopts, &option_index);
   }
 
   if (!(bin_time_set))
@@ -142,7 +143,7 @@ int ttp_read_cli(int argc, char* argv[]) {
   return(0);
 }
 
-void ttp_print_options(int no_verbose) {
+void ttd_g2_print_options(int no_verbose) {
   if (!(no_verbose)) {
     printf("Verbose: %d\n", ttd_g2_cli_args.verbose);
   }
