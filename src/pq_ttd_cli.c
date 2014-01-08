@@ -9,7 +9,6 @@
 #include <math.h>
 #include <inttypes.h>
 
-#include "ttp.h"
 #include "ttd.h"
 #include "pq_parse.h"
 #include "pq_records.h"

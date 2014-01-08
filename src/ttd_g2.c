@@ -8,7 +8,6 @@
 #include <math.h>
 #include <string.h>
 
-#include "ttp.h"
 #include "ttd_g2_cli.h"
 
 #include "ttd.h"

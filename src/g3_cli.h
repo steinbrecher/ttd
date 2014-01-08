@@ -5,7 +5,6 @@
 #define G3_CLI_PRINTOPTIONS_NOVERBOSE 1
 
 #include "ttd.h"
-#include "ttp.h"
 
 struct {
   int verbose; // -v

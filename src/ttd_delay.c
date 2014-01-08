@@ -10,7 +10,6 @@
 #include <getopt.h>
 
 #include "ttd.h"
-#include "ttp.h"
 #include "ttd_filebuffer.h"
 #include "scitollu.h"
 
