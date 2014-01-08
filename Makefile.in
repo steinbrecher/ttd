@@ -101,7 +101,7 @@ am_pq_ttd_OBJECTS = src/pq_ttd.$(OBJEXT) src/pq_ttd_cli.$(OBJEXT) \
 	src/pq_parse.$(OBJEXT) src/ttd.$(OBJEXT)
 pq_ttd_OBJECTS = $(am_pq_ttd_OBJECTS)
 pq_ttd_LDADD = $(LDADD)
-am__objects_1 = src/scitollu.$(OBJEXT)
+am__objects_1 = src/scitoll.$(OBJEXT)
 am__objects_2 = src/ttd.$(OBJEXT)
 am__objects_3 = src/ttd_filebuffer.$(OBJEXT) $(am__objects_2)
 am_ttd_delay_OBJECTS = src/ttd_delay.$(OBJEXT) $(am__objects_1) \
@@ -297,7 +297,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = subdir-objects
-scitollu = src/scitollu.c
+scitoll = src/scitoll.c
 ttd = src/ttd.c
 ttd_ringbuffer = src/ttd_ringbuffer.c
 ttd_crosscorr2 = src/ttd_crosscorr2.c ${ttd_ringbuffer}
@@ -307,10 +307,10 @@ ttd_filebuffer = src/ttd_filebuffer.c ${ttd}
 pq_ttd_SOURCES = src/pq_ttd.c src/pq_ttd_cli.c src/pq_parse.c src/ttd.c 
 ttd_dump_SOURCES = src/ttd_dump.c src/ttd.h
 ttd_merge_SOURCES = src/ttd_merge.c src/ttd_filebuffer.c src/ttd.c
-ttd_g2_SOURCES = src/ttd_g2.c src/ttd_g2_cli.c ${ttd_crosscorr2} ${ttd_filebuffer} ${ttd_g2_cli} ${scitollu}
-ttd_g3_SOURCES = src/ttd_g3.c src/g3_cli.c ${ttd_crosscorr3} ${ttd_filebuffer} ${g3_cli} ${scitollu}
-ttd_g4_SOURCES = src/ttd_g4.c src/ttd_g4_cli.c ${ttd_crosscorr4} ${ttd_filebuffer} ${scitollu}
-ttd_delay_SOURCES = src/ttd_delay.c ${scitollu} ${ttd_filebuffer}
+ttd_g2_SOURCES = src/ttd_g2.c src/ttd_g2_cli.c ${ttd_crosscorr2} ${ttd_filebuffer} ${ttd_g2_cli} ${scitoll}
+ttd_g3_SOURCES = src/ttd_g3.c src/g3_cli.c ${ttd_crosscorr3} ${ttd_filebuffer} ${g3_cli} ${scitoll}
+ttd_g4_SOURCES = src/ttd_g4.c src/ttd_g4_cli.c ${ttd_crosscorr4} ${ttd_filebuffer} ${scitoll}
+ttd_delay_SOURCES = src/ttd_delay.c ${scitoll} ${ttd_filebuffer}
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -426,7 +426,7 @@ pq-ttd$(EXEEXT): $(pq_ttd_OBJECTS) $(pq_ttd_DEPENDENCIES) $(EXTRA_pq_ttd_DEPENDE
 	$(AM_V_CCLD)$(LINK) $(pq_ttd_OBJECTS) $(pq_ttd_LDADD) $(LIBS)
 src/ttd_delay.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
-src/scitollu.$(OBJEXT): src/$(am__dirstamp) \
+src/scitoll.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/ttd_filebuffer.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
@@ -490,7 +490,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pq_parse.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pq_ttd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pq_ttd_cli.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/scitollu.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/scitoll.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_crosscorr2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_crosscorr3.Po@am__quote@

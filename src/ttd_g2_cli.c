@@ -9,7 +9,7 @@
 #include <math.h>
 #include <inttypes.h>
 
-#include "scitollu.h"
+#include "scitoll.h"
 #include "ttd.h"
 #include "ttd_g2_cli.h"
 
@@ -60,6 +60,7 @@ void ttd_g2_cli_print_help(char* program_name) {
 }
 
 int ttd_g2_read_cli(int argc, char* argv[]) {
+  int retcode;
   // Initialize default values
   ttd_g2_cli_args.verbose = 0;
 
@@ -113,18 +114,18 @@ int ttd_g2_read_cli(int argc, char* argv[]) {
       break;
 
     case 'b':
-      ttd_g2_cli_args.bin_time = scitollu(optarg);
+      ttd_g2_cli_args.bin_time = scitoll(optarg, &retcode);
       bin_time_set = 1;
       break;
     case 'w':
-      ttd_g2_cli_args.window_time = scitollu(optarg);
+      ttd_g2_cli_args.window_time = scitoll(optarg, &retcode);
       window_time_set = 1;
       break;
     case 'T':
-      ttd_g2_cli_args.infile2_offset = atoll(optarg);
+      ttd_g2_cli_args.infile2_offset = scitoll(optarg, &retcode);
 
     case 'B':
-      ttd_g2_cli_args.block_size = scitollu(optarg);
+      ttd_g2_cli_args.block_size = scitoll(optarg, &retcode);
       break;
 
     default:

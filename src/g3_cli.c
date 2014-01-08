@@ -9,7 +9,7 @@
 #include <math.h>
 #include <inttypes.h>
 
-#include "scitollu.h"
+#include "scitoll.h"
 #include "g3_cli.h"
 
 static const struct option ttd_g3_longopts[] = {
@@ -71,6 +71,8 @@ int g3_read_cli(int argc, char* argv[]) {
   g3_cli_args.infiles_allocated[2] = 0;
   g3_cli_args.outfile_allocated = 0;
 
+  int retcode = 0;
+
   // Read command line options
   int option_index, opt;
   opt = getopt_long(argc, argv, ttd_g3_optstring, ttd_g3_longopts, &option_index);
@@ -114,16 +116,16 @@ int g3_read_cli(int argc, char* argv[]) {
       break;
 
     case 'b':
-      g3_cli_args.bin_time = scitollu(optarg);
+      g3_cli_args.bin_time = scitoll(optarg, &retcode);
       bin_time_set = 1;
       break;
     case 'w':
-      g3_cli_args.window_time = scitollu(optarg);
+      g3_cli_args.window_time = scitoll(optarg, &retcode);
       window_time_set = 1;
       break;
 
     case 'B':
-      g3_cli_args.block_size = scitollu(optarg);
+      g3_cli_args.block_size = scitoll(optarg, &retcode);
       break;
 
     default:

@@ -121,9 +121,7 @@ shifted by some number of picoseconds. For example,
 
 	% ttd-delay -i chan1.ttd -o chan1-del.ttd -T 512
 	
-would produce a file with all records shifted forwards in time by 512ps. Unfortunately, only positive time delays are supported
-right now, as the file format doesn't support negative times. A future version will allow for negative shifts that 
-maintain the postivity of all records, but that hasn't been done yet. 
+would produce a file with all records shifted forwards in time by 512ps. 
 
 I've found the best way to figure out which offsets to apply is to run a g2 between the channels (assuming you have correlated inputs) and detect the difference that way. 
 

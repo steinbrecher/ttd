@@ -9,7 +9,7 @@
 #include <math.h>
 #include <inttypes.h>
 
-#include "scitollu.h"
+#include "scitoll.h"
 #include "ttd_g4_cli.h"
 
 static const struct option ttd_g4_longopts[] = {
@@ -72,6 +72,8 @@ int g4_read_cli(int argc, char* argv[]) {
   }
   g4_cli_args.outfile_allocated = 0;
 
+  int retcode=0;
+
   // Read command line options
   int option_index, opt;
   opt = getopt_long(argc, argv, ttd_g4_optstring, ttd_g4_longopts, &option_index);
@@ -121,16 +123,16 @@ int g4_read_cli(int argc, char* argv[]) {
       break;
 
     case 'b':
-      g4_cli_args.bin_time = scitollu(optarg);
+      g4_cli_args.bin_time = scitoll(optarg, &retcode);
       bin_time_set = 1;
       break;
     case 'w':
-      g4_cli_args.window_time = scitollu(optarg);
+      g4_cli_args.window_time = scitoll(optarg, &retcode);
       window_time_set = 1;
       break;
 
     case 'B':
-      g4_cli_args.block_size = scitollu(optarg);
+      g4_cli_args.block_size = scitoll(optarg, &retcode);
       break;
 
     default:

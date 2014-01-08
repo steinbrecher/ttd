@@ -11,7 +11,7 @@
 
 #include "ttd.h"
 #include "ttd_filebuffer.h"
-#include "scitollu.h"
+#include "scitoll.h"
 
 #define TTD_DELAY_EXIT 1
 
@@ -53,7 +53,7 @@ void ttd_delay_print_help(char* program_name) {
   
   printf("\tNotes: \n");
   printf("\t\t-T (--offset):\tAmount to offset data in picoseconds. This must be positive.\n");
-  printf("\t\t              \tNote that this option supports scientific notation (i.e. 5e4)\n");
+  printf("\t\t              \tNote that this option supports scientific notation (e.g. 5e4 or -3e2)\n");
 
   printf("\tOther options:\n");
   printf("\t\t-v (--verbose):\tEnable verbose output to stdout\n");
@@ -62,13 +62,11 @@ void ttd_delay_print_help(char* program_name) {
 }
 
 int ttd_delay_read_cli(int argc, char* argv[]) {
-  int64_t retcode = 0;
+  int retcode = 0;
   ttd_delay_cli_args.verbose = 0;
   ttd_delay_cli_args.infile_allocated = 0;
   ttd_delay_cli_args.outfile_allocated = 0;
   ttd_delay_cli_args.delay = 0;
-
-  char *found_e, *found_E;
 
   // Parse command line
   int option_index, opt;
@@ -100,19 +98,18 @@ int ttd_delay_read_cli(int argc, char* argv[]) {
       break;
 
     case 'T':
-      ttd_delay_cli_args.delay = scitollu(optarg);
-      if (ttd_delay_cli_args.delay < 0) {
-	retcode = ttd_delay_cli_args.delay;
+      ttd_delay_cli_args.delay = scitoll(optarg, &retcode);
+      if (retcode < 0) {
 	switch(retcode) {
-	case SCITOLLU_MULTIPLE_E:
+	case SCITOLL_MULTIPLE_E:
 	  printf("Error: Delay is not a number\n");
-	case SCITOLLU_NO_MANTISSA:
+	case SCITOLL_NO_MANTISSA:
 	  printf("Error: Delay missing mantissa\n");
-	case SCITOLLU_NO_EXPONENT:
+	case SCITOLL_NO_EXPONENT:
 	  printf("Error: Delay missing exponent\n");
-	case SCITOLLU_NEGATIVE:
+	case SCITOLL_NEGATIVE:
 	  printf("Error: Delay must be positive\n");
-	case SCITOLLU_DECIMAL:
+	case SCITOLL_DECIMAL:
 	  printf("Error: Delay may not have a decimal\n");
 	}
 	goto cli_return; 
