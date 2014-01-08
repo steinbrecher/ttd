@@ -94,12 +94,12 @@ int main(int argc, char* argv[]) {
   char *outfile = ttd_g2_cli_args.outfile;
   
   if (infile1 == NULL) {
-    printf("Error: Missing input file 1. Please specify with the '-i' flag.\n");
+    printf("Error: Missing input file 1. Please specify with the '-1' flag.\n");
     exitcode = -1;
     goto cleanup_ttd_g2_cli;
   }
   if (infile2 == NULL) {
-    printf("Error: Missing input file 2. Please specify with the '-I' flag.\n");
+    printf("Error: Missing input file 2. Please specify with the '-2' flag.\n");
     exitcode = -1;
     goto cleanup_ttd_g2_cli;
   }

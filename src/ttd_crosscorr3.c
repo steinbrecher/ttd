@@ -84,11 +84,11 @@ void ttd_ccorr3_update(ttd_ccorr3_t *ccorr, int rb_num, ttd_t time) {
 
 	// Column Delta
 	delta_t1 = times[1] - times[0];
-	delta_bins1 = (int)(ccorr->center_bin + ttd_rounded_divide(delta_t1, ccorr->bin_time));
+	delta_bins1 = (int)(ccorr->center_bin + int64_rounded_divide(delta_t1, ccorr->bin_time));
 
 	// Row Delta
 	delta_t2 = times[2] - times[0];
-	delta_bins2 = (int)(ccorr->center_bin + ttd_rounded_divide(delta_t2, ccorr->bin_time));
+	delta_bins2 = (int)(ccorr->center_bin + int64_rounded_divide(delta_t2, ccorr->bin_time));
 
 	// tau1 is on the rows and tau2 is on the columns
 	++ ccorr->hist[delta_bins2 + ccorr->num_bins*delta_bins1];

@@ -96,15 +96,15 @@ void ttd_ccorr4_update(ttd_ccorr4_t *ccorr, int rb_num, ttd_t time) {
 
 	  // Calculate tau1 bin
 	  delta_t1 = times[1] - times[0];
-	  delta_bins1 = (int)(ccorr->center_bin + ttd_rounded_divide(delta_t1, bin_time));
+	  delta_bins1 = (int)(ccorr->center_bin + int64_rounded_divide(delta_t1, bin_time));
 
 	  // Calculate tau2 bin
 	  delta_t2 = times[2] - times[0];
-	  delta_bins2 = (int)(ccorr->center_bin + ttd_rounded_divide(delta_t2, bin_time));
+	  delta_bins2 = (int)(ccorr->center_bin + int64_rounded_divide(delta_t2, bin_time));
 
 	  // Calculate tau3 bin
 	  delta_t3 = times[3] - times[0];
-	  delta_bins3 = (int)(ccorr->center_bin + ttd_rounded_divide(delta_t3, bin_time));
+	  delta_bins3 = (int)(ccorr->center_bin + int64_rounded_divide(delta_t3, bin_time));
 
 	  // tau1 is along the rows, tau2 is along the columns, tau3 is the matrix index
 	  ++ ccorr->hist[delta_bins2 + num_bins*delta_bins1 + num_bins*num_bins*delta_bins3];

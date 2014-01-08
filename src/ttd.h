@@ -17,6 +17,7 @@ void ttd_print_version();
 //typedef struct { ttd_buffer_t *buffer; } ttd_buffer_group_t;
 
 ttd_t ttd_rounded_divide(ttd_t t1, ttd_t t2);
+int64_t int64_rounded_divide(int64_t t1, int64_t t2);
 ttd_t ttd_rounded_divide_unsafe(ttd_t t1, ttd_t t2);
 
 #endif // _TTD_HEADER_SEEN

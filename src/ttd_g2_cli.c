@@ -60,7 +60,7 @@ void ttd_g2_cli_print_help(char* program_name) {
 }
 
 int ttd_g2_read_cli(int argc, char* argv[]) {
-  int retcode;
+  int retcode=0;
   // Initialize default values
   ttd_g2_cli_args.verbose = 0;
 
@@ -96,12 +96,12 @@ int ttd_g2_read_cli(int argc, char* argv[]) {
       return(TTD_G2_CLI_EXIT_RETCODE);
       break;
 
-    case 'i':
+    case '1':
       ttd_g2_cli_args.infile1 = (char *)malloc((strlen(optarg)+1)*sizeof(char));
       ttd_g2_cli_args.infiles_allocated[0] = 1;
       strcpy(ttd_g2_cli_args.infile1, optarg);
       break;
-    case 'I':
+    case '2':
       ttd_g2_cli_args.infile2 = (char *)malloc((strlen(optarg)+1)*sizeof(char));
       ttd_g2_cli_args.infiles_allocated[1] = 1;
       strcpy(ttd_g2_cli_args.infile2, optarg);
