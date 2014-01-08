@@ -113,6 +113,36 @@ void ttd_ccorr3_write_csv(ttd_ccorr3_t *ccorr, char *file_name) {
   fclose(output_file);
 }
 
+// Note: Has side-effect of a malloc
+char* append_before_extension(char* to_append, char* old_filename) {
+  int i, old_len = strlen(old_filename), app_len=strlen(to_append);
+  int new_len = old_len + app_len + 1;
+  int has_period = 0, period_index;
+  char *new_str = (char *)malloc(new_len*sizeof(char));
+
+  // Try to find last period
+  for (i=old_len-1; i>=0; i--) {
+    if (old_filename[i] == '.') {
+      has_period = 1;
+      period_index = i;
+      break;
+    }
+  }
+  
+  // If no period found, just copy over the two pieces and return
+  if (has_period == 0) {
+    strncpy(new_str, old_filename, old_len);
+    strncpy(new_str+old_len, to_append, app_len);
+    return(new_str);
+  }
+  
+  // Otherwise, copy over the first string in two pieces with append in middle
+  strncpy(new_str, old_filename, period_index);
+  strncpy(new_str+period_index, to_append, app_len);
+  strncpy(new_str+period_index+app_len, old_filename+period_index, old_len-period_index);
+  return new_str;
+}
+
 void ttd_ccorr3_write_times_csv(ttd_ccorr3_t *ccorr, char *file_name) {
   FILE *output_file = fopen(file_name, "wb");
   ttd_t bin_time = ccorr->bin_time;

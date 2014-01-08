@@ -184,8 +184,11 @@ int main(int argc, char* argv[]) {
 
   ttd_ccorr3_write_csv(g3_ccorr, outfile);
 
+
   // Allocate the filename for the times csv. '-times.csv'
-  //  char *times_fname=
+  char *times_fname=append_before_extension("-times", outfile);
+  ttd_ccorr3_write_times_csv(g3_ccorr, times_fname);
+  free(times_fname);
 
  cleanup_ccorr:
   ttd_ccorr3_cleanup(g3_ccorr);

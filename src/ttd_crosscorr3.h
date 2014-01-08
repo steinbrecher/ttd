@@ -33,7 +33,11 @@ void ttd_ccorr3_update(ttd_ccorr3_t *ccorr, int rb_num, ttd_t time);
 
 void ttd_ccorr3_write_csv(ttd_ccorr3_t *ccorr, char *file_name);
 
+void ttd_ccorr3_write_times_csv(ttd_ccorr3_t *ccorr, char *file_name);
+
 void ttd_ccorr3_cleanup(ttd_ccorr3_t *ccorr);
+
+char* append_before_extension(char* to_append, char* old_filename);
 
 
 #endif // _TTD_CROSSCORR3_HEADER
