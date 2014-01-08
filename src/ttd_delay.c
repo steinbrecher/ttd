@@ -80,7 +80,7 @@ int ttd_delay_read_cli(int argc, char* argv[]) {
       break;
 
     case 'V':
-      ttp_print_version(argv[0]);
+      ttd_print_version(argv[0]);
       return(TTD_DELAY_EXIT);
 
     case 'h':

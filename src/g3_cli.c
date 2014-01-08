@@ -12,7 +12,7 @@
 #include "scitollu.h"
 #include "g3_cli.h"
 
-static const struct option ttp_longopts[] = {
+static const struct option ttd_g3_longopts[] = {
   { "version", no_argument, NULL, 'V' },
   { "help", no_argument, NULL, 'h' },
 
@@ -30,7 +30,7 @@ static const struct option ttp_longopts[] = {
   { "block-size", required_argument, NULL, 'B' },
 };
 
-static const char *ttp_optstring = "Vhv1:2:3:o:T:b:w:B:";
+static const char *ttd_g3_optstring = "Vhv1:2:3:o:T:b:w:B:";
 
 void g3_cli_print_help(char* program_name) {
   // Need a string of spaces equal in length to the program name
@@ -73,7 +73,7 @@ int g3_read_cli(int argc, char* argv[]) {
 
   // Read command line options
   int option_index, opt;
-  opt = getopt_long(argc, argv, ttp_optstring, ttp_longopts, &option_index);
+  opt = getopt_long(argc, argv, ttd_g3_optstring, ttd_g3_longopts, &option_index);
   while (opt != -1) {
     switch (opt) {
     case 'v':
@@ -81,7 +81,7 @@ int g3_read_cli(int argc, char* argv[]) {
       break;
 
     case 'V':
-      ttp_print_version(argv[0]);
+      ttd_print_version(argv[0]);
       return(G3_CLI_EXIT_RETCODE);
       break;
 
@@ -130,7 +130,7 @@ int g3_read_cli(int argc, char* argv[]) {
       // Shouldn't actually get here
       break;
     }
-    opt = getopt_long(argc, argv, ttp_optstring, ttp_longopts, &option_index);
+    opt = getopt_long(argc, argv, ttd_g3_optstring, ttd_g3_longopts, &option_index);
   }
 
   if (!(bin_time_set))

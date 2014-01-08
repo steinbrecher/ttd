@@ -9,3 +9,8 @@ Ideas for future work:
 
 * Calculate all orders of correlations between input files and output to CSV,
   so that we don't have to run through the files so many times
+
+* Write a filebuffer group to handle getting next photon from multiple channels
+
+* Convert API (esp. variables for filenames, buffers, etc.) to be universally
+  zero-indexed.

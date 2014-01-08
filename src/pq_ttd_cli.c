@@ -70,7 +70,7 @@ int pq_ttd_read_cli(int argc, char* argv[]) {
       break;
 
     case 'V':
-      ttp_print_version(argv[0]);
+      ttd_print_version(argv[0]);
       return(PQ_TTD_CLI_EXIT_RETCODE);
       break;
 
