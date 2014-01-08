@@ -183,7 +183,7 @@ int main(int argc, char* argv[]) {
 
   ttd_ccorr4_t *g4_ccorr = ttd_g4(infile1, infile2, infile3, infile4, &retcode);
 
-  //ttd_ccorr4_write_csv(g4_ccorr, outfile);
+  ttd_ccorr4_write_csv(g4_ccorr, outfile);
 
 
   // Allocate the filename for the times csv. '-times.csv'

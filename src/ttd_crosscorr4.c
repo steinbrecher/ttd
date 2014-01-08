@@ -106,30 +106,12 @@ void ttd_ccorr4_update(ttd_ccorr4_t *ccorr, int rb_num, ttd_t time) {
 	  delta_t3 = times[3] - times[0];
 	  delta_bins3 = (int)(ccorr->center_bin + ttd_rounded_divide(delta_t3, bin_time));
 
-	  ++ ccorr->hist[delta_bins1 + num_bins*delta_bins2 + num_bins*num_bins*delta_bins3];
+	  // tau1 is along the rows, tau2 is along the columns, tau3 is the matrix index
+	  ++ ccorr->hist[delta_bins2 + num_bins*delta_bins1 + num_bins*num_bins*delta_bins3];
 	}
       }
     }
   }
-}
-
-
-// NOTE: Broken for now
-void ttd_ccorr4_write_csv(ttd_ccorr4_t *ccorr, char *file_name) {
-  FILE *output_file = fopen(file_name, "wb");
-  ttd_t bin_time = ccorr->bin_time;
-  ttd_t window_time = ccorr->window_time;
-  int num_bins =  ccorr->num_bins;
-  int m,n;
-
-  for (m=0; m < num_bins; m++) { // Row Loop
-    for (n=0; n < num_bins-1; n++) { // Column loop
-      fprintf(output_file, "%" PRIu64 ", ", ccorr->hist[n + m*num_bins]);
-    }
-    // Pull this out to avoid the trailing comma
-    fprintf(output_file, "%" PRIu64 "\n", ccorr->hist[num_bins - 1 + m*num_bins]);
-  }
-  fclose(output_file);
 }
 
 // Note: Has side-effect of a malloc
@@ -161,6 +143,38 @@ char* append_before_extension(char* to_append, char* old_filename) {
   strncpy(new_str+period_index+app_len, old_filename+period_index, old_len-period_index);
   return new_str;
 }
+
+void ttd_ccorr4_write_csv(ttd_ccorr4_t *ccorr, char *file_name) {
+  FILE *output_file;
+  char *appended_fname;
+  char appended[20]; 
+
+  ttd_t bin_time = ccorr->bin_time;
+  ttd_t window_time = ccorr->window_time;
+  int num_bins =  ccorr->num_bins;
+  int64_t matrix_offset, row_offset;
+  int m,n,k,column;
+  // We are going to iterate over each 2-by-2, outputting to a different CSV file
+  for (k=0; k<num_bins; k++) {
+    sprintf(appended, "-%d", k);
+    appended_fname = append_before_extension(appended, file_name);
+    output_file = fopen(appended_fname, "wb");
+    printf("Outputting file: %s\n", appended_fname);
+    free(appended_fname);
+    
+    matrix_offset = k*num_bins*num_bins;
+    for (m=0; m < num_bins; m++) { // Row Loop
+      row_offset = m*num_bins;
+      for (column=0; column < num_bins-1; column++) { // Column loop
+	fprintf(output_file, "%" PRIu64 ", ", ccorr->hist[column + row_offset + matrix_offset]);
+      }
+      // Pull this out to avoid the trailing comma
+      fprintf(output_file, "%" PRIu64 "\n", ccorr->hist[num_bins - 1 + row_offset + matrix_offset]);
+    }
+    fclose(output_file);
+  }
+}
+
 
 void ttd_ccorr4_write_times_csv(ttd_ccorr4_t *ccorr, char *file_name) {
   FILE *output_file = fopen(file_name, "wb");
