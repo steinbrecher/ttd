@@ -41,7 +41,7 @@ void g3_cli_print_help(char* program_name) {
       pn_spaces[i] = ' ';
     }
   pn_spaces[len-1] = '\0';
-  printf("Usage: %s [-1 in1.ttd] [-2 in2.ttd] [-3 in3.ttd] [-o output_prefix]\n", program_name);
+  printf("Usage: %s [-1 in1.ttd] [-2 in2.ttd] [-3 in3.ttd] [-o output_file]\n", program_name);
   printf("       %s [-b bin_time] [-w window_time]\n", pn_spaces);
 
   printf("\tNotes: \n");
