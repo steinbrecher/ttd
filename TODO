@@ -7,4 +7,5 @@ Ideas for future work:
 * Fix edge errors for g2 correlations. Probably need to extend window by 1 bin 
   and drop first/last bins before output.
 
-* Output timing information in g3 correlations
+* Calculate all orders of correlations between input files and output to CSV,
+  so that we don't have to run through the files so many times

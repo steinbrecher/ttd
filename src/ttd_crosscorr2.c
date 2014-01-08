@@ -9,14 +9,10 @@
 #include <string.h>
 
 #include "ttd.h"
-#include "ttp_cli.h"
 #include "ttd_ringbuffer.h"
 #include "ttd_crosscorr2.h"
 
-void ttd_ccorr2_init(ttd_ccorr2_t *ccorr, ttd_rb_t *rb1, ttd_rb_t *rb2) {
-  ttd_t bin_time = ttp_cli_args.bin_time;
-  ttd_t window_time = ttp_cli_args.window_time;
-
+void ttd_ccorr2_init(ttd_ccorr2_t *ccorr, ttd_t bin_time, ttd_t window_time, ttd_rb_t *rb1, ttd_rb_t *rb2) {
   ccorr->bin_time = bin_time;
   ccorr->window_time = window_time;
 
@@ -33,16 +29,16 @@ void ttd_ccorr2_init(ttd_ccorr2_t *ccorr, ttd_rb_t *rb1, ttd_rb_t *rb2) {
   ccorr->hist_allocated = 1;
 }
 
-ttd_ccorr2_t *ttd_ccorr2_build(int rb_size, ttd_t rb_duration) {
+ttd_ccorr2_t *ttd_ccorr2_build(ttd_t bin_time, ttd_t window_time, int rb_size) {
   ttd_ccorr2_t *ccorr = (ttd_ccorr2_t *)malloc(sizeof(ttd_ccorr2_t));
 
-  ttd_rb_t *rb1 = ttd_rb_build(rb_size, rb_duration);
+  ttd_rb_t *rb1 = ttd_rb_build(rb_size, window_time);
   ccorr->rbs_allocated[0] = 1;
 
-  ttd_rb_t *rb2 = ttd_rb_build(rb_size, rb_duration);
+  ttd_rb_t *rb2 = ttd_rb_build(rb_size, window_time);
   ccorr->rbs_allocated[1] = 1;
 
-  ttd_ccorr2_init(ccorr, rb1, rb2);
+  ttd_ccorr2_init(ccorr, bin_time, window_time, rb1, rb2);
   return ccorr;
 }
 

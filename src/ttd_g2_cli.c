@@ -10,7 +10,7 @@
 #include <inttypes.h>
 
 #include "scitollu.h"
-#include "ttp_cli.h"
+#include "ttd_g2_cli.h"
 
 static const struct option ttp_longopts[] = {
   { "version", no_argument, NULL, 'V' },
@@ -32,7 +32,7 @@ static const struct option ttp_longopts[] = {
 
 static const char *ttp_optstring = "Vhvi:I:o:T:b:w:B:";
 
-void ttp_cli_print_help(char* program_name) {
+void ttd_g2_cli_print_help(char* program_name) {
   // Need a string of spaces equal in length to the program name
   int len = strlen(program_name)+1;
   char pn_spaces[len];
@@ -60,20 +60,20 @@ void ttp_cli_print_help(char* program_name) {
 
 int ttp_read_cli(int argc, char* argv[]) {
   // Initialize default values
-  ttp_cli_args.verbose = 0;
+  ttd_g2_cli_args.verbose = 0;
 
   int bin_time_set = 0;
-  ttp_cli_args.bin_time = 10;
+  ttd_g2_cli_args.bin_time = 10;
 
   int window_time_set = 0;
-  ttp_cli_args.window_time = 10000;
-  ttp_cli_args.infile2_offset = 0;
+  ttd_g2_cli_args.window_time = 10000;
+  ttd_g2_cli_args.infile2_offset = 0;
 
-  ttp_cli_args.block_size = 16384;
+  ttd_g2_cli_args.block_size = 16384;
 
-  ttp_cli_args.infiles_allocated[0] = 0;
-  ttp_cli_args.infiles_allocated[1] = 0;
-  ttp_cli_args.outfile_allocated = 0;
+  ttd_g2_cli_args.infiles_allocated[0] = 0;
+  ttd_g2_cli_args.infiles_allocated[1] = 0;
+  ttd_g2_cli_args.outfile_allocated = 0;
 
   // Read command line options
   int option_index, opt;
@@ -81,49 +81,49 @@ int ttp_read_cli(int argc, char* argv[]) {
   while (opt != -1) {
     switch (opt) {
     case 'v':
-      ttp_cli_args.verbose = 1;
+      ttd_g2_cli_args.verbose = 1;
       break;
 
     case 'V':
       ttp_print_version(argv[0]);
-      return(TTP_CLI_EXIT_RETCODE);
+      return(TTD_G2_CLI_EXIT_RETCODE);
       break;
 
     case 'h':
-      ttp_cli_print_help(argv[0]);
-      return(TTP_CLI_EXIT_RETCODE);
+      ttd_g2_cli_print_help(argv[0]);
+      return(TTD_G2_CLI_EXIT_RETCODE);
       break;
 
     case 'i':
-      ttp_cli_args.infile1 = (char *)malloc((strlen(optarg)+1)*sizeof(char));
-      ttp_cli_args.infiles_allocated[0] = 1;
-      strcpy(ttp_cli_args.infile1, optarg);
+      ttd_g2_cli_args.infile1 = (char *)malloc((strlen(optarg)+1)*sizeof(char));
+      ttd_g2_cli_args.infiles_allocated[0] = 1;
+      strcpy(ttd_g2_cli_args.infile1, optarg);
       break;
     case 'I':
-      ttp_cli_args.infile2 = (char *)malloc((strlen(optarg)+1)*sizeof(char));
-      ttp_cli_args.infiles_allocated[1] = 1;
-      strcpy(ttp_cli_args.infile2, optarg);
+      ttd_g2_cli_args.infile2 = (char *)malloc((strlen(optarg)+1)*sizeof(char));
+      ttd_g2_cli_args.infiles_allocated[1] = 1;
+      strcpy(ttd_g2_cli_args.infile2, optarg);
       break;
 
     case 'o':
-      ttp_cli_args.outfile = (char *)malloc((strlen(optarg)+1)*sizeof(char));
-      ttp_cli_args.outfile_allocated = 1;
-      strcpy(ttp_cli_args.outfile, optarg);
+      ttd_g2_cli_args.outfile = (char *)malloc((strlen(optarg)+1)*sizeof(char));
+      ttd_g2_cli_args.outfile_allocated = 1;
+      strcpy(ttd_g2_cli_args.outfile, optarg);
       break;
 
     case 'b':
-      ttp_cli_args.bin_time = scitollu(optarg);
+      ttd_g2_cli_args.bin_time = scitollu(optarg);
       bin_time_set = 1;
       break;
     case 'w':
-      ttp_cli_args.window_time = scitollu(optarg);
+      ttd_g2_cli_args.window_time = scitollu(optarg);
       window_time_set = 1;
       break;
     case 'T':
-      ttp_cli_args.infile2_offset = atoll(optarg);
+      ttd_g2_cli_args.infile2_offset = atoll(optarg);
 
     case 'B':
-      ttp_cli_args.block_size = scitollu(optarg);
+      ttd_g2_cli_args.block_size = scitollu(optarg);
       break;
 
     default:
@@ -134,46 +134,46 @@ int ttp_read_cli(int argc, char* argv[]) {
   }
 
   if (!(bin_time_set))
-    fprintf(stderr, "Warning: Bin time not specified. Using default value of %" PRIu64 " ps\n", ttp_cli_args.bin_time);
+    fprintf(stderr, "Warning: Bin time not specified. Using default value of %" PRIu64 " ps\n", ttd_g2_cli_args.bin_time);
 
   if (!(window_time_set))
-    fprintf(stderr, "Warning: Window time not specified. Using default value of %" PRIu64 " ps\n", ttp_cli_args.window_time);
+    fprintf(stderr, "Warning: Window time not specified. Using default value of %" PRIu64 " ps\n", ttd_g2_cli_args.window_time);
 
   return(0);
 }
 
 void ttp_print_options(int no_verbose) {
   if (!(no_verbose)) {
-    printf("Verbose: %d\n", ttp_cli_args.verbose);
+    printf("Verbose: %d\n", ttd_g2_cli_args.verbose);
   }
-  if (ttp_cli_args.infile1 != NULL) {
-    printf("Infile 1: %s\n", ttp_cli_args.infile1);
+  if (ttd_g2_cli_args.infile1 != NULL) {
+    printf("Infile 1: %s\n", ttd_g2_cli_args.infile1);
   }
-  if (ttp_cli_args.infile2 != NULL) {
-    printf("Infile 2: %s\n", ttp_cli_args.infile2);
+  if (ttd_g2_cli_args.infile2 != NULL) {
+    printf("Infile 2: %s\n", ttd_g2_cli_args.infile2);
   }
-  if (ttp_cli_args.outfile != NULL) {
-    printf("Outfile: %s\n", ttp_cli_args.outfile);
+  if (ttd_g2_cli_args.outfile != NULL) {
+    printf("Outfile: %s\n", ttd_g2_cli_args.outfile);
   }
-  printf("Bin time: %" PRIu64 " ps\n", ttp_cli_args.bin_time);
-  printf("Window time: %" PRIu64 " ps\n", ttp_cli_args.window_time);
-  printf("Offset file 2 times by %" PRId64 " ps\n", ttp_cli_args.infile2_offset);
-  printf("Block size: %d records\n", ttp_cli_args.block_size);
+  printf("Bin time: %" PRIu64 " ps\n", ttd_g2_cli_args.bin_time);
+  printf("Window time: %" PRIu64 " ps\n", ttd_g2_cli_args.window_time);
+  printf("Offset file 2 times by %" PRId64 " ps\n", ttd_g2_cli_args.infile2_offset);
+  printf("Block size: %d records\n", ttd_g2_cli_args.block_size);
 }  
 
-void ttp_cli_cleanup() {
-  if(ttp_cli_args.infiles_allocated[0]) {
-    free(ttp_cli_args.infile1);
-    ttp_cli_args.infiles_allocated[0] = 0;
+void ttd_g2_cli_cleanup() {
+  if(ttd_g2_cli_args.infiles_allocated[0]) {
+    free(ttd_g2_cli_args.infile1);
+    ttd_g2_cli_args.infiles_allocated[0] = 0;
   }
-  if(ttp_cli_args.infiles_allocated[1]) {
-    free(ttp_cli_args.infile2);
-    ttp_cli_args.infiles_allocated[1] = 0;
+  if(ttd_g2_cli_args.infiles_allocated[1]) {
+    free(ttd_g2_cli_args.infile2);
+    ttd_g2_cli_args.infiles_allocated[1] = 0;
   }
 
-  if(ttp_cli_args.outfile_allocated) {
-    free(ttp_cli_args.outfile);
-    ttp_cli_args.outfile_allocated = 0;
+  if(ttd_g2_cli_args.outfile_allocated) {
+    free(ttd_g2_cli_args.outfile);
+    ttd_g2_cli_args.outfile_allocated = 0;
   }
 
 					  

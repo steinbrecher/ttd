@@ -1,7 +1,7 @@
-#ifndef _TTP_CLI_HEADER
-#define _TTP_CLI_HEADER
+#ifndef _TTD_G2_CLI_HEADER
+#define _TTD_G2_CLI_HEADER
 
-#define TTP_CLI_EXIT_RETCODE 1
+#define TTD_G2_CLI_EXIT_RETCODE 1
 #define TTP_PRINTOPTIONS_NOVERBOSE 1
 
 #include "ttd.h"
@@ -24,15 +24,15 @@ struct {
 
   int block_size; // -B
 
-} ttp_cli_args;
+} ttd_g2_cli_args;
 
-void ttp_cli_print_help(char* program_name);
+void ttd_g2_cli_print_help(char* program_name);
 
 void ttp_print_options();
 
 int ttp_read_cli(int argc, char* argv[]);
 
-void ttp_cli_cleanup();
+void ttd_g2_cli_cleanup();
 
 
 #endif

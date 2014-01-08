@@ -9,7 +9,7 @@
 #include <string.h>
 
 #include "ttp.h"
-#include "ttp_cli.h"
+#include "ttd_g2_cli.h"
 
 #include "ttd.h"
 #include "ttd_ringbuffer.h"
@@ -21,18 +21,18 @@ ttd_ccorr2_t *ttd_g2(char* infile1, char* infile2, int *retcode) {
   int64_t output_buffer_count = 0;
   uint64_t t1, t2;
 
-  ttd_ccorr2_t *ccorr = ttd_ccorr2_build(1024, ttp_cli_args.window_time);
+  ttd_ccorr2_t *ccorr = ttd_ccorr2_build(ttd_g2_cli_args.bin_time, ttd_g2_cli_args.window_time, 1024);
 
   ttd_fb_t fb1, fb2;
 
-  int64_t offset2 = ttp_cli_args.infile2_offset;
+  int64_t offset2 = ttd_g2_cli_args.infile2_offset;
 
   // Initialize buffers
-  *retcode = ttd_fb_init(&fb1, ttp_cli_args.block_size, infile1, 0);
+  *retcode = ttd_fb_init(&fb1, ttd_g2_cli_args.block_size, infile1, 0);
   if (retcode < 0) 
     goto fb1_cleanup;
 
-  *retcode = ttd_fb_init(&fb2, ttp_cli_args.block_size, infile2, offset2);
+  *retcode = ttd_fb_init(&fb2, ttd_g2_cli_args.block_size, infile2, offset2);
   if (retcode < 0)
     goto fb2_cleanup;
 
@@ -80,34 +80,34 @@ int main(int argc, char* argv[]) {
 
   if (retcode < 0) {
     exitcode = retcode;
-    goto cleanup_ttp_cli;
+    goto cleanup_ttd_g2_cli;
   }
-  else if (retcode == TTP_CLI_EXIT_RETCODE) {
-    goto cleanup_ttp_cli;
+  else if (retcode == TTD_G2_CLI_EXIT_RETCODE) {
+    goto cleanup_ttd_g2_cli;
   }
 
-  if (ttp_cli_args.verbose) {
+  if (ttd_g2_cli_args.verbose) {
     ttp_print_options(TTP_PRINTOPTIONS_NOVERBOSE);
   }
 
-  char *infile1 = ttp_cli_args.infile1;
-  char *infile2 = ttp_cli_args.infile2;
-  char *outfile = ttp_cli_args.outfile;
+  char *infile1 = ttd_g2_cli_args.infile1;
+  char *infile2 = ttd_g2_cli_args.infile2;
+  char *outfile = ttd_g2_cli_args.outfile;
   
   if (infile1 == NULL) {
     printf("Error: Missing input file 1. Please specify with the '-i' flag.\n");
     exitcode = -1;
-    goto cleanup_ttp_cli;
+    goto cleanup_ttd_g2_cli;
   }
   if (infile2 == NULL) {
     printf("Error: Missing input file 2. Please specify with the '-I' flag.\n");
     exitcode = -1;
-    goto cleanup_ttp_cli;
+    goto cleanup_ttd_g2_cli;
   }
   if (outfile == NULL) {
     printf("Error: Missing output file. Please specify with the '-o' flag.\n");
     exitcode = -1;
-    goto cleanup_ttp_cli;
+    goto cleanup_ttd_g2_cli;
   }
 
   ttd_ccorr2_t *g2_ccorr = ttd_g2(infile1, infile2, &retcode);
@@ -119,8 +119,8 @@ int main(int argc, char* argv[]) {
   ttd_ccorr2_cleanup(g2_ccorr);
   free(g2_ccorr);
 
- cleanup_ttp_cli:
-  ttp_cli_cleanup();
+ cleanup_ttd_g2_cli:
+  ttd_g2_cli_cleanup();
   
  exit_block:
   exit(exitcode);
