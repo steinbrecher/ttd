@@ -13,13 +13,15 @@ that's in the future.
 
 ## Basic installation instructions ##
 
-1. Unzip the .tar.gz into its own folder: 
+1. Download the latest version: [picoquant.tar.gz](picoquant.tar.gz)
+
+2. Unzip the .tar.gz into its own folder: 
 
 	`% tar -xvzf picoquant.tar.gz`	
 
 	`% cd picoquant`
 
-2. Install the software. Commands are:
+3. Install the software. Commands are:
 
 		% ./configure
 		% make
@@ -53,7 +55,7 @@ To run a g2 (really, a cross correlation since they're not normalized):
 
 		% ttd-g2 -b [bin time] -w [corelation window time] -1 [channel 1 ttd file] -2 [channel 2 ttd file] -o [output csv]
 
-	All times are in picoseconds.
+	All times are in picoseconds. Note that here (and for ttd-g3, ttd-g4, and ttd-delay), you can pass in times on the command line in (integer) scientific notation. That is, for a window of 50 nanoseconds you can either pass '-w 50000' or '-w 5e4'.
 
 3. Process the data. The csv file from the previous point has two columns; the first
 	corresponds to the bin time, the second corresponds to the number of counts in that

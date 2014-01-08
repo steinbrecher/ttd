@@ -26,9 +26,6 @@ long long scitoll(char* scinum, int* retcode) {
   }
   else {
     output = atoll(scinum);
-    if (output < 0) {
-      *retcode = SCITOLL_NEGATIVE;
-    }
     return(output);
   }
 

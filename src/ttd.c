@@ -10,22 +10,7 @@
 #include "ttd.h"
 
 ttd_t ttd_rounded_divide(ttd_t t1, ttd_t t2) {
-  ttd_t trunc = t1 / t2;
-  ttd_t rem = t1 % t2; 
-  
-  // If remainder is more than half of t2, division is rounded up
-  if (2*rem > t2) {
-    return(trunc + 1);
-  }
-  // Alternatively, if it's less, the truncated result is fine. 
-  else if (2*rem < t2) {
-    return(trunc);
-  }
-  // If we haven't returned, 2*rem == t2 and we need to round to even
-  if ((trunc % 2) == 0) {
-    return(trunc);
-  }
-  return(trunc + 1); 
+  return (t1 + t2 / 2) / t2;
 }
 
 int64_t int64_rounded_divide(int64_t t1, int64_t t2) {
