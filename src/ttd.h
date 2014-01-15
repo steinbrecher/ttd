@@ -9,6 +9,11 @@
 
 typedef uint64_t ttd_t;
 
+typedef struct {
+  uint64_t time;
+  int chan;
+} ttd_withchan_t;
+
 static const char _ttd_version_string[] = "0.3.0";
 void ttd_print_version();
 
