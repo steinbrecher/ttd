@@ -14,3 +14,13 @@ Ideas for future work:
 
 * Convert API (esp. variables for filenames, buffers, etc.) to be universally
   zero-indexed.
+
+* Write to .mat and/or .h5 files rather than CSV
+
+* Run correlations directly on picoquant files rather than requiring conversion
+  to .ttd (halfway done, need to finish pq_filebuffer)
+
+* Output channel markers as .ttd files
+
+* Split output (both of correlation programs and of conversion programs) on 
+  markers
