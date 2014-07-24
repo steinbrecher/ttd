@@ -2,14 +2,15 @@
 #define _TTD_RINGBUFFER_HEADER_SEEN
 
 typedef struct {
+  ttd_t *times;
+  ttd_t duration;
+
   int size;		      // Max number of elems 
   int start;		      // Index of oldest element 
   int count;	      // Number of active elements 
 
-  ttd_t duration;
   int times_allocated;
   int allocated;
-  ttd_t *times;
 
 } ttd_rb_t;
 

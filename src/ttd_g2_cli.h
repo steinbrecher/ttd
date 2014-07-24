@@ -22,6 +22,7 @@ struct {
   int64_t infile2_offset; // -T (note signed time for negative shifts)
 
   int block_size; // -B
+  int rb_size; // -R
 
 } ttd_g2_cli_args;
 

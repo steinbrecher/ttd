@@ -29,9 +29,10 @@ static const struct option ttd_g2_longopts[] = {
   { "input2-offset", required_argument, NULL, 'T' },
 
   { "block-size", required_argument, NULL, 'B' },
+  { "ringbuffer-size", required_argument, NULL, 'R' },
 };
 
-static const char *ttd_g2_optstring = "Vhv1:2:o:T:b:w:B:";
+static const char *ttd_g2_optstring = "Vhv1:2:o:T:b:w:B:R:";
 
 void ttd_g2_cli_print_help(char* program_name) {
   // Need a string of spaces equal in length to the program name
@@ -72,6 +73,7 @@ int ttd_g2_read_cli(int argc, char* argv[]) {
   ttd_g2_cli_args.infile2_offset = 0;
 
   ttd_g2_cli_args.block_size = 16384;
+  ttd_g2_cli_args.rb_size = 1024;
 
   ttd_g2_cli_args.infiles_allocated[0] = 0;
   ttd_g2_cli_args.infiles_allocated[1] = 0;
@@ -126,6 +128,10 @@ int ttd_g2_read_cli(int argc, char* argv[]) {
 
     case 'B':
       ttd_g2_cli_args.block_size = scitoll(optarg, &retcode);
+      break;
+
+    case 'R':
+      ttd_g2_cli_args.rb_size = scitoll(optarg, &retcode);
       break;
 
     default:

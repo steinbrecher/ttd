@@ -20,7 +20,7 @@ ttd_ccorr2_t *ttd_g2(char* infile1, char* infile2, int *retcode) {
   int64_t output_buffer_count = 0;
   uint64_t t1, t2;
 
-  ttd_ccorr2_t *ccorr = ttd_ccorr2_build(ttd_g2_cli_args.bin_time, ttd_g2_cli_args.window_time, 1024);
+  ttd_ccorr2_t *ccorr = ttd_ccorr2_build(ttd_g2_cli_args.bin_time, ttd_g2_cli_args.window_time, ttd_g2_cli_args.rb_size);
 
   ttd_fb_t fb1, fb2;
 
