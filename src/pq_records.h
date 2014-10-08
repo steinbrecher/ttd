@@ -1,14 +1,14 @@
 #ifndef PQ_RECORDS_HEADER_SEEN
 #define PQ_RECORDS_HEADER_SEEN
 
-#define PQ_HT2_V1_WRAP 33552000
-#define PQ_HT3_V1_WRAP 1024 // 2^10
+#define PQ_HT2_V1_WRAP (uint64_t)33552000
+#define PQ_HT3_V1_WRAP (uint64_t)1024 // 2^10
 
-#define PQ_HT2_V2_WRAP 33554432 // 2^25
-#define PQ_HT3_V2_WRAP 1024
+#define PQ_HT2_V2_WRAP (uint64_t)33554432 // 2^25
+#define PQ_HT3_V2_WRAP (uint64_t)1024
 
-#define PQ_PT2_V2_WRAP 210698240
-#define PQ_PT3_V2_WRAP 65536
+#define PQ_PT2_V2_WRAP (uint64_t)210698240
+#define PQ_PT3_V2_WRAP (uint64_t)65536
 
 typedef union { 
   uint32_t allbits;
