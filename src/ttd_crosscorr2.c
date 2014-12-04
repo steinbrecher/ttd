@@ -25,7 +25,7 @@ void ttd_ccorr2_init(ttd_ccorr2_t *ccorr, ttd_t bin_time, ttd_t window_time, ttd
   
   ccorr->rbs[0] = rb1;
   ccorr->rbs[1] = rb2;
-  ccorr->hist = (ttd_t *)calloc(num_bins, sizeof(ttd_t));
+  ccorr->hist = (ttd_t *)calloc(sizeof(ttd_t), num_bins);
   ccorr->hist_allocated = 1;
 }
 
