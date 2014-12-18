@@ -70,8 +70,8 @@ void ttd_ccorr2_update(ttd_ccorr2_t *ccorr, int rb_num, ttd_t time) {
 
 void ttd_ccorr2_write_csv(ttd_ccorr2_t *ccorr, char *file_name) {
   FILE *output_file = fopen(file_name, "wb");
-  ttd_t bin_time = ccorr->bin_time;
-  ttd_t window_time = ccorr->window_time;
+  int64_t bin_time = ccorr->bin_time;
+  int64_t window_time = ccorr->window_time;
   int m;
   for (m=0; m < ccorr->num_bins; m++) {
     fprintf(output_file, "%" PRId64", %" PRIu64 "\n", 
