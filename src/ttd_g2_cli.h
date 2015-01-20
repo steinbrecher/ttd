@@ -8,6 +8,8 @@
 
 struct {
   int verbose; // -v
+  int normalize; // -N
+  uint64_t int_time; // -t
 
   int infiles_allocated[2];
   char *infile1; // -1

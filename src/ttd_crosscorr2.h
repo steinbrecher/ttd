@@ -2,7 +2,10 @@
 #define _TTD_CROSSCORR2_HEADER
 
 typedef struct {
-  uint64_t rbs_counts[2];
+  // Statistic tracking how many have been seen on each channel
+  // Used in normalization code
+  uint64_t rbs_counts[2]; 
+  // Unused currently
   ttd_t most_common_time;
 } ttd_ccorr2_stats_t;
 
@@ -30,7 +33,7 @@ ttd_ccorr2_t *ttd_ccorr2_build(ttd_t bin_time, ttd_t window_time, int rb_size);
 
 void ttd_ccorr2_update(ttd_ccorr2_t *ccorr, int rb_num, ttd_t time);
 
-void ttd_ccorr2_write_csv(ttd_ccorr2_t *ccorr, char *file_name);
+void ttd_ccorr2_write_csv(ttd_ccorr2_t *ccorr, char *file_name, int normalize, int int_time);
 
 void ttd_ccorr2_cleanup(ttd_ccorr2_t *ccorr);
 

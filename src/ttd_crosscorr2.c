@@ -47,6 +47,9 @@ void ttd_ccorr2_update(ttd_ccorr2_t *ccorr, int rb_num, ttd_t time) {
   // Insert into the appropriate ringbuffer
   ttd_rb_insert(ccorr->rbs[rb_num], time);
 
+  // Increment totals counter
+  ccorr->stats.rbs_counts[rb_num]++; 
+
   // Prune both ringbuffers
   ttd_rb_prune(ccorr->rbs[0], time);
   ttd_rb_prune(ccorr->rbs[1], time);
@@ -62,22 +65,64 @@ void ttd_ccorr2_update(ttd_ccorr2_t *ccorr, int rb_num, ttd_t time) {
   if (other_rb->count > 0) {
     for (n=0; n < other_rb_count; n++) {
       times[other_rb_num] = ttd_rb_get(other_rb, n);
-      delta_bins = (int)(ccorr->center_bin + int64_rounded_divide(times[1]-times[0], ccorr->bin_time));
+      delta_bins = (int)(ccorr->center_bin + 
+			 int64_rounded_divide(times[1]-times[0], ccorr->bin_time));
       ++ ccorr->hist[delta_bins];
     }
   }
 }
 
-void ttd_ccorr2_write_csv(ttd_ccorr2_t *ccorr, char *file_name) {
+void ttd_ccorr2_write_csv(ttd_ccorr2_t *ccorr, char *file_name, int normalize, int int_time) {
   FILE *output_file = fopen(file_name, "wb");
-  int64_t bin_time = ccorr->bin_time;
   int64_t window_time = ccorr->window_time;
   int m;
-  for (m=0; m < ccorr->num_bins; m++) {
-    fprintf(output_file, "%" PRId64", %" PRIu64 "\n", 
-	    ((m*bin_time) - window_time), (ccorr->hist[m]));
+
+  /* Compute and print out the normalization stats */
+  double rate0, rate1, rate_product;
+  ttd_t bin_time = ccorr->bin_time;
+  uint64_t int_time_ps = 1000000000000 * (ttd_t)int_time;
+
+  // If we don't have an explicit integration time, infer it from last seen photon
+  if (int_time == 0) {
+    ttd_t last_time1, last_time2;
+    last_time1 = ttd_rb_get(ccorr->rbs[0], 0);
+    last_time2 = ttd_rb_get(ccorr->rbs[1], 0);
+    if (last_time1 > last_time2) {
+      int_time_ps = last_time1;
+    }
+    else {
+      int_time_ps = last_time2;
+    }
   }
 
+  uint64_t num_bins = int_time_ps / bin_time;
+  printf("\nIntegration Time: %" PRIu64"\n", int_time_ps);
+  printf("Number of Time Bins: %" PRIu64 "\n", num_bins);
+  // Calculate rates
+  rate0 = ((double)ccorr->stats.rbs_counts[0]) / (double)num_bins;
+  rate1 = ((double)ccorr->stats.rbs_counts[1]) / (double)num_bins;
+  rate_product = rate0 * rate1;
+  printf("Channel 1 Counts: %" PRIu64 "\n", ccorr->stats.rbs_counts[0]);
+  printf("Channel 2 Counts: %" PRIu64 "\n", ccorr->stats.rbs_counts[1]);
+  printf("Rate Product: %.12f\n", rate_product);
+
+  if (normalize == 0) {
+    for (m=0; m < ccorr->num_bins; m++) {
+      fprintf(output_file, "%" PRId64", %" PRIu64 "\n", 
+	      ((m*bin_time) - window_time), (ccorr->hist[m]));
+    }
+  }
+  else {
+    // Perform normalization and output to file
+    int64_t bin_offset;
+    double norm_denom, norm_counts;
+    for (m=0; m < ccorr->num_bins; m++) {
+      bin_offset = (m*bin_time) - window_time;
+      norm_denom = rate_product * (double)(num_bins - llabs(bin_offset));
+      norm_counts = ((double)ccorr->hist[m]) / norm_denom;
+      fprintf(output_file, "%" PRId64", %f\n", bin_offset, norm_counts);
+    }
+  }
   fclose(output_file);
 }
 
