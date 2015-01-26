@@ -10,6 +10,7 @@ typedef struct {
 
   ttd_t *buffered_records;
   int buffer_allocated;
+  int compressed;
 
   char *filename;
   int filename_allocated;

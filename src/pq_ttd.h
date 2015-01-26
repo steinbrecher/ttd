@@ -1,7 +1,7 @@
 #ifndef _PQ_CONVERT_HEADER_SEEN
 #define _PQ_CONVERT_HEADER_SEEN
 
-#define PHOTONBLOCK 32768
+#define PHOTONBLOCK 1024
 
 int pt2_v2_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info);
 int pt3_v2_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info);

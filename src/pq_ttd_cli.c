@@ -20,6 +20,8 @@ static const struct option pq_ttd_longopts[] = {
 
   { "verbose", no_argument, NULL, 'v' },
 
+  { "compress", no_argument, NULL, 'c' },
+
   { "input-file", required_argument, NULL, 'i' },
 
   { "output-prefix", required_argument, NULL, 'o' },
@@ -27,7 +29,7 @@ static const struct option pq_ttd_longopts[] = {
   { "block-size", required_argument, NULL, 'B' },
 };
 
-static const char *pq_ttd_optstring = "Vhvi:o:B:";
+static const char *pq_ttd_optstring = "Vhcvi:o:B:";
 
 void pq_ttd_cli_print_help(char* program_name) {
   // Need a string of spaces equal in length to the program name
@@ -44,6 +46,7 @@ void pq_ttd_cli_print_help(char* program_name) {
   printf("\tNotes: \n");
   printf("\t\t-o (--output-prefix):\tPrefix for .ttd output files.\n");
   printf("\t\t                     \tOptional; if not provided, will use input filename.\n");
+  printf("\t\t-c (--compress):\tOutput compressed .ttz file..\n");
 
   printf("\tOther options:\n");
   printf("\t\t-v (--verbose):\t\tEnable verbose output to stdout\n");
@@ -54,7 +57,7 @@ void pq_ttd_cli_print_help(char* program_name) {
 int pq_ttd_read_cli(int argc, char* argv[]) {
   // Initialize default values
   pq_ttd_cli_args.verbose = 0;
-
+  pq_ttd_cli_args.compress = 0;
   pq_ttd_cli_args.block_size = 16384;
 
   pq_ttd_cli_args.infile_allocated = 0;
@@ -77,6 +80,10 @@ int pq_ttd_read_cli(int argc, char* argv[]) {
     case 'h':
       pq_ttd_cli_print_help(argv[0]);
       return(PQ_TTD_CLI_EXIT_RETCODE);
+      break;
+
+    case 'c':
+      pq_ttd_cli_args.compress = 1;
       break;
 
     case 'i':

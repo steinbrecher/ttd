@@ -97,38 +97,39 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
+am__objects_1 = src/ttd.$(OBJEXT)
+am__objects_2 = src/ttz.$(OBJEXT)
 am_pq_ttd_OBJECTS = src/pq_ttd.$(OBJEXT) src/pq_ttd_cli.$(OBJEXT) \
-	src/pq_parse.$(OBJEXT) src/ttd.$(OBJEXT)
+	src/pq_parse.$(OBJEXT) $(am__objects_1) $(am__objects_2)
 pq_ttd_OBJECTS = $(am_pq_ttd_OBJECTS)
 pq_ttd_LDADD = $(LDADD)
-am_ttd_dump_OBJECTS = src/ttd_dump.$(OBJEXT)
+am_ttd_dump_OBJECTS = src/ttd_dump.$(OBJEXT) $(am__objects_1)
 ttd_dump_OBJECTS = $(am_ttd_dump_OBJECTS)
 ttd_dump_LDADD = $(LDADD)
-am__objects_1 = src/ttd_ringbuffer.$(OBJEXT)
-am__objects_2 = src/ttd_crosscorr2.$(OBJEXT) $(am__objects_1)
-am__objects_3 = src/ttd.$(OBJEXT)
-am__objects_4 = src/ttd_filebuffer.$(OBJEXT) $(am__objects_3)
-am__objects_5 = src/scitoll.$(OBJEXT)
+am__objects_3 = src/ttd_ringbuffer.$(OBJEXT)
+am__objects_4 = src/ttd_crosscorr2.$(OBJEXT) $(am__objects_3)
+am__objects_5 = src/ttd_filebuffer.$(OBJEXT) $(am__objects_1) \
+	$(am__objects_2)
+am__objects_6 = src/scitoll.$(OBJEXT)
 am_ttd_g2_OBJECTS = src/ttd_g2.$(OBJEXT) src/ttd_g2_cli.$(OBJEXT) \
-	$(am__objects_2) $(am__objects_4) $(am__objects_5)
+	$(am__objects_4) $(am__objects_5) $(am__objects_6)
 ttd_g2_OBJECTS = $(am_ttd_g2_OBJECTS)
 ttd_g2_LDADD = $(LDADD)
-am__objects_6 = src/ttd_crosscorr3.$(OBJEXT) $(am__objects_1)
+am__objects_7 = src/ttd_crosscorr3.$(OBJEXT) $(am__objects_3)
 am_ttd_g3_OBJECTS = src/ttd_g3.$(OBJEXT) src/g3_cli.$(OBJEXT) \
-	$(am__objects_6) $(am__objects_4) $(am__objects_5)
+	$(am__objects_7) $(am__objects_5) $(am__objects_6)
 ttd_g3_OBJECTS = $(am_ttd_g3_OBJECTS)
 ttd_g3_LDADD = $(LDADD)
-am__objects_7 = src/ttd_crosscorr4.$(OBJEXT) $(am__objects_1)
+am__objects_8 = src/ttd_crosscorr4.$(OBJEXT) $(am__objects_3)
 am_ttd_g4_OBJECTS = src/ttd_g4.$(OBJEXT) src/ttd_g4_cli.$(OBJEXT) \
-	$(am__objects_7) $(am__objects_4) $(am__objects_5)
+	$(am__objects_8) $(am__objects_5) $(am__objects_6)
 ttd_g4_OBJECTS = $(am_ttd_g4_OBJECTS)
 ttd_g4_LDADD = $(LDADD)
-am_ttd_merge_OBJECTS = src/ttd_merge.$(OBJEXT) \
-	src/ttd_filebuffer.$(OBJEXT) src/ttd.$(OBJEXT)
+am_ttd_merge_OBJECTS = src/ttd_merge.$(OBJEXT) $(am__objects_5)
 ttd_merge_OBJECTS = $(am_ttd_merge_OBJECTS)
 ttd_merge_LDADD = $(LDADD)
-am_ttd_shift_OBJECTS = src/ttd_shift.$(OBJEXT) $(am__objects_5) \
-	$(am__objects_4)
+am_ttd_shift_OBJECTS = src/ttd_shift.$(OBJEXT) $(am__objects_6) \
+	$(am__objects_5)
 ttd_shift_OBJECTS = $(am_ttd_shift_OBJECTS)
 ttd_shift_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
@@ -297,16 +298,18 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = subdir-objects
+AM_LDFLAGS = "-lz"
 scitoll = src/scitoll.c
+ttz = src/ttz.c
 ttd = src/ttd.c
 ttd_ringbuffer = src/ttd_ringbuffer.c
 ttd_crosscorr2 = src/ttd_crosscorr2.c ${ttd_ringbuffer}
 ttd_crosscorr3 = src/ttd_crosscorr3.c ${ttd_ringbuffer}
 ttd_crosscorr4 = src/ttd_crosscorr4.c ${ttd_ringbuffer}
-ttd_filebuffer = src/ttd_filebuffer.c ${ttd}
-pq_ttd_SOURCES = src/pq_ttd.c src/pq_ttd_cli.c src/pq_parse.c src/ttd.c 
-ttd_dump_SOURCES = src/ttd_dump.c src/ttd.h
-ttd_merge_SOURCES = src/ttd_merge.c src/ttd_filebuffer.c src/ttd.c
+ttd_filebuffer = src/ttd_filebuffer.c ${ttd} ${ttz}
+pq_ttd_SOURCES = src/pq_ttd.c src/pq_ttd_cli.c src/pq_parse.c ${ttd} ${ttz}
+ttd_dump_SOURCES = src/ttd_dump.c ${ttd}
+ttd_merge_SOURCES = src/ttd_merge.c ${ttd_filebuffer}
 ttd_g2_SOURCES = src/ttd_g2.c src/ttd_g2_cli.c ${ttd_crosscorr2} ${ttd_filebuffer} ${ttd_g2_cli} ${scitoll}
 ttd_g3_SOURCES = src/ttd_g3.c src/g3_cli.c ${ttd_crosscorr3} ${ttd_filebuffer} ${g3_cli} ${scitoll}
 ttd_g4_SOURCES = src/ttd_g4.c src/ttd_g4_cli.c ${ttd_crosscorr4} ${ttd_filebuffer} ${scitoll}
@@ -420,6 +423,7 @@ src/pq_ttd_cli.$(OBJEXT): src/$(am__dirstamp) \
 src/pq_parse.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/ttd.$(OBJEXT): src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/ttz.$(OBJEXT): src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 
 pq-ttd$(EXEEXT): $(pq_ttd_OBJECTS) $(pq_ttd_DEPENDENCIES) $(EXTRA_pq_ttd_DEPENDENCIES) 
 	@rm -f pq-ttd$(EXEEXT)
@@ -505,6 +509,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_merge.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_ringbuffer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttd_shift.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/ttz.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\

@@ -12,10 +12,10 @@ AM_SILENT_RULES([yes])
 AC_PROG_CC
 
 # Checks for libraries.
-AC_CHECK_LIB([m], [floor])
+AC_CHECK_LIB([m], [floor], [z])
 
 # Checks for header files.
-AC_CHECK_HEADERS([inttypes.h stddef.h stdlib.h string.h])
+AC_CHECK_HEADERS([inttypes.h stddef.h stdlib.h string.h zlib.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE

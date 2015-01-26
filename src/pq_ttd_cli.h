@@ -9,6 +9,7 @@
 
 struct {
   int verbose; // -v
+  int compress; // -c
 
   int infile_allocated;
   char *infile; // -i
