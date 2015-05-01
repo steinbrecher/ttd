@@ -232,6 +232,10 @@ uint64_t run_hh_convert(FILE *fpin, pq_fileinfo_t *file_info) {
   int ttd_buffer_count[channels];
 
   pq_rec_t *file_block = (pq_rec_t *) malloc(photonblock*sizeof(pq_rec_t));
+  if (file_block == NULL) {
+    printf("ERROR: Photon Block Not Allocated!\n");
+    exit(-1);
+  }
   int ret, channel, result;
 
   // Open the output files
@@ -397,7 +401,7 @@ uint64_t run_hh_convert(FILE *fpin, pq_fileinfo_t *file_info) {
     for (k=0; k < channels; k++) {
       fclose(outfiles[k]);
     }
-    free(&file_block);
+    free(file_block);
   }
   else if (pid == 0) {
     //printf("CHILD %d: Closing output file\n", childnum);
@@ -414,7 +418,7 @@ uint64_t run_hh_convert(FILE *fpin, pq_fileinfo_t *file_info) {
       fclose(fifos_in[k]);
       snprintf(fname, sizeof(fname), ".fifo_%s-channel-%d.%s", pq_ttd_cli_args.output_prefix, k+1, suffix);
       remove(fname);
-      free(&file_block);
+      free(file_block);
     }
   }
   printf("Records Read: %" PRIu64 "\n", total_read);

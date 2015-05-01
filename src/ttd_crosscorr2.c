@@ -26,7 +26,14 @@ void ttd_ccorr2_init(ttd_ccorr2_t *ccorr, ttd_t bin_time, ttd_t window_time, ttd
   ccorr->rbs[0] = rb1;
   ccorr->rbs[1] = rb2;
   ccorr->hist = (ttd_t *)calloc(sizeof(ttd_t), num_bins);
-  ccorr->hist_allocated = 1;
+  if (ccorr->hist != NULL) {
+    ccorr->hist_allocated = 1;
+  }
+  else {
+    printf("Histogram not allocated!\n");
+    ccorr->hist_allocated = 0;
+  }
+  
 }
 
 ttd_ccorr2_t *ttd_ccorr2_build(ttd_t bin_time, ttd_t window_time, int rb_size) {
@@ -48,26 +55,29 @@ void ttd_ccorr2_update(ttd_ccorr2_t *ccorr, int rb_num, ttd_t time) {
   ttd_rb_insert(ccorr->rbs[rb_num], time);
 
   // Increment totals counter
-  ccorr->stats.rbs_counts[rb_num]++; 
+  ccorr->stats.rbs_counts[rb_num]++;
 
   // Prune both ringbuffers
   ttd_rb_prune(ccorr->rbs[0], time);
   ttd_rb_prune(ccorr->rbs[1], time);
-
   // Sign is 1 if rb_num is 1, -1 if it's 0 (i.e. delta_t = rb2_time - rb1_time)
   int other_rb_num = 1-rb_num;
   ttd_rb_t *other_rb = ccorr->rbs[other_rb_num];
   int other_rb_count = other_rb->count;
+
   
-  int64_t times[2];
-  int n, delta_bins;
-  times[rb_num] = time;
+  int64_t times[2], delta_bins;
+  int n;
+  times[rb_num] = (int64_t)time;
+  
   if (other_rb->count > 0) {
     for (n=0; n < other_rb_count; n++) {
       times[other_rb_num] = ttd_rb_get(other_rb, n);
-      delta_bins = (int)(ccorr->center_bin + 
-			 int64_rounded_divide(times[1]-times[0], ccorr->bin_time));
-      ++ ccorr->hist[delta_bins];
+      delta_bins = (ccorr->center_bin + 
+			 int64_rounded_divide(times[1]-times[0], (int64_t)ccorr->bin_time));
+      if (delta_bins >= 0) {
+	++ ccorr->hist[delta_bins];
+      }
     }
   }
 }
@@ -129,14 +139,17 @@ void ttd_ccorr2_write_csv(ttd_ccorr2_t *ccorr, char *file_name, int normalize, i
 void ttd_ccorr2_cleanup(ttd_ccorr2_t *ccorr) {
   ttd_rb_cleanup(ccorr->rbs[0]);
   ttd_rb_cleanup(ccorr->rbs[1]);
+  
   if (ccorr->rbs_allocated[0]) {
     free(ccorr->rbs[0]);
     ccorr->rbs_allocated[0] = 0;
   }
+
   if (ccorr->rbs_allocated[1]) {
     free(ccorr->rbs[1]);
     ccorr->rbs_allocated[1] = 0;
   }
+
   if (ccorr->hist_allocated) {
     free(ccorr->hist);
   }

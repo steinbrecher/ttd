@@ -17,10 +17,10 @@ ttd_t ttd_rounded_divide(ttd_t t1, ttd_t t2) {
 }
 
 int64_t int64_rounded_divide(int64_t t1, int64_t t2) {
-  //  long double t1d = t1;
-  //  long double t2d = t2;
+   /* long double t1d = t1; */
+   /* long double t2d = t2; */
   
-  //  return llrintl(t1d/t2d);
+   /* return llrintl(t1d/t2d); */
 
   int64_t abs_res = ((2*llabs(t1) + t2)/(2*t2));
   if (t1 >= 0)

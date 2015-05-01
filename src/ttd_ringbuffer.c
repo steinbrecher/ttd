@@ -54,6 +54,7 @@ void ttd_rb_prune(ttd_rb_t *rb, ttd_t time) {
 }
 
 void ttd_rb_cleanup(ttd_rb_t *rb) {
+  printf("Cleaning up ringbuffer\n");
   if (rb->times_allocated) {
     free(rb->times);
     rb->times_allocated = 0;
@@ -63,7 +64,12 @@ void ttd_rb_cleanup(ttd_rb_t *rb) {
 int ttd_rb_grow(ttd_rb_t *rb) {
   ttd_t *newbuff;
   if (rb->times_allocated == 1) {
+    printf("Growing ringbuffer size to %d\n", rb->size);
     newbuff = (ttd_t *) malloc(2*rb->size*sizeof(ttd_t));
+    if (newbuff == NULL) {
+      printf("ERROR: Could not allocated larger ringbuffer\n");
+      exit(-1);
+    }
     memcpy(newbuff, rb->times, rb->size);
     rb->size = rb->size*2;
     free(rb->times);

@@ -19,8 +19,12 @@
 ttd_ccorr2_t *ttd_g2(char* infile1, char* infile2, int *retcode) {
   int64_t output_buffer_count = 0;
   uint64_t t1, t2;
-
   ttd_ccorr2_t *ccorr = ttd_ccorr2_build(ttd_g2_cli_args.bin_time, ttd_g2_cli_args.window_time, ttd_g2_cli_args.rb_size);
+
+  if (ccorr->hist_allocated == 0) {
+    printf("ERROR: Histogram not allocated");
+    exit(-1);
+  }
 
   ttd_fb_t fb1, fb2;
 
@@ -88,10 +92,10 @@ int main(int argc, char* argv[]) {
   if (ttd_g2_cli_args.verbose) {
     ttd_g2_print_options(TTD_G2_PRINTOPTIONS_NOVERBOSE);
   }
-
   char *infile1 = ttd_g2_cli_args.infile1;
   char *infile2 = ttd_g2_cli_args.infile2;
   char *outfile = ttd_g2_cli_args.outfile;
+
   
   if (infile1 == NULL) {
     printf("Error: Missing input file 1. Please specify with the '-1' flag.\n");
@@ -109,8 +113,9 @@ int main(int argc, char* argv[]) {
     goto cleanup_ttd_g2_cli;
   }
 
-  ttd_ccorr2_t *g2_ccorr = ttd_g2(infile1, infile2, &retcode);
 
+  ttd_ccorr2_t *g2_ccorr = ttd_g2(infile1, infile2, &retcode);
+  
   ttd_ccorr2_write_csv(g2_ccorr, outfile, ttd_g2_cli_args.normalize, ttd_g2_cli_args.int_time);
 
 

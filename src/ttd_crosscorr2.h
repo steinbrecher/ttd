@@ -13,8 +13,8 @@ typedef struct {
   ttd_t bin_time;
   ttd_t window_time;
 
-  int num_bins;
-  int center_bin;
+  int64_t num_bins;
+  int64_t center_bin;
 
   int64_t total;
 
