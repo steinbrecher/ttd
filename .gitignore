@@ -22,3 +22,7 @@ config.status
 
 .deps
 .deps/*
+
+.idea
+
+build

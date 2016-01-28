@@ -16,8 +16,7 @@
 #include "ttd.h"
 #include "ttd_filebuffer.h"
 
-#include "zlib.h"
-#include "ttz.h"
+//#include "ttz.h"
 
 char *get_extension(char* filename) {
   int i, dot_index = -1;
@@ -31,44 +30,13 @@ char *get_extension(char* filename) {
 }
 
 int ttd_fb_openfile(ttd_fb_t *buffer, char* filename) {
-  FILE *fifo, *datafile;
-  char fifo_name[] = "ttz_fifoXXXXXX";
-  mode_t fifo_mode = S_IRUSR | S_IWUSR | S_IFIFO;
-  int pid, result, fd;
-  if (buffer->compressed) {
-    fd = mkstemp(fifo_name); 
-    close(fd);
-    remove(fifo_name);
-    result = mknod(fifo_name, fifo_mode, 0);
-    if (result < 0) {
-      perror ("mknod");
-      exit (2);
-    }
-    pid = fork();
-    // Set up the parent
-    if (pid!=0) {
-      buffer->fp = fopen(fifo_name, "rb");
-      buffer->file_open = 1;
-      return(0);
-    }
-    // Set up decompression child
-    else {
-      fifo = fopen(fifo_name, "wb");
-      if ((datafile = fopen(buffer->filename, "rb")) == NULL) {
-	printf("ERROR: Could not open %s for reading\n", buffer->filename);
-	return TTD_FB_FILE_OPEN_ERROR;
-      }
-      inf(datafile, fifo);
-      exit(0);
-    }
+
+  if ((buffer->fp = fopen(buffer->filename, "rb")) == NULL) {
+    printf("ERROR: Could not open %s for reading\n", buffer->filename);
+    return TTD_FB_FILE_OPEN_ERROR;
   }
-  else{
-    if ((buffer->fp = fopen(buffer->filename, "rb")) == NULL) {
-      printf("ERROR: Could not open %s for reading\n", buffer->filename);
-      return TTD_FB_FILE_OPEN_ERROR;
-    }
-    buffer->file_open = 1;
-  }
+  buffer->file_open = 1;
+
   return(0);
 }
 
@@ -99,12 +67,12 @@ int ttd_fb_init(ttd_fb_t *buffer, uint64_t buffer_size, char* filename, int64_t 
   }
   buffer->filename_allocated = 1;
   strcpy(buffer->filename, filename);
-  if (strcmp(extension, "ttz")==0) {
+  /*if (strcmp(extension, "ttz")==0) {
     buffer->compressed = 1;
   }
   else {
     buffer->compressed = 0;
-  }
+  }*/
   buffer->file_open = 0;
   retcode = ttd_fb_openfile(buffer, buffer->filename);
 
