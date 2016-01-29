@@ -26,7 +26,7 @@
 //NOTE: Potential improvement is to pass the channel array structure to the various
 // '_to_ttd' functions and have them handle the updates
 
-int pt2_v2_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
+int16_t pt2_v2_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
   int channel = pq_rec.ph_t2_bits.channel;
   int timetag = pq_rec.ph_t2_bits.timetag;
 
@@ -43,7 +43,7 @@ int pt2_v2_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correction, p
   return(-1);
 }
 
-int pt3_v2_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
+int16_t pt3_v2_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
   int channel = pq_rec.ph_t3_bits.channel;
   int timetag = pq_rec.ph_t3_bits.timetag;
   int nsync = pq_rec.ph_t3_bits.nsync;
@@ -60,7 +60,7 @@ int pt3_v2_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correction, p
 }
 
 
-int ht2_v1_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
+int16_t ht2_v1_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
   // Unpack pq_rec
   int special = pq_rec.hh_t2_bits.special;
   int channel = pq_rec.hh_t2_bits.channel;
@@ -87,7 +87,7 @@ int ht2_v1_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correction, p
   }
 }
 
-int ht2_v2_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
+int16_t ht2_v2_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
   int special = pq_rec.hh_t2_bits.special;
   int channel = pq_rec.hh_t2_bits.channel;
   int timetag = pq_rec.hh_t2_bits.timetag;
@@ -115,7 +115,7 @@ int ht2_v2_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correction, p
   return(-1);
 }
 
-int ht3_v1_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
+int16_t ht3_v1_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
   uint64_t sync_period = file_info->sync_period;
   uint64_t resolution = file_info->resolution;
   int special = pq_rec.hh_t3_bits.special;
@@ -136,7 +136,7 @@ int ht3_v1_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correction, p
 }
 
 
-int ht3_v2_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
+int16_t ht3_v2_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
   uint64_t sync_period = file_info->sync_period;
   uint64_t resolution = file_info->resolution;
   int special = pq_rec.hh_t3_bits.special;
