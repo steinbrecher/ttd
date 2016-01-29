@@ -10,7 +10,7 @@
 #include <inttypes.h>
 
 #include "scitoll.h"
-#include "g3_cli.h"
+#include "ttd_g3_cli.h"
 
 static const struct option ttd_g3_longopts[] = {
   { "version", no_argument, NULL, 'V' },

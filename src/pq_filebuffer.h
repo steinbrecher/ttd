@@ -1,6 +1,8 @@
 #ifndef _PQ_FILEBUFFER_HEADER_SEEN
 #define _PQ_FILEBUFFER_HEADER_SEEN
 
+#include "pq_records.h"
+
 typedef struct {
   uint64_t buffer_size;
   uint64_t buffer_fill;

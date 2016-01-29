@@ -8,7 +8,7 @@
 #include <math.h>
 #include <string.h>
 
-#include "g3_cli.h"
+#include "ttd_g3_cli.h"
 
 #include "ttd.h"
 #include "ttd_ringbuffer.h"

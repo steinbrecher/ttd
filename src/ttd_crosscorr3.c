@@ -9,7 +9,7 @@
 #include <string.h>
 
 #include "ttd.h"
-#include "g3_cli.h"
+#include "ttd_g3_cli.h"
 #include "ttd_ringbuffer.h"
 #include "ttd_crosscorr3.h"
 

@@ -251,8 +251,6 @@ uint64_t run_hh_convert(FILE *fpin, pq_fileinfo_t *file_info) {
     outfiles[channels-1] = fopen(fname, "wb");
   }
 
-
-
   uint64_t n;
 
   int avail=0, locked=0, flush;

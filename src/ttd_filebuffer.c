@@ -30,7 +30,6 @@ char *get_extension(char* filename) {
 }
 
 int ttd_fb_openfile(ttd_fb_t *buffer, char* filename) {
-
   if ((buffer->fp = fopen(buffer->filename, "rb")) == NULL) {
     printf("ERROR: Could not open %s for reading\n", buffer->filename);
     return TTD_FB_FILE_OPEN_ERROR;
