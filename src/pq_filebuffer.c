@@ -69,6 +69,16 @@ int pq_fb_init(pq_fb_t *buffer, char* filename) {
   }
   buffer->file_block_allocated = 1;
 
+  // Get first file block
+  uint64_t num_photons;
+  num_photons = pq_fb_get_block(buffer);
+  if (num_photons < PHOTONBLOCK) {
+    printf("Only got %"PRIu64 " photon records.\n", num_photons);
+    pq_fb_closefile(buffer);
+  }
+
+  return retcode;
+
   error_cleanup:
   pq_fb_cleanup(buffer);
 
@@ -116,12 +126,13 @@ int pq_fb_cleanup(pq_fb_t *buffer){
 }
 
 uint64_t pq_fb_get_block(pq_fb_t *buffer) {
-  uint64_t num_photons;
+  uint64_t num_photons=0;
   int16_t channel;
   ttd_t time;
 
   size_t n;
-  num_photons = fread(&(buffer->file_block), sizeof(pq_rec_t), PHOTONBLOCK, buffer->fp);
+
+  num_photons = fread(buffer->file_block, sizeof(pq_rec_t), PHOTONBLOCK, buffer->fp);
 
 
   for (n=0; n<num_photons; n++) {
@@ -132,11 +143,14 @@ uint64_t pq_fb_get_block(pq_fb_t *buffer) {
   buffer->total_read += num_photons;
   buffer->buffered_records_count = num_photons;
   buffer->buffered_records_idx = 0;
-
   return num_photons;
 }
 
 int pq_fb_pop(pq_fb_t *buffer, ttd_t *time, int16_t *channel) {
+  if (buffer->empty) {
+    return -1;
+  }
+
   *channel = buffer->buffered_records[buffer->buffered_records_idx].channel;
   *time = buffer->buffered_records[buffer->buffered_records_idx].record;
   buffer->buffered_records_idx++;
@@ -147,6 +161,7 @@ int pq_fb_pop(pq_fb_t *buffer, ttd_t *time, int16_t *channel) {
     if (buffer->file_open) {
       // try to get another block.
       // If fewer than PHOTONBLOCK records read, file is done
+
       if (pq_fb_get_block(buffer) < PHOTONBLOCK) {
         pq_fb_closefile(buffer);
       }

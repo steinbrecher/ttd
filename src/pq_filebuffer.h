@@ -48,6 +48,8 @@ int pq_fb_init(pq_fb_t *buffer, char* filename);
 int pq_fb_openfile(pq_fb_t *buffer);
 int pq_fb_cleanup(pq_fb_t *buffer);
 int pq_fb_pop(pq_fb_t *buffer, ttd_t *time, int16_t *channel);
+uint64_t pq_fb_get_block(pq_fb_t *buffer);
+int pq_fb_closefile(pq_fb_t *buffer);
 
 #define PQ_FB_MALLOC_ERROR -1;
 #define PQ_FB_FILE_OPEN_ERROR -2;
