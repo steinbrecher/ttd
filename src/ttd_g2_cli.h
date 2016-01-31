@@ -30,7 +30,7 @@ struct {
 
 void ttd_g2_cli_print_help(char* program_name);
 
-void ttd_g2_print_options();
+void ttd_g2_print_options(int no_verbose);
 
 int ttd_g2_read_cli(int argc, char* argv[]);
 
