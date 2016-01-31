@@ -67,7 +67,7 @@ int ttd_rb_grow(ttd_rb_t *rb) {
     printf("Growing ringbuffer size to %d\n", rb->size);
     newbuff = (ttd_t *) malloc(2*rb->size*sizeof(ttd_t));
     if (newbuff == NULL) {
-      printf("ERROR: Could not allocated larger ringbuffer\n");
+      printf("ERROR: Could not allocate larger ringbuffer\n");
       exit(-1);
     }
     memcpy(newbuff, rb->times, rb->size);

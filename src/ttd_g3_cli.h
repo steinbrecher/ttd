@@ -27,7 +27,7 @@ struct {
 
 void g3_cli_print_help(char* program_name);
 
-void g3_cli_print_options();
+void g3_cli_print_options(int no_verbose);
 
 int g3_read_cli(int argc, char* argv[]);
 
