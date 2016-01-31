@@ -54,7 +54,6 @@ void ttd_rb_prune(ttd_rb_t *rb, ttd_t time) {
 }
 
 void ttd_rb_cleanup(ttd_rb_t *rb) {
-  printf("Cleaning up ringbuffer\n");
   if (rb->times_allocated) {
     free(rb->times);
     rb->times_allocated = 0;
