@@ -3,10 +3,8 @@
 #endif
 #include <stdio.h>
 #include <stdlib.h>
-#include <stddef.h>
 #include <getopt.h>
 #include <string.h>
-#include <math.h>
 #include <inttypes.h>
 
 #include "scitoll.h"
@@ -41,7 +39,7 @@ static const char *pq_g2_optstring = "VhvNt:1:2:i:o:T:b:w:B:R:";
 
 void pq_g2_cli_print_help(char* program_name) {
   // Need a string of spaces equal in length to the program name
-  int len = strlen(program_name)+1;
+  size_t len = strlen(program_name)+1;
   char pn_spaces[len];
   int i;
   for (i=0; i<len-1; i++) {
@@ -83,7 +81,7 @@ int pq_g2_read_cli(int argc, char* argv[]) {
 
   int window_time_set = 0;
   pq_g2_cli_args.window_time = 10000;
-  pq_g2_cli_args.infile2_offset = 0;
+  pq_g2_cli_args.channel2_offset = 0;
 
   pq_g2_cli_args.block_size = 16384;
   pq_g2_cli_args.rb_size = 1024;
@@ -110,7 +108,7 @@ int pq_g2_read_cli(int argc, char* argv[]) {
         break;
 
       case 't':
-        pq_g2_cli_args.int_time = scitoll(optarg, &retcode);
+        pq_g2_cli_args.int_time = (uint64_t)scitoll(optarg, &retcode);
         break;
 
       case 'h':
@@ -119,11 +117,11 @@ int pq_g2_read_cli(int argc, char* argv[]) {
         break;
 
       case '1':
-        pq_g2_cli_args.channel1 = atoi(optarg);
+        pq_g2_cli_args.channel1 = (int16_t)atoi(optarg);
         break;
 
       case '2':
-        pq_g2_cli_args.channel2 = atoi(optarg);
+        pq_g2_cli_args.channel2 = (int16_t)atoi(optarg);
         break;
 
       case 'i':
@@ -147,7 +145,7 @@ int pq_g2_read_cli(int argc, char* argv[]) {
         window_time_set = 1;
         break;
       case 'T':
-        pq_g2_cli_args.infile2_offset = scitoll(optarg, &retcode);
+        pq_g2_cli_args.channel2_offset = scitoll(optarg, &retcode);
 
       case 'B':
         pq_g2_cli_args.block_size = scitoll(optarg, &retcode);
@@ -192,7 +190,7 @@ void pq_g2_print_options(int no_verbose) {
 
   printf("Bin time: %" PRIu64 " ps\n", pq_g2_cli_args.bin_time);
   printf("Window time: %" PRIu64 " ps\n", pq_g2_cli_args.window_time);
-  printf("Offset file 2 times by %" PRId64 " ps\n", pq_g2_cli_args.infile2_offset);
+  printf("Offset file 2 times by %" PRId64 " ps\n", pq_g2_cli_args.channel2_offset);
   printf("Block size: %d records\n", pq_g2_cli_args.block_size);
 }
 

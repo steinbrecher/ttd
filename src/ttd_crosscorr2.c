@@ -106,19 +106,22 @@ void ttd_ccorr2_write_csv(ttd_ccorr2_t *ccorr, char *file_name, int normalize, i
   }
 
   uint64_t num_bins = int_time_ps / bin_time;
-  printf("\nIntegration Time: %" PRIu64"\n", int_time_ps);
-  printf("Number of Time Bins: %" PRIu64 "\n", num_bins);
+  //printf("\nIntegration Time: %" PRIu64" \n", int_time_ps);
+  //printf("Number of Time Bins: %" PRIu64 " \n", num_bins);
   // Calculate rates
   rate0 = ((double)ccorr->stats.rbs_counts[0]) / (double)num_bins;
   rate1 = ((double)ccorr->stats.rbs_counts[1]) / (double)num_bins;
   rate_product = rate0 * rate1;
-  printf("Channel 1 Counts: %" PRIu64 "\n", ccorr->stats.rbs_counts[0]);
-  printf("Channel 2 Counts: %" PRIu64 "\n", ccorr->stats.rbs_counts[1]);
-  printf("Rate Product: %.12f\n", rate_product);
+  //printf("Channel 1 Counts: %" PRIu64 " \n", ccorr->stats.rbs_counts[0]);
+  //printf("Channel 2 Counts: %" PRIu64 " \n", ccorr->stats.rbs_counts[1]);
+
+  // NOTE: Strangely, this causes valgrind to report memorly leaks on OSX
+  // Seems to be an issue with valgrind, not anything here
+  //printf("Rate Product: %f \n", rate_product);
 
   if (normalize == 0) {
     for (m=0; m < ccorr->num_bins; m++) {
-      fprintf(output_file, "%" PRId64", %" PRIu64 "\n", 
+      fprintf(output_file, "%" PRId64", %" PRIu64 " \n",
 	      ((m*bin_time) - window_time), (ccorr->hist[m]));
     }
   }
@@ -130,7 +133,7 @@ void ttd_ccorr2_write_csv(ttd_ccorr2_t *ccorr, char *file_name, int normalize, i
       bin_offset = (m*bin_time) - window_time;
       norm_denom = rate_product * (double)(num_bins - llabs(bin_offset));
       norm_counts = ((double)ccorr->hist[m]) / norm_denom;
-      fprintf(output_file, "%" PRId64", %f\n", bin_offset, norm_counts);
+      //fprintf(output_file, "%" PRId64", %f \n", bin_offset, norm_counts);
     }
   }
   fclose(output_file);

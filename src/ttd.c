@@ -29,8 +29,8 @@ int64_t int64_rounded_divide(int64_t t1, int64_t t2) {
     return (-abs_res);
 }
 
-void ttd_print_version() {
-  printf("TTD %s\n\n", _ttd_version_string);
+void ttd_print_version(char* program_name) {
+  printf("%s %s\n\n", program_name, _ttd_version_string);
   printf("Time tagged data processing software\n");
   printf("Copyright (c) 2013-2014 Greg Steinbrecher\n");
   printf("Licensed under the MIT License\n\n");

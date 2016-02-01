@@ -15,7 +15,7 @@ typedef struct {
 } ttd_withchan_t;
 
 static const char _ttd_version_string[] = "0.3.0";
-void ttd_print_version();
+void ttd_print_version(char* program_name);
 
 //typedef struct { ttd_t record; } ttd_buffer_t;
 

@@ -24,6 +24,7 @@ config.status
 .deps/*
 
 .idea
+.DS_Store
 
 build
 tests

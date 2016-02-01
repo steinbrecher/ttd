@@ -20,10 +20,9 @@ struct {
     int outfile_allocated;
     char *outfile; // -o
 
-
     ttd_t bin_time; // -b
     ttd_t window_time; // -w
-    int64_t infile2_offset; // -T (note signed time for negative shifts)
+    int64_t channel2_offset; // -T (note signed time for negative shifts)
 
     int block_size; // -B
     int rb_size; // -R

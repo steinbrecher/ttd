@@ -14,17 +14,17 @@ typedef struct {
 typedef struct {
     uint64_t buffer_fill;
     uint64_t num_read;
-    int empty;
+    _Bool empty;
 
     pq_chanrec_t *buffered_records;
-    int buffer_allocated;
-    int buffered_records_count;
-    int buffered_records_idx;
+    _Bool buffer_allocated;
+    size_t buffered_records_count;
+    size_t buffered_records_idx;
 
     char *filename;
-    int filename_allocated;
+    _Bool filename_allocated;
 
-    int file_open;
+    _Bool file_open;
     FILE *fp;
 
     ////  Special pieces for the PicoQuant file buffer ////
