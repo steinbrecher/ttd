@@ -28,4 +28,6 @@ void ttd_rb_cleanup(ttd_rb_t *rb);
 
 int ttd_rb_grow(ttd_rb_t *rb);
 
+int_least16_t ttd_rb_del(ttd_rb_t *rb);
+
 #endif // _TTD_RINGBUFFER_HEADER_SEEN

@@ -7,6 +7,8 @@
 #endif
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 
 #include "ttd.h"
 #include "ttd_ringbuffer.h"
@@ -15,6 +17,63 @@
 #include "pq_filebuffer.h"
 #include "pq_g2_cli.h"
 #include "pq_g2.h"
+
+#define MAX_TTD_TIME 0xFFFFFFFFFFFFFFFF
+
+static int16_t numOffsets;
+static int64_t timeOffsets[PQ_HH_MAX_CHANNELS];
+static ttd_t times[PQ_HH_MAX_CHANNELS];
+static ttd_rb_t channelBuffers[PQ_HH_MAX_CHANNELS];
+static int8_t channel_map[PQ_HH_MAX_CHANNELS];
+static int16_t numActiveChannels;
+static int16_t activeChannels[PQ_HH_MAX_CHANNELS];
+
+int pq_offset_init() {
+  int i;
+  numOffsets=0;
+  for (i=0; i<PQ_HH_MAX_CHANNELS; i++) {
+    // Initialize buffer
+    ttd_rb_init(channelBuffers+i, 2048, 0);
+    // Set default time to be maximum value
+    times[i] = MAX_TTD_TIME;
+  }
+  return 0;
+}
+
+int pq_offset_pop(pq_fb_t *buffer, ttd_t *time, int16_t *channel) {
+  int16_t fetchedChannel;
+  ttd_t fetchedTime;
+
+  fetchedChannel = -1;
+
+  // TODO: Handle empty buffer
+  // Get next non-special record
+  while ((fetchedChannel<0) && (buffer->empty==false)) {
+    pq_fb_pop(buffer, &fetchedTime, &fetchedChannel);
+  }
+
+  // Push that record onto appropriate ringbuffer, with offset
+  ttd_rb_insert(channelBuffers+fetchedChannel,
+                fetchedTime + timeOffsets[fetchedChannel]);
+
+  int i;
+
+  // Find next least time
+  *channel = activeChannels[0];
+  *time = ttd_rb_get(channelBuffers + activeChannels[0], 0);
+  for (i=1; i<numActiveChannels; i++) {
+    fetchedTime = ttd_rb_get(channelBuffers + activeChannels[i], 0);
+    if (fetchedTime < *time) {
+      *time = fetchedTime;
+      *channel = activeChannels[i];
+    }
+  }
+
+  // Remove that time from the appropriate ringbuffer
+  ttd_rb_del(channelBuffers + *channel);
+
+  return 0;
+}
 
 ttd_ccorr2_t *pq_g2(char* infile, int *retcode, int chan1, int chan2) {
   int64_t output_buffer_count = 0;
@@ -33,16 +92,31 @@ ttd_ccorr2_t *pq_g2(char* infile, int *retcode, int chan1, int chan2) {
   if (pq_fb_init(&fb, infile) < 0) {
     goto fb_cleanup;
   }
+  // Figure out if we're delaying one of the channels
+  if (pq_g2_cli_args.channel2_offset != 0) {
+    if (pq_g2_cli_args.channel2_offset < 0) {
+      timeOffsets[chan1] = -1 * pq_g2_cli_args.channel2_offset;
+    }
+    else {
+      timeOffsets[chan2] = pq_g2_cli_args.channel2_offset;
+    }
+  }
+
+  numActiveChannels = 2;
+  activeChannels[0] = chan1;
+  activeChannels[1] = chan2;
 
   ttd_t time;
-  int16_t chan;
-  int8_t channel_map[8] = {0,0,0,0,0,0,0,0};
+  int16_t chan, switchChan;
+  memset(channel_map, 0, PQ_HH_MAX_CHANNELS);
   channel_map[chan1] = 1;
   channel_map[chan2] = 2;
 
   retcode_here = pq_fb_pop(&fb, &time, &chan);
+  switchChan = channel_map[chan];
+
   while ((fb.empty == 0)&&(retcode_here==0)) {
-    switch(chan) {
+    switch(switchChan) {
       case 1:
         ttd_ccorr2_update(ccorr, 0, time);
         break;
@@ -53,6 +127,7 @@ ttd_ccorr2_t *pq_g2(char* infile, int *retcode, int chan1, int chan2) {
         break;
     }
     retcode_here = pq_fb_pop(&fb, &time, &chan);
+    switchChan = channel_map[chan];
   }
 
   fb_cleanup:

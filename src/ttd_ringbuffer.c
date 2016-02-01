@@ -33,6 +33,13 @@ ttd_t ttd_rb_get(ttd_rb_t *rb, int offset) {
   return (rb->times[(rb->start + offset) % rb->size]);
 }
 
+int_least16_t ttd_rb_del(ttd_rb_t *rb) {
+  if (rb->count != 0) {
+    rb->start = (rb->start + 1) % rb->size;
+    --rb->count;
+  }
+}
+
 void ttd_rb_insert(ttd_rb_t *rb, ttd_t time) {
   // Insert time into the buffer
   int end = (rb->start + rb->count) % rb->size;
@@ -45,6 +52,10 @@ void ttd_rb_insert(ttd_rb_t *rb, ttd_t time) {
 
 void ttd_rb_prune(ttd_rb_t *rb, ttd_t time) {
   while (rb->count > 0) {
+//    if (time < ttd_rb_get(rb,0)) {
+//      break;
+//    }
+
     if ((time - ttd_rb_get(rb, 0)) > rb->duration) {
       rb->start = (rb->start + 1) % rb->size;
       -- rb->count;
