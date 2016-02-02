@@ -22,6 +22,24 @@ int pq_fb_init(pq_fb_t *buffer, char* filename) {
   buffer->total_read = 0;
   buffer->overflow_correction = 0;
 
+  // Initialize Ringbuffers
+  int i;
+  for (i=0; i<PQ_HH_MAX_CHANNELS; i++) {
+    ttd_rb_init(&(buffer->rbs[i]), PHOTONBLOCK, 0);
+  }
+
+  // Initialize Offsets
+  for (i=0; i<PQ_HH_MAX_CHANNELS; i++) {
+    buffer->channel_offsets[i] = 0;
+    buffer->channel_active[i] = 0;
+  }
+  pq_fb_update_active(buffer);
+
+  // Initialize counters
+  for (i=0; i<PQ_HH_MAX_CHANNELS; i++) {
+    buffer->num_read_per_channel[i] = 0;
+  }
+
   // Allocate array for buffering
   buffer->buffered_records = (pq_chanrec_t *)malloc(PHOTONBLOCK * sizeof(pq_chanrec_t));
   if (buffer->buffered_records == NULL) {
@@ -83,7 +101,29 @@ int pq_fb_init(pq_fb_t *buffer, char* filename) {
   pq_fb_cleanup(buffer);
 
   return retcode;
+}
 
+void pq_fb_update_active(pq_fb_t *buffer) {
+  int16_t i, count;
+  count = 0;
+  for (i=0; i<PQ_HH_MAX_CHANNELS; i++) {
+    if (buffer->channel_active[i]) {
+      buffer->active_channels[count] = i;
+      buffer->active_rbs[count] = &(buffer->rbs[i]);
+      count++;
+    }
+  }
+  buffer->num_active_channels = count;
+}
+
+void pq_fb_enable_channel(pq_fb_t *buffer, int16_t channel) {
+  buffer->channel_active[channel] = 1;
+  pq_fb_update_active(buffer);
+}
+
+void pq_fb_disable_channel(pq_fb_t *buffer, int16_t channel) {
+  buffer->channel_active[channel] = 0;
+  pq_fb_update_active(buffer);
 }
 
 int pq_fb_openfile(pq_fb_t *buffer) {
@@ -122,6 +162,10 @@ int pq_fb_cleanup(pq_fb_t *buffer){
     buffer->file_block_allocated = 0;
   }
 
+  for(i=0; i<PQ_HH_MAX_CHANNELS; i++) {
+    ttd_rb_cleanup(&(buffer->rbs[i]));
+  }
+
   return 0;
 }
 
@@ -136,40 +180,65 @@ uint64_t pq_fb_get_block(pq_fb_t *buffer) {
 
 
   for (n=0; n<num_photons; n++) {
-    buffer->buffered_records[n].channel =
-            buffer->to_ttd(buffer->file_block[n], &(buffer->buffered_records[n].record),
-                           &buffer->overflow_correction, &buffer->file_info);
+    channel = buffer->to_ttd(buffer->file_block[n], &time, &buffer->overflow_correction, &buffer->file_info);
+    // Make sure not to buffer special records (trying to do so would result in forbidden memory access)
+    if (channel < 0) {continue;}
+    // If channel isn't active, skip it
+    if (!(buffer->channel_active[channel])) {continue;}
+    // Otherwise, push it onto the correct ringbuffer, with offset added
+    ttd_rb_insert(&(buffer->rbs[channel]), time + buffer->channel_offsets[channel]);
   }
-  buffer->total_read += num_photons;
-  buffer->buffered_records_count = num_photons;
-  buffer->buffered_records_idx = 0;
   return num_photons;
 }
 
-int pq_fb_pop(pq_fb_t *buffer, ttd_t *time, int16_t *channel) {
+int pq_fb_get_next(pq_fb_t *buffer, ttd_t *recTime, int16_t *recChannel) {
   if (buffer->empty) {
     return -1;
   }
 
-  *channel = buffer->buffered_records[buffer->buffered_records_idx].channel;
-  *time = buffer->buffered_records[buffer->buffered_records_idx].record;
-  buffer->buffered_records_idx++;
+  int16_t i, firstChannel;
+  ttd_rb_t *firstBuffer;
+  ttd_t firstTime, timeHere;
 
-  // If this was the last record in the buffer...
-  if (buffer->buffered_records_idx == buffer->buffered_records_count) {
-    // and the file is still open...
+  // Initialize with first active channel
+  firstChannel = buffer->active_channels[0];
+  firstBuffer = buffer->active_rbs[0];
+  firstTime = ttd_rb_peek(buffer->active_rbs[0]);
+
+  // Loop over other active channels to find smallest time
+  for (i=1; i<buffer->num_active_channels; i++) {
+    timeHere = ttd_rb_peek(buffer->active_rbs[i]);
+    if (timeHere < firstTime) {
+      firstBuffer = buffer->active_rbs[i];
+      firstChannel = buffer->active_channels[i];
+      firstTime = timeHere;
+    }
+  }
+
+  // Assign values to record
+  *recChannel = firstChannel;
+  *recTime = firstTime;
+  buffer->num_read_per_channel[firstChannel]++;
+
+  // Remove from ringbuffer
+  ttd_rb_del(firstBuffer);
+
+  // If the buffer is empty, get more records -- if available.
+  // If not available (i.e. we're at end of file), disable the channel.
+  if (firstBuffer->count == 0) {
     if (buffer->file_open) {
-      // try to get another block.
-      // If fewer than PHOTONBLOCK records read, file is done
-
       if (pq_fb_get_block(buffer) < PHOTONBLOCK) {
         pq_fb_closefile(buffer);
       }
     }
     else {
-      // If file isn't open, we're done
-      buffer->empty = 1;
+      pq_fb_disable_channel(buffer, firstChannel);
+      if (buffer->num_active_channels == 0) {
+        buffer->empty = 1;
+      }
     }
   }
+
   return 0;
+
 }

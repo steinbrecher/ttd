@@ -33,11 +33,16 @@ ttd_t ttd_rb_get(ttd_rb_t *rb, int offset) {
   return (rb->times[(rb->start + offset) % rb->size]);
 }
 
+ttd_t ttd_rb_peek(ttd_rb_t *rb) {
+  return rb->times[rb->start];
+}
+
 int_least16_t ttd_rb_del(ttd_rb_t *rb) {
   if (rb->count != 0) {
     rb->start = (rb->start + 1) % rb->size;
     --rb->count;
   }
+  return 0;
 }
 
 void ttd_rb_insert(ttd_rb_t *rb, ttd_t time) {

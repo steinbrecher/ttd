@@ -5,6 +5,7 @@
 #include "pq_parse.h"
 #include "pq_ttd.h"
 #include "pq_records.h"
+#include "ttd_ringbuffer.h"
 
 typedef struct {
     int16_t channel;
@@ -42,14 +43,32 @@ typedef struct {
     // File block
     pq_rec_t *file_block;
     int file_block_allocated;
+
+    // Channel offset processing
+    ttd_t channel_offsets[PQ_HH_MAX_CHANNELS];
+    _Bool channel_active[PQ_HH_MAX_CHANNELS];
+    int16_t active_channels[PQ_HH_MAX_CHANNELS];
+    ttd_rb_t *active_rbs[PQ_HH_MAX_CHANNELS];
+    int16_t num_active_channels;
+    size_t num_read_per_channel[PQ_HH_MAX_CHANNELS];
+
+    // Ring buffers for offsets
+    ttd_rb_t rbs[PQ_HH_MAX_CHANNELS];
+
+
 } pq_fb_t;
 
 int pq_fb_init(pq_fb_t *buffer, char* filename);
 int pq_fb_openfile(pq_fb_t *buffer);
 int pq_fb_cleanup(pq_fb_t *buffer);
 int pq_fb_pop(pq_fb_t *buffer, ttd_t *time, int16_t *channel);
-uint64_t pq_fb_get_block(pq_fb_t *buffer);
+int pq_fb_get_next(pq_fb_t *buffer, ttd_t *recTime, int16_t *recChannel);
+        uint64_t pq_fb_get_block(pq_fb_t *buffer);
 int pq_fb_closefile(pq_fb_t *buffer);
+
+void pq_fb_update_active(pq_fb_t *buffer);
+void pq_fb_enable_channel(pq_fb_t *buffer, int16_t channel);
+void pq_fb_disable_channel(pq_fb_t *buffer, int16_t channel);
 
 #define PQ_FB_MALLOC_ERROR -1;
 #define PQ_FB_FILE_OPEN_ERROR -2;

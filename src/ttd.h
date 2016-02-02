@@ -7,6 +7,7 @@
 #include <inttypes.h>
 #include <stddef.h>
 
+#define TTD_MAX_TIME 0xFFFFFFFFFFFFFFFF
 typedef uint64_t ttd_t;
 
 typedef struct {
