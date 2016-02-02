@@ -133,7 +133,7 @@ void ttd_ccorr2_write_csv(ttd_ccorr2_t *ccorr, char *file_name, int normalize, i
       bin_offset = (m*bin_time) - window_time;
       norm_denom = rate_product * (double)(num_bins - llabs(bin_offset));
       norm_counts = ((double)ccorr->hist[m]) / norm_denom;
-      //fprintf(output_file, "%" PRId64", %f \n", bin_offset, norm_counts);
+      fprintf(output_file, "%" PRId64", %f \n", bin_offset, norm_counts);
     }
   }
   fclose(output_file);
