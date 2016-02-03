@@ -6,15 +6,11 @@
 #endif
 #include <stdio.h>
 #include <inttypes.h>
-#include <stddef.h>
 #include <stdlib.h>
-#include <math.h>
-#include <getopt.h>
 #include <time.h>
 #include <string.h>
 
 #include "pq_ttd_cli.h"
-#include "pq_ttd.h"
 
 char *get_prefix(char* filename) {
   int i, dot_index = -1;

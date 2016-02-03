@@ -1,6 +1,9 @@
 #ifndef _TTD_CROSSCORR2_HEADER
 #define _TTD_CROSSCORR2_HEADER
 
+#include "ttd.h"
+#include "ttd_ringbuffer.h"
+
 typedef struct {
   // Statistic tracking how many have been seen on each channel
   // Used in normalization code

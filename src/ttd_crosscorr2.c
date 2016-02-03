@@ -3,13 +3,9 @@
 #endif
 #include <stdio.h>
 #include <inttypes.h>
-#include <stddef.h>
 #include <stdlib.h>
-#include <math.h>
-#include <string.h>
 
 #include "ttd.h"
-#include "ttd_ringbuffer.h"
 #include "ttd_crosscorr2.h"
 
 void ttd_ccorr2_init(ttd_ccorr2_t *ccorr, ttd_t bin_time, ttd_t window_time, size_t rb_size) {

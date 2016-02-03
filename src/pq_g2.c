@@ -7,13 +7,9 @@
 #endif
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
 
-#include "ttd.h"
-#include "ttd_ringbuffer.h"
 #include "ttd_crosscorr2.h"
-#include "ttd_filebuffer.h"
 #include "pq_filebuffer.h"
 #include "pq_g2_cli.h"
 #include "pq_g2.h"

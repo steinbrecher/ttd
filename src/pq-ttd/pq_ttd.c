@@ -3,25 +3,9 @@
 #endif
 #include <stdio.h>
 #include <inttypes.h>
-#include <stddef.h>
 #include <stdlib.h>
-#include <math.h>
-#include <getopt.h>
-#include <time.h>
-#include <string.h>
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-
 
 #include "pq_ttd.h"
-//#include "zlib.h"
-//#include "ttz.h"
-
-//NOTE: Potential improvement is to pass the channel array structure to the various
-// '_to_ttd' functions and have them handle the updates
 
 int16_t pt2_v2_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
   int16_t channel = (int16_t) pq_rec.ph_t2_bits.channel;

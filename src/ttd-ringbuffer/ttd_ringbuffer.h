@@ -1,6 +1,8 @@
 #ifndef _TTD_RINGBUFFER_HEADER_SEEN
 #define _TTD_RINGBUFFER_HEADER_SEEN
 
+#include "ttd.h"
+
 typedef struct {
   ttd_t *times;
   ttd_t duration;
