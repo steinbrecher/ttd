@@ -136,11 +136,11 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
     ttd_ccorr2_write_csv(&ccorrs[i], outfile, pq_g2_cli_args.normalize, pq_g2_cli_args.int_time);
   }
 
-  for (chan=0; chan<PQ_HH_MAX_CHANNELS; chan++) {
-    if (fb.num_read_per_channel[chan] > 0) {
-      printf("Number of records on channel %d: %lu\n", chan, fb.num_read_per_channel[chan]);
-    }
-  }
+//  for (chan=0; chan<PQ_HH_MAX_CHANNELS; chan++) {
+//    if (fb.num_read_per_channel[chan] > 0) {
+//      printf("Number of records on channel %d: %lu\n", chan, fb.num_read_per_channel[chan]);
+//    }
+//  }
 
   // Clean up correlations
     for (i=0; i<nPairs; i++) {

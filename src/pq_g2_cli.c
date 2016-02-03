@@ -44,19 +44,18 @@ void pq_g2_cli_print_help(char* program_name) {
     pn_spaces[i] = ' ';
   }
   pn_spaces[len-1] = '\0';
-  // TODO: Fix usage string
-  printf("Usage: %s -1 channel1 -2 channel2 -i input_file -o output_file [-b bin_time]\n", program_name);
+  printf("Usage: %s -i input_file -o output_file [-d <channel>:<delay>] [-b bin_time]\n", program_name);
   printf("       %s [-w window_time] [-T input2_offset] [-t integration_time]\n", pn_spaces);
   //  printf("       %s [-B block_size]\n", pn_spaces);
 
   printf("\tNotes: \n");
-  //TODO: Fix help mesage description of offsets
 //  printf("\t\t-1 (--channel1):\tFirst channel number (0-indexed)\n");
 //  printf("\t\t-2 (--channel2):\tSecond channel number (0-indexed)\n");
   printf("\t\t-b (--bin-time):\tSpecified in picoseconds\n");
   printf("\t\t-w (--window-time):\tWindow time in picoseconds\n");
   //  printf("\t\t-B (--block-size):      Number of photon records to read into RAM at a time.\n");
   //  printf("\t\t                        Experimental option; don't change unless you have a good reason.\n");
+  printf("\t\t-d (--delay): Delay a channel. Format: <0-indexed channel #>:<delay time>\n");
   printf("\t\t-T (--input-offset):\tOffset input2 relative to input1 (input in picoseconds)\n");
   printf("\t\t-N (--normalize):\tNormalize output histogram\n");
   printf("\t\t-t (--int-time):\tTotal integration time (input in seconds).\n");
@@ -206,7 +205,7 @@ int pq_g2_read_cli(int argc, char* argv[]) {
 }
 
 void pq_g2_print_options(int no_verbose) {
-  printf("\n***Options Summary***\n");
+  printf("***Options Summary***\n");
 
   if (!(no_verbose)) {
     printf("Verbose: %d\n", pq_g2_cli_args.verbose);
