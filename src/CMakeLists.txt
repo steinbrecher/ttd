@@ -1,22 +1,23 @@
 add_subdirectory(ttd)
+add_subdirectory(pq-parse)
 
-add_executable(pq-ttd pq_ttd_main.c pq_ttd.c pq_ttd_cli.c pq_parse.c)
-target_link_libraries(pq-ttd LINK_PUBLIC ttd)
+add_executable(pq-ttd pq_ttd_main.c pq_ttd.c pq_ttd_cli.c)
+target_link_libraries(pq-ttd LINK_PUBLIC ttd pq-parse)
 
 add_executable(ttd-dump ttd_dump.c)
 target_link_libraries(ttd-dump LINK_PUBLIC ttd)
 
-add_executable(pq-dump pq_dump.c ttd_ringbuffer.c pq_filebuffer.c pq_ttd.c pq_parse.c)
-target_link_libraries(pq-dump LINK_PUBLIC ttd)
+add_executable(pq-dump pq_dump.c ttd_ringbuffer.c pq_filebuffer.c pq_ttd.c)
+target_link_libraries(pq-dump LINK_PUBLIC ttd pq-parse)
 
 add_executable(ttd-merge ttd_merge.c ttd_filebuffer.c)
 target_link_libraries(ttd-merge LINK_PUBLIC ttd)
 
-add_executable(ttd-g2 ttd_g2.c pq_filebuffer.c pq_ttd.c pq_ttd_cli.c pq_parse.c ttd_g2_cli.c ttd_crosscorr2.c ttd_ringbuffer.c ttd_filebuffer.c ttd_g2_cli.c scitoll.c)
-target_link_libraries(ttd-g2 LINK_PUBLIC ttd)
+add_executable(ttd-g2 ttd_g2.c pq_filebuffer.c pq_ttd.c pq_ttd_cli.c ttd_g2_cli.c ttd_crosscorr2.c ttd_ringbuffer.c ttd_filebuffer.c ttd_g2_cli.c scitoll.c)
+target_link_libraries(ttd-g2 LINK_PUBLIC ttd pq-parse)
 
-add_executable(pq-g2 pq_g2.c pq_filebuffer.c pq_ttd.c pq_g2_cli.c pq_ttd_cli.c pq_parse.c ttd_crosscorr2.c ttd_ringbuffer.c ttd_filebuffer.c ttd_g2_cli.c scitoll.c)
-target_link_libraries(pq-g2 LINK_PUBLIC ttd)
+add_executable(pq-g2 pq_g2.c pq_filebuffer.c pq_ttd.c pq_g2_cli.c pq_ttd_cli.c ttd_crosscorr2.c ttd_ringbuffer.c ttd_filebuffer.c ttd_g2_cli.c scitoll.c)
+target_link_libraries(pq-g2 LINK_PUBLIC ttd pq-parse)
 
 add_executable(ttd-g3 ttd_g3.c ttd_g3_cli.c ttd_crosscorr3.c ttd_ringbuffer.c ttd_filebuffer.c ttd_g2_cli.c scitoll.c)
 target_link_libraries(ttd-g3 LINK_PUBLIC ttd)
