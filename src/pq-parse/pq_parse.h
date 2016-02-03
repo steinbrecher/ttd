@@ -1,6 +1,8 @@
 #ifndef _PQ_PARSE_HEADER_SEEN
 #define _PQ_PARSE_HEADER_SEEN
 
+#include "pq_records.h" // Include for all code linking pq_parse
+
 // Constants
 #define PQ_HH 1
 #define PQ_HH_TEXT "HydraHarp"
