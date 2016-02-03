@@ -21,6 +21,7 @@ void ttd_ccorr2_init(ttd_ccorr2_t *ccorr, ttd_t bin_time, ttd_t window_time, siz
 
   ccorr->bin_time = bin_time;
   ccorr->window_time = window_time;
+  ccorr->total_coinc = 0;
 
   int num_bins = (int)(2*ttd_rounded_divide(window_time, bin_time) + 1);
   ccorr->num_bins = num_bins;
