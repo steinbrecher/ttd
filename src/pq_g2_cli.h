@@ -5,6 +5,7 @@
 #define PQ_G2_PRINTOPTIONS_NOVERBOSE 1
 
 #include "ttd.h"
+#include "pq_parse.h"
 
 struct {
     int verbose; // -v
@@ -14,11 +15,14 @@ struct {
     int16_t channel1; // -1
     int16_t channel2; // -2
 
+    int64_t channel_offset[PQ_HH_MAX_CHANNELS];
+    _Bool channel_active[PQ_HH_MAX_CHANNELS];
+
     int infile_allocated;
     char *infile; // -o
 
-    int outfile_allocated;
-    char *outfile; // -o
+    int outfile_prefix_allocated;
+    char *outfile_prefix; // -o
 
     ttd_t bin_time; // -b
     ttd_t window_time; // -w

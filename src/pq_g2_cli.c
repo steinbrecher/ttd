@@ -20,8 +20,7 @@ static const struct option pq_g2_longopts[] = {
         { "normalize", no_argument, NULL, 'N' },
         { "int-time", required_argument, NULL, 't' },
 
-        { "channel1", required_argument, NULL, '1' },
-        { "channel2", required_argument, NULL, '2' },
+        { "delay", required_argument, NULL, 'd'},
 
         { "input-file", required_argument, NULL, 'i' },
         { "output-file", required_argument, NULL, 'o' },
@@ -32,10 +31,9 @@ static const struct option pq_g2_longopts[] = {
 
         { "block-size", required_argument, NULL, 'B' },
         { "ringbuffer-size", required_argument, NULL, 'R' },
-
 };
 
-static const char *pq_g2_optstring = "VhvNt:1:2:i:o:T:b:w:B:R:";
+static const char *pq_g2_optstring = "VhvNt:i:d:o:T:b:w:B:R:";
 
 void pq_g2_cli_print_help(char* program_name) {
   // Need a string of spaces equal in length to the program name
@@ -46,13 +44,15 @@ void pq_g2_cli_print_help(char* program_name) {
     pn_spaces[i] = ' ';
   }
   pn_spaces[len-1] = '\0';
+  // TODO: Fix usage string
   printf("Usage: %s -1 channel1 -2 channel2 -i input_file -o output_file [-b bin_time]\n", program_name);
   printf("       %s [-w window_time] [-T input2_offset] [-t integration_time]\n", pn_spaces);
   //  printf("       %s [-B block_size]\n", pn_spaces);
 
   printf("\tNotes: \n");
-  printf("\t\t-1 (--channel1):\tFirst channel number (0-indexed)\n");
-  printf("\t\t-2 (--channel2):\tSecond channel number (0-indexed)\n");
+  //TODO: Fix help mesage description of offsets
+//  printf("\t\t-1 (--channel1):\tFirst channel number (0-indexed)\n");
+//  printf("\t\t-2 (--channel2):\tSecond channel number (0-indexed)\n");
   printf("\t\t-b (--bin-time):\tSpecified in picoseconds\n");
   printf("\t\t-w (--window-time):\tWindow time in picoseconds\n");
   //  printf("\t\t-B (--block-size):      Number of photon records to read into RAM at a time.\n");
@@ -69,8 +69,37 @@ void pq_g2_cli_print_help(char* program_name) {
   printf("\t\t-V (--version):\t\tPrint program version\n");
 }
 
+int16_t parse_delay(char* input, int16_t *channel, int64_t *delay) {
+  size_t nCharInput, nCharChannel, nCharDelay;
+  int16_t i, colonIdx;
+
+  nCharInput = strlen(input);
+  // Find ':'
+  colonIdx = -1;
+  for (i=0; i < nCharInput; i++) {
+    if (input[i] == ':') { colonIdx = i; }
+  }
+
+  if (colonIdx == -1) { return colonIdx; }
+
+  nCharChannel = (size_t)colonIdx;
+  nCharDelay = nCharInput - nCharChannel - 1;
+
+  char* channelStr = (char*) calloc((size_t)nCharChannel + 1, sizeof(char));
+  char* delayStr = (char*) calloc((size_t)nCharDelay + 1, sizeof(char));
+  strncpy(channelStr, input, nCharChannel);
+  strncpy(delayStr, input + colonIdx + 1, nCharDelay);
+  *channel = (int16_t)atoi(channelStr);
+  int retcode;
+  *delay = scitoll(delayStr, &retcode);
+
+  free(channelStr);
+  free(delayStr);
+  return 0;
+}
+
 int pq_g2_read_cli(int argc, char* argv[]) {
-  int retcode=0;
+  int i, retcode=0;
   // Initialize default values
   pq_g2_cli_args.verbose = 0;
   pq_g2_cli_args.normalize = 0;
@@ -87,13 +116,26 @@ int pq_g2_read_cli(int argc, char* argv[]) {
   pq_g2_cli_args.rb_size = 1024;
 
   pq_g2_cli_args.infile_allocated = 0;
-  pq_g2_cli_args.outfile_allocated = 0;
+  pq_g2_cli_args.outfile_prefix_allocated = 0;
+
+  for(i=0; i<PQ_HH_MAX_CHANNELS; i++) {
+    pq_g2_cli_args.channel_offset[i] = 0;
+    pq_g2_cli_args.channel_active[i] = 1;
+  }
+
+  int16_t channel;
+  int64_t delay;
 
   // Read command line options
   int option_index, opt;
   opt = getopt_long(argc, argv, pq_g2_optstring, pq_g2_longopts, &option_index);
   while (opt != -1) {
     switch (opt) {
+      case 'd':
+        parse_delay(optarg, &channel, &delay);
+        pq_g2_cli_args.channel_offset[channel] = delay;
+        break;
+
       case 'v':
         pq_g2_cli_args.verbose = 1;
         break;
@@ -101,7 +143,7 @@ int pq_g2_read_cli(int argc, char* argv[]) {
       case 'V':
         ttd_print_version(argv[0]);
         return(PQ_G2_CLI_EXIT_RETCODE);
-        break;
+        //break;
 
       case 'N':
         pq_g2_cli_args.normalize = 1;
@@ -116,14 +158,6 @@ int pq_g2_read_cli(int argc, char* argv[]) {
         return(PQ_G2_CLI_EXIT_RETCODE);
         break;
 
-      case '1':
-        pq_g2_cli_args.channel1 = (int16_t)atoi(optarg);
-        break;
-
-      case '2':
-        pq_g2_cli_args.channel2 = (int16_t)atoi(optarg);
-        break;
-
       case 'i':
         pq_g2_cli_args.infile = (char *)malloc((strlen(optarg)+1)*sizeof(char));
         pq_g2_cli_args.infile_allocated = 1;
@@ -131,9 +165,9 @@ int pq_g2_read_cli(int argc, char* argv[]) {
         break;
 
       case 'o':
-        pq_g2_cli_args.outfile = (char *)malloc((strlen(optarg)+1)*sizeof(char));
-        pq_g2_cli_args.outfile_allocated = 1;
-        strcpy(pq_g2_cli_args.outfile, optarg);
+        pq_g2_cli_args.outfile_prefix = (char *)malloc((strlen(optarg)+1)*sizeof(char));
+        pq_g2_cli_args.outfile_prefix_allocated = 1;
+        strcpy(pq_g2_cli_args.outfile_prefix, optarg);
         break;
 
       case 'b':
@@ -172,6 +206,8 @@ int pq_g2_read_cli(int argc, char* argv[]) {
 }
 
 void pq_g2_print_options(int no_verbose) {
+  printf("\n***Options Summary***\n");
+
   if (!(no_verbose)) {
     printf("Verbose: %d\n", pq_g2_cli_args.verbose);
   }
@@ -180,18 +216,20 @@ void pq_g2_print_options(int no_verbose) {
     printf("Input File: %s\n", pq_g2_cli_args.infile);
   }
 
-  printf("Channel 1: %d\n", pq_g2_cli_args.channel1);
-
-  printf("Channel 2: %d\n", pq_g2_cli_args.channel2);
-
-  if (pq_g2_cli_args.outfile != NULL) {
-    printf("Output File: %s\n", pq_g2_cli_args.outfile);
+  if (pq_g2_cli_args.outfile_prefix != NULL) {
+    printf("Output File: %s\n", pq_g2_cli_args.outfile_prefix);
   }
 
   printf("Bin time: %" PRIu64 " ps\n", pq_g2_cli_args.bin_time);
   printf("Window time: %" PRIu64 " ps\n", pq_g2_cli_args.window_time);
   printf("Offset file 2 times by %" PRId64 " ps\n", pq_g2_cli_args.channel2_offset);
   printf("Block size: %d records\n", pq_g2_cli_args.block_size);
+  int i;
+  for (i=0; i<PQ_HH_MAX_CHANNELS; i++) {
+    if (pq_g2_cli_args.channel_offset[i] != 0) {
+      printf("Delay Channel %d by %" PRId64 "ps\n", i, pq_g2_cli_args.channel_offset[i]);
+    }
+  }
 }
 
 void pq_g2_cli_cleanup() {
@@ -200,9 +238,9 @@ void pq_g2_cli_cleanup() {
     pq_g2_cli_args.infile_allocated = 0;
   }
 
-  if(pq_g2_cli_args.outfile_allocated) {
-    free(pq_g2_cli_args.outfile);
-    pq_g2_cli_args.outfile_allocated = 0;
+  if(pq_g2_cli_args.outfile_prefix_allocated) {
+    free(pq_g2_cli_args.outfile_prefix);
+    pq_g2_cli_args.outfile_prefix_allocated = 0;
   }
 
 

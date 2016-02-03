@@ -16,7 +16,7 @@ typedef struct {
   int64_t num_bins;
   int64_t center_bin;
 
-  int64_t total;
+  int64_t total_coinc;
 
   ttd_ccorr2_stats_t stats;
 
@@ -27,7 +27,7 @@ typedef struct {
   ttd_t *hist;
 } ttd_ccorr2_t;
 
-void ttd_ccorr2_init(ttd_ccorr2_t *ccorr, ttd_t bin_time, ttd_t window_time, ttd_rb_t *rb1, ttd_rb_t *rb2);
+void ttd_ccorr2_init(ttd_ccorr2_t *ccorr, ttd_t bin_time, ttd_t window_time, size_t rb_size);
 
 ttd_ccorr2_t *ttd_ccorr2_build(ttd_t bin_time, ttd_t window_time, int rb_size);
 

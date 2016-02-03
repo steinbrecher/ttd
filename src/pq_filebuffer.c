@@ -3,12 +3,14 @@
 #endif
 #include <stdio.h>
 #include <inttypes.h>
-#include <stddef.h>
+//#include <stddef.h>
 #include <stdlib.h>
-#include <math.h>
+//#include <math.h>
 #include <string.h>
 
 #include "pq_filebuffer.h"
+#include "ttd_ringbuffer.h"
+#include "pq_parse.h"
 
 int pq_fb_init(pq_fb_t *buffer, char* filename) {
   // Set up default values
@@ -22,6 +24,8 @@ int pq_fb_init(pq_fb_t *buffer, char* filename) {
   buffer->total_read = 0;
   buffer->overflow_correction = 0;
 
+  buffer->lastTime = 0;
+
   // Initialize Ringbuffers
   int i;
   for (i=0; i<PQ_HH_MAX_CHANNELS; i++) {
@@ -31,7 +35,7 @@ int pq_fb_init(pq_fb_t *buffer, char* filename) {
   // Initialize Offsets
   for (i=0; i<PQ_HH_MAX_CHANNELS; i++) {
     buffer->channel_offsets[i] = 0;
-    buffer->channel_active[i] = 0;
+    buffer->channel_active[i] = 1;
   }
   pq_fb_update_active(buffer);
 
@@ -76,7 +80,13 @@ int pq_fb_init(pq_fb_t *buffer, char* filename) {
   }
 
   // Print file info
+  printf("\n***File Information***\n");
   pq_printf_file_info(&(buffer->file_info));
+
+  // Disable channels that aren't in use
+  for (i=buffer->file_info.num_channels+1; i<PQ_HH_MAX_CHANNELS; i++) {
+    pq_fb_disable_channel(buffer, (int16_t)i);
+  }
 
   // Allocate block for photon records
   buffer->file_block_allocated = 0;
@@ -93,6 +103,21 @@ int pq_fb_init(pq_fb_t *buffer, char* filename) {
   if (num_photons < PHOTONBLOCK) {
     printf("Only got %"PRIu64 " photon records.\n", num_photons);
     pq_fb_closefile(buffer);
+  }
+//  _Bool anyEmpty = 0;
+  int16_t chan;
+  //printf("Num active: %d\n", buffer->num_active_channels);
+  for (i=0; i<buffer->num_active_channels; i++) {
+    chan = buffer->active_channels[i];
+
+    if (buffer->active_rbs[chan]->count == 0) {
+      //printf("WARNING: Channel %d empty to start, disabling\n", chan);
+      pq_fb_disable_channel(buffer, chan);
+      //anyEmpty = 1;
+    }
+    //else {
+      //printf("Channel %d started with %d counts\n", chan, buffer->active_rbs[chan]->count);
+    //}
   }
 
   return retcode;
@@ -203,10 +228,15 @@ int pq_fb_get_next(pq_fb_t *buffer, ttd_t *recTime, int16_t *recChannel) {
   // Initialize with first active channel
   firstChannel = buffer->active_channels[0];
   firstBuffer = buffer->active_rbs[0];
+  //printf("hello\n");
   firstTime = ttd_rb_peek(buffer->active_rbs[0]);
+  //printf("goodbye\n");
+
 
   // Loop over other active channels to find smallest time
   for (i=1; i<buffer->num_active_channels; i++) {
+    if (buffer->active_rbs[i]->count == 0) {continue;}
+    //printf("Peeking at buffer %d\n", buffer->active_channels[i]);
     timeHere = ttd_rb_peek(buffer->active_rbs[i]);
     if (timeHere < firstTime) {
       firstBuffer = buffer->active_rbs[i];
@@ -214,6 +244,10 @@ int pq_fb_get_next(pq_fb_t *buffer, ttd_t *recTime, int16_t *recChannel) {
       firstTime = timeHere;
     }
   }
+  if (firstTime < buffer->lastTime) {
+    printf("Got out of order time %" PRIu64 " on channel %d\n", firstTime, firstChannel);
+  }
+  buffer->lastTime = firstTime;
 
   // Assign values to record
   *recChannel = firstChannel;
@@ -233,6 +267,11 @@ int pq_fb_get_next(pq_fb_t *buffer, ttd_t *recTime, int16_t *recChannel) {
     }
     else {
       pq_fb_disable_channel(buffer, firstChannel);
+      if(buffer->num_active_channels == 1) {
+        if (buffer->active_rbs[0]->count == 0) {
+          pq_fb_disable_channel(buffer, buffer->active_channels[0]);
+        }
+      }
       if (buffer->num_active_channels == 0) {
         buffer->empty = 1;
       }

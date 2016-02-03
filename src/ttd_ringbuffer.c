@@ -17,15 +17,14 @@ void ttd_rb_init(ttd_rb_t *rb, int size, uint64_t duration) {
   rb->count = 0;
 
   rb->duration = duration;
-  rb->times = (ttd_t *) malloc(rb->size * sizeof(ttd_t));
+  rb->times = (ttd_t *) calloc(rb->size, sizeof(ttd_t));
   rb->times_allocated = 1;
 }
 
 // Make sure to free ring buffers allocated with this function
 ttd_rb_t *ttd_rb_build(int size, ttd_t duration) {
-  ttd_rb_t *rb = (ttd_rb_t *) malloc(sizeof(ttd_rb_t));
+  ttd_rb_t *rb = (ttd_rb_t *) calloc(1, sizeof(ttd_rb_t));
   ttd_rb_init(rb, size, duration);
-
   return rb;
 }
 

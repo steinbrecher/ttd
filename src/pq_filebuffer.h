@@ -55,6 +55,8 @@ typedef struct {
     // Ring buffers for offsets
     ttd_rb_t rbs[PQ_HH_MAX_CHANNELS];
 
+    ttd_t lastTime;
+
 
 } pq_fb_t;
 
@@ -63,7 +65,7 @@ int pq_fb_openfile(pq_fb_t *buffer);
 int pq_fb_cleanup(pq_fb_t *buffer);
 int pq_fb_pop(pq_fb_t *buffer, ttd_t *time, int16_t *channel);
 int pq_fb_get_next(pq_fb_t *buffer, ttd_t *recTime, int16_t *recChannel);
-        uint64_t pq_fb_get_block(pq_fb_t *buffer);
+uint64_t pq_fb_get_block(pq_fb_t *buffer);
 int pq_fb_closefile(pq_fb_t *buffer);
 
 void pq_fb_update_active(pq_fb_t *buffer);
