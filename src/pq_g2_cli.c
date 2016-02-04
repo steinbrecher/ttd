@@ -27,7 +27,6 @@ static const struct option pq_g2_longopts[] = {
 
         { "bin-time", required_argument, NULL, 'b' },
         { "window-time", required_argument, NULL, 'w' },
-        { "input2-offset", required_argument, NULL, 'T' },
 
         { "block-size", required_argument, NULL, 'B' },
         { "ringbuffer-size", required_argument, NULL, 'R' },
@@ -173,12 +172,11 @@ int pq_g2_read_cli(int argc, char* argv[]) {
         pq_g2_cli_args.bin_time = scitoll(optarg, &retcode);
         bin_time_set = 1;
         break;
+
       case 'w':
         pq_g2_cli_args.window_time = scitoll(optarg, &retcode);
         window_time_set = 1;
         break;
-      case 'T':
-        pq_g2_cli_args.channel2_offset = scitoll(optarg, &retcode);
 
       case 'B':
         pq_g2_cli_args.block_size = scitoll(optarg, &retcode);
@@ -221,7 +219,6 @@ void pq_g2_print_options(int no_verbose) {
 
   printf("Bin time: %" PRIu64 " ps\n", pq_g2_cli_args.bin_time);
   printf("Window time: %" PRIu64 " ps\n", pq_g2_cli_args.window_time);
-  printf("Offset file 2 times by %" PRId64 " ps\n", pq_g2_cli_args.channel2_offset);
   printf("Block size: %d records\n", pq_g2_cli_args.block_size);
   int i;
   for (i=0; i<PQ_HH_MAX_CHANNELS; i++) {
