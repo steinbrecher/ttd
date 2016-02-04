@@ -132,6 +132,38 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
     ttd_ccorr2_write_csv(&ccorrs[i], outfile, pq_g2_cli_args.normalize, pq_g2_cli_args.int_time);
   }
 
+  // If all correlations have the same number of bins (they should, but hey, may as well check),
+  // output a summed csv file
+
+  int64_t num_bins;
+  _Bool allSame = 1;
+  num_bins = ccorrs[0].num_bins;
+  for (i=1; i<nPairs; i++) {
+    if (num_bins != ccorrs[i].num_bins) {allSame = 0;};
+  }
+
+  if (allSame) {
+    // Hackish but works: add all the results into the first ccorr structure
+    for (i=1; i<nPairs; i++) {
+      // Needed in case we're normalizing
+      // NOTE: have not actually checked that normalization still works here
+      ccorrs[0].stats.rbs_counts[0] += ccorrs[i].stats.rbs_counts[0];
+      ccorrs[0].stats.rbs_counts[1] += ccorrs[i].stats.rbs_counts[1];
+
+      // Loop over bins to add to ccorrs[0].hist
+      for (j=0; j<num_bins; j++) {
+        ccorrs[0].hist[j] += ccorrs[i].hist[j];
+      }
+    }
+
+    // Set output suffix to _sum.csv
+    sprintf(outfile, "%s_sum.csv",
+            outfile_prefix);
+
+    // Write output
+    ttd_ccorr2_write_csv(&ccorrs[0], outfile, pq_g2_cli_args.normalize, pq_g2_cli_args.int_time);
+  }
+
 //  for (chan=0; chan<PQ_HH_MAX_CHANNELS; chan++) {
 //    if (fb.num_read_per_channel[chan] > 0) {
 //      printf("Number of records on channel %d: %lu\n", chan, fb.num_read_per_channel[chan]);
