@@ -77,8 +77,7 @@ int pq_fb_init(pq_fb_t *buffer, char* filename) {
   }
 
   // Print file info
-  printf("\n***File Information***\n");
-  pq_printf_file_info(&(buffer->file_info));
+  pq_print_file_info(&(buffer->file_info));
 
   // Disable channels that aren't in use
   for (i=buffer->file_info.num_channels+1; i<PQ_HH_MAX_CHANNELS; i++) {
@@ -226,9 +225,7 @@ int pq_fb_get_next(pq_fb_t *buffer, ttd_t *recTime, int16_t *recChannel) {
   // Initialize with first active channel
   firstChannel = buffer->active_channels[0];
   firstBuffer = buffer->active_rbs[0];
-  //printf("hello\n");
   firstTime = ttd_rb_peek(buffer->active_rbs[0]);
-  //printf("goodbye\n");
 
 
   // Loop over other active channels to find smallest time

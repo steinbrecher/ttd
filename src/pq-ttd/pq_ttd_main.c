@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
   if (retcode < 0) {
     goto clean_file;
   }
-  pq_printf_file_info(&file_info);
+  pq_print_file_info(&file_info);
 
   // Benchmarking timers
   clock_t start, diff;

@@ -10,18 +10,19 @@
 #include <string.h>
 #include <pq_filebuffer.h>
 #include <math.h>
-
-#include "ttd_crosscorr2.h"
-#include "pq_filebuffer.h"
-#include "pq_g2_cli.h"
-#include "pq_g2.h"
-//#include <time.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <unistd.h>
 #include <time.h>
 #include <sys/timeb.h>
-#include <sys/errno.h>
+#include <locale.h>
+
+#include "ttd_crosscorr2.h"
+#include "pq_filebuffer.h"
+#include "pq_g2_cli.h"
+#include "pq_g2.h"
+
+
 
 #define PROGRESS_BAR_ENABLE
 
@@ -64,18 +65,17 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
                     pq_g2_cli_args.bin_time,
                     pq_g2_cli_args.padded_window_time,
                     pq_g2_cli_args.rb_size);
-//    ccorrs[i] = ttd_ccorr2_build(pq_g2_cli_args.bin_time,
-//                                 pq_g2_cli_args.window_time,
-//                                 pq_g2_cli_args.rb_size);
   }
 
   // Select the pairings for cross-correlation
   int16_t num_active_channels = fb.num_active_channels;
   int16_t ccorr_pairs[nPairs][2];
-  int16_t count;
+  int64_t count;
   int16_t chanToActiveNum[PQ_HH_MAX_CHANNELS];
 
-
+  // Back up which channels are active
+  int16_t active_channels[PQ_HH_MAX_CHANNELS];
+  memcpy(active_channels, fb.active_channels, PQ_HH_MAX_CHANNELS);
 
   // Reverse lookup for active num
   for(i=0; i<num_active_channels; i++) {
@@ -113,18 +113,17 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
     }
   }
 
-  // Grab first photon
-  ttd_t photonTime;
-  int16_t chan, activeNum;
-  retcode = 0;
-  printf("hello\n");
+  // Set up timer structure
+  struct timeb currentTime;
+  double startTime, runTime;
+
+  ftime(&currentTime);
+  startTime = (currentTime.time + (double)(currentTime.millitm)/1000.0);
+
 #ifdef PROGRESS_BAR_ENABLE
   // Create shared memory
   int shmid = shmget(IPC_PRIVATE, 2*sizeof(int64_t), 0777|IPC_CREAT);
-  printf("shmid: %d\n", shmid);
-  printf("goodbye with error code %d\n", errno);
   int64_t *shvals = (int64_t *) shmat(shmid, 0, SHM_RND);
-
 
   shvals[0] = 0;
   shvals[1] = 0;
@@ -136,10 +135,6 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
     double timeSoFar, timeRemaining;
 
     int64_t numBarSteps, totalBarSteps;
-    struct timeb currentTime;
-    double startTime;
-    ftime(&currentTime);
-    startTime = (currentTime.time + (double)(currentTime.millitm)/1000.0);
 
     nextBarProgress = 0.0;
     stepBarProgress = 1.0 / 40.0;
@@ -155,7 +150,8 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
 
     // Get shared memory
     shvals = (int64_t *) shmat(shmid, 0, SHM_RND);
-    fprintf(stderr, "\n");
+    //fprintf(stderr, "\n");
+    fprintf(stderr, CURSOROFF);
 
      // Use second value in array as done flag
     while (shvals[1] == 0) {
@@ -170,7 +166,8 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
       }
 
       // Draw progress bar
-      fprintf(stderr, "\rProgress: [");
+      fprintf(stderr, "\r");
+      fprintf(stderr, KNRM KCYN KRED "[");
       for(i=0; i < numBarSteps; i++) {
         fprintf(stderr, "=");
       }
@@ -178,7 +175,7 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
       for (i=0; i<(totalBarSteps - numBarSteps - 1); i++) {
         fprintf(stderr, " ");
       }
-      fprintf(stderr, "] %3.0f%%", 100*progress);
+      fprintf(stderr, "] %3.0f%% Done", 100*progress);
       fflush(stderr);
 
       // Calculate predicted time remaining
@@ -189,7 +186,14 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
       fprintf(stderr, " (%4.02f seconds remaining)", timeRemaining);
 
     }
-    fprintf(stderr, "\n");
+    fprintf(stderr, "\r" KNRM KBGRN KBLD "[");
+    for(i=0; i < numBarSteps; i++) {
+      fprintf(stderr, "=");
+    }
+    fprintf(stderr, ">] %3.0f%% Done", 100.0);
+    fprintf(stderr, " (%4.02f seconds remaining)", 0.0);
+    fprintf(stderr, "\n" KNRM);
+    fprintf(stderr, CURSORON);
     // Detach shared mem
     shmdt(shvals);
     exit(0);
@@ -197,8 +201,10 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
 #endif
 
 
-
   // Loop over photons
+  ttd_t photonTime;
+  int16_t chan, activeNum;
+  retcode = 0;
   while ((fb.empty == 0)&&(retcode==0)) {
     activeNum = chanToActiveNum[chan];
     // Get next photon
@@ -208,10 +214,16 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
     for (i=0; i<num_active_channels-1; i++) {
       ttd_ccorr2_update(ccorrLookup[activeNum][i], ccorrNumLookup[activeNum][i], photonTime);
     }
+
 #ifdef PROGRESS_BAR_ENABLE
     shvals[0] = fb.total_read;
 #endif
+
   }
+
+  ftime(&currentTime);
+  runTime = (currentTime.time + (double)(currentTime.millitm)/1000.0) - startTime;
+
 #ifdef PROGRESS_BAR_ENABLE
   shvals[1] = 1;
   // Wait for child process to exit
@@ -219,6 +231,35 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
   // Remove shared memory
   shmctl(shmid, IPC_RMID, NULL);
 #endif
+
+  double intTime = ceil((double)photonTime / 1e12);
+  int64_t totalCounts=0, totalCoinc=0;
+
+  // Print statistics
+  fprintf(stderr, KHEAD1 "\nCounts per channel:\n");
+  size_t numSeen;
+  for (i=0; i<num_active_channels; i++) {
+    chan = active_channels[i];
+    numSeen = fb.num_read_per_channel[chan];
+    fprintf(stderr,
+            KHEAD2 KCYN "  %d: " KNUMBER "%'" PRId64 " " KRATE "(%'0.01f Hz)\n",
+            chan, (int64_t)numSeen, (double)numSeen / intTime);
+    totalCounts += numSeen;
+  }
+
+  fprintf(stderr, KHEAD1 "\nCoincidences:\n");
+  for (i=0; i<nPairs; i++) {
+    fprintf(stderr,
+            KHEAD2 KCYN "  %d-%d: " KNUMBER "%'" PRIu64 " " KRATE "(%'0.01f Hz)\n",
+            ccorr_pairs[i][0], ccorr_pairs[i][1], ccorrs[i].total_coinc, (double)ccorrs[i].total_coinc/intTime);
+    totalCoinc += ccorrs[i].total_coinc;
+  }
+
+  fprintf(stderr,
+          KHEAD1 "\nSummary" KHEAD2 ": Processed " KNUMBER "%'" PRId64 KHEAD2 " coincidences between "
+                  KNUMBER "%'" PRId64 KHEAD2 " photons " KHEAD2 "in " KTIME "%0.02f seconds "KNRM"\n",
+          totalCoinc, totalCounts, runTime);
+
   // Output the files
   char outfile[strlen(outfile_prefix)+20];
   for (i=0; i<nPairs; i++) {
@@ -235,7 +276,6 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
 
   // If all correlations have the same number of bins (they should, but hey, may as well check),
   // output a summed csv file
-
   int64_t num_bins;
   _Bool allSame = 1;
   num_bins = ccorrs[0].num_bins;
@@ -282,6 +322,8 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
 int main(int argc, char* argv[]) {
   int retcode, exitcode=0;
 
+  fprintf(stderr, "\n\t\t" KHEAD1 "Time Tagged Data Processor" KNRM ": g(2) Cross-Correlation\n\n" KNRM);
+
   retcode = pq_g2_read_cli(argc, argv);
 
   if (retcode < 0) {
@@ -307,7 +349,7 @@ int main(int argc, char* argv[]) {
 
   cleanup_pq_g2_cli:
   pq_g2_cli_cleanup();
-
+  fprintf(stderr, "\n");
   exit_block:
   exit(exitcode);
 }

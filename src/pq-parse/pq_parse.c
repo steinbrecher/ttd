@@ -3,12 +3,9 @@
 #endif
 #include <stdio.h>
 #include <inttypes.h>
-#include <stddef.h>
-#include <stdlib.h>
 #include <math.h>
-#include <getopt.h>
-#include <time.h>
 #include <string.h>
+#include <locale.h>
 
 #include "ttd.h"
 #include "pq_parse.h"
@@ -123,30 +120,33 @@ int pq_parse_header(FILE *fp, pq_fileinfo_t *file_info) {
   return(retcode);
 }
 
-void pq_printf_file_info(pq_fileinfo_t *file_info) {
+void pq_print_file_info(pq_fileinfo_t *file_info) {
+  setlocale(LC_NUMERIC, "");
+  printf(KHEAD1 "\nInput File Information\n" KNRM);
   if (file_info->instrument == PQ_HH) {
-    printf("Instrument: HydraHarp\n");
+    printf(KHEAD2 "Instrument: "  "HydraHarp\n");
   }
   else if (file_info->instrument == PQ_PH) {
-    printf("Instrument: PicoHarp\n");
+    printf(KHEAD2 "Instrument: "  "PicoHarp\n");
   }
   else {
-    printf("Unrecognized Instrument!\n");
+    printf(KHEAD2 "Unrecognized Instrument!\n");
   }
   if (file_info->meas_mode == PQ_T2_MODE) {
-    printf("Measurement Mode: T2\n");
+    printf(KHEAD2 "Measurement Mode: " "T2\n");
   }
   else if (file_info->meas_mode == PQ_T3_MODE) {
-    printf("Measurement Mode: T3\n");
+    printf(KHEAD2 "Measurement Mode: "  "T3\n");
   }
   else {
-    printf("Unrecgonized Measurement Mode!\n");
+    printf(KHEAD2 "Unrecgonized Measurement Mode!\n");
   }
-  printf("File Format Version: %d\n", file_info->fmt_version);
-  printf("Number of records: %" PRId64 "\n", file_info->num_records);
-  printf("Timing Resolution: %" PRIu64 " ps\n", file_info->resolution);
-  printf("Sync Period: %" PRIu64 " ps\n", file_info->sync_period);
-  printf("Sync Rate: %d Hz\n", file_info->sync_rate);
+  printf(KHEAD2"File Format Version: " "%d\n", file_info->fmt_version);
+  printf(KHEAD2"Number of records: " KNUMBER "%'" PRId64 "\n", file_info->num_records);
+  printf(KHEAD2"Timing Resolution: " KTIME "%" PRIu64 " ps\n", file_info->resolution);
+  printf(KHEAD2"Sync Period: " KTIME "%" PRIu64 " ps\n", file_info->sync_period);
+  printf(KHEAD2"Sync Rate: " KRATE "%d Hz\n", file_info->sync_rate);
+  printf(KNRM "\n");
 }
 
   

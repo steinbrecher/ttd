@@ -6,6 +6,7 @@
 #include <getopt.h>
 #include <string.h>
 #include <inttypes.h>
+#include <locale.h>
 
 #include "scitoll.h"
 #include "ttd.h"
@@ -169,21 +170,21 @@ int pq_g2_read_cli(int argc, char* argv[]) {
         break;
 
       case 'b':
-        pq_g2_cli_args.bin_time = scitoll(optarg, &retcode);
+        pq_g2_cli_args.bin_time = (ttd_t)scitoll(optarg, &retcode);
         bin_time_set = 1;
         break;
 
       case 'w':
-        pq_g2_cli_args.window_time = scitoll(optarg, &retcode);
+        pq_g2_cli_args.window_time = (ttd_t)scitoll(optarg, &retcode);
         window_time_set = 1;
         break;
 
       case 'B':
-        pq_g2_cli_args.block_size = scitoll(optarg, &retcode);
+        pq_g2_cli_args.block_size = (ttd_t)scitoll(optarg, &retcode);
         break;
 
       case 'R':
-        pq_g2_cli_args.rb_size = scitoll(optarg, &retcode);
+        pq_g2_cli_args.rb_size = (ttd_t)scitoll(optarg, &retcode);
         break;
 
       default:
@@ -206,27 +207,25 @@ int pq_g2_read_cli(int argc, char* argv[]) {
 }
 
 void pq_g2_print_options(int no_verbose) {
-  printf("***Options Summary***\n");
-
-  if (!(no_verbose)) {
-    printf("Verbose: %d\n", pq_g2_cli_args.verbose);
-  }
+  setlocale(LC_NUMERIC, "");
+  fprintf(stderr, KHEAD1 "Options Summary\n" KNRM);
 
   if (pq_g2_cli_args.infile_allocated) {
-    printf("Input File: %s\n", pq_g2_cli_args.infile);
+    fprintf(stderr, KHEAD2 "Input File:" KNRM KFILE " %s\n" KNRM, pq_g2_cli_args.infile);
   }
 
   if (pq_g2_cli_args.outfile_prefix != NULL) {
-    printf("Output File: %s\n", pq_g2_cli_args.outfile_prefix);
+    fprintf(stderr, KHEAD2 "Output File Format: " KNRM KFILE "%s_" KITL "<chanA>" KFILE "-" KITL "<chanB>" KFILE ".csv\n" KNRM, pq_g2_cli_args.outfile_prefix);
   }
 
-  printf("Bin time: %" PRIu64 " ps\n", pq_g2_cli_args.bin_time);
-  printf("Window time: %" PRIu64 " ps\n", pq_g2_cli_args.window_time);
-  printf("Block size: %d records\n", pq_g2_cli_args.block_size);
+  fprintf(stderr, KHEAD2 "Bin time: " KNRM KTIME "%'" PRIu64 " ps\n" KNRM, pq_g2_cli_args.bin_time);
+  fprintf(stderr, KHEAD2 "Window time: " KNRM KTIME "%'" PRIu64 " ps\n" KNRM, pq_g2_cli_args.window_time);
+
   int i;
+  fprintf(stderr, "\n");
   for (i=0; i<PQ_HH_MAX_CHANNELS; i++) {
     if (pq_g2_cli_args.channel_offset[i] != 0) {
-      printf("Delay Channel %d by %" PRId64 "ps\n", i, pq_g2_cli_args.channel_offset[i]);
+      fprintf(stderr, KHEAD2 KCYN "Channel %d: " KHEAD2 "Delay by " KNRM KTIME "%'" PRId64 " ps\n" KNRM, i, pq_g2_cli_args.channel_offset[i]);
     }
   }
 }
