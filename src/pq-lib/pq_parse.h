@@ -1,6 +1,8 @@
 #ifndef _PQ_PARSE_HEADER_SEEN
 #define _PQ_PARSE_HEADER_SEEN
 
+#define COLORFUL_OUTPUT
+
 #include "pq_records.h" // Include for all code linking pq_parse
 
 // Constants
@@ -195,6 +197,7 @@ int pq_parse_header(FILE *fp, pq_fileinfo_t *file_info);
 int pq_parse_filetype(FILE *fp, pq_fileinfo_t *file_info);
 void pq_print_file_info(pq_fileinfo_t *file_info);
 
+#ifdef COLORFUL_OUTPUT
 #define KNRM  "\x1B[0m"
 #define KBLD  "\x1B[1m"
 #define KITL  "\x1B[3m"
@@ -220,5 +223,32 @@ void pq_print_file_info(pq_fileinfo_t *file_info);
 #define KNUMBER KNRM KMAG KBLD
 #define KTIME KNRM KBLD
 #define KRATE KNRM KMAG
+#else
+#define KNRM
+#define KBLD
+#define KITL
+#define KUND
+
+#define KRED
+#define KGRN
+#define KBGRN
+#define KYEL
+#define KBLU
+#define KMAG
+#define KCYN
+#define KWHT
+
+#define CURSOROFF
+#define CURSORON
+#define CURSOR_TOP_LEFT
+#define CLEAR_SCREEN
+
+#define KHEAD1
+#define KHEAD2
+#define KFILE
+#define KNUMBER
+#define KTIME
+#define KRATE
+#endif // #ifdef COLORFUL_OUTPUT
 
 #endif // _PQ_PARSE_HEADER_SEEN

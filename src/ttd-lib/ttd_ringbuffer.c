@@ -56,11 +56,7 @@ void ttd_rb_insert(ttd_rb_t *rb, ttd_t time) {
 
 void ttd_rb_prune(ttd_rb_t *rb, ttd_t time) {
   while (rb->count > 0) {
-//    if (time < ttd_rb_get(rb,0)) {
-//      break;
-//    }
-
-    if ((time - ttd_rb_get(rb, 0)) > rb->duration) {
+    if ((time - rb->times[rb->start]) > rb->duration) {
       rb->start = (rb->start + 1) % rb->size;
       -- rb->count;
     }
@@ -78,7 +74,7 @@ void ttd_rb_cleanup(ttd_rb_t *rb) {
 int ttd_rb_grow(ttd_rb_t *rb) {
   ttd_t *newbuff;
   if (rb->times_allocated == 1) {
-    printf("Growing ringbuffer size to %d\n", rb->size);
+    printf("Growing ringbuffer size to %u\n", rb->size);
     newbuff = (ttd_t *) malloc(2*rb->size*sizeof(ttd_t));
     if (newbuff == NULL) {
       printf("ERROR: Could not allocate larger ringbuffer\n");

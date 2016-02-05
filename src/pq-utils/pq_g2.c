@@ -151,7 +151,7 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
     // Get shared memory
     shvals = (int64_t *) shmat(shmid, 0, SHM_RND);
     //fprintf(stderr, "\n");
-    fprintf(stderr, CURSOROFF);
+    fprintf(stderr, CURSOROFF "");
 
      // Use second value in array as done flag
     while (shvals[1] == 0) {
@@ -193,7 +193,7 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
     fprintf(stderr, ">] %3.0f%% Done", 100.0);
     fprintf(stderr, " (%4.02f seconds remaining)", 0.0);
     fprintf(stderr, "\n" KNRM);
-    fprintf(stderr, CURSORON);
+    fprintf(stderr, CURSORON "");
     // Detach shared mem
     shmdt(shvals);
     exit(0);
@@ -350,6 +350,6 @@ int main(int argc, char* argv[]) {
   cleanup_pq_g2_cli:
   pq_g2_cli_cleanup();
   fprintf(stderr, "\n");
-  exit_block:
+
   exit(exitcode);
 }

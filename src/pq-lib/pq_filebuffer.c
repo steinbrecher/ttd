@@ -219,22 +219,24 @@ int pq_fb_get_next(pq_fb_t *buffer, ttd_t *recTime, int16_t *recChannel) {
   }
 
   int16_t i, firstChannel;
-  ttd_rb_t *firstBuffer;
+  ttd_rb_t *firstBuffer, *rb;
   ttd_t firstTime, timeHere;
 
   // Initialize with first active channel
+  rb = buffer->active_rbs[0];
   firstChannel = buffer->active_channels[0];
   firstBuffer = buffer->active_rbs[0];
-  firstTime = ttd_rb_peek(buffer->active_rbs[0]);
+  firstTime = rb->times[rb->start];//ttd_rb_peek(buffer->active_rbs[0]);
 
 
   // Loop over other active channels to find smallest time
   for (i=1; i<buffer->num_active_channels; i++) {
-    if (buffer->active_rbs[i]->count == 0) {continue;}
+    rb = buffer->active_rbs[i];
+    if (rb->count == 0) {continue;}
     //printf("Peeking at buffer %d\n", buffer->active_channels[i]);
-    timeHere = ttd_rb_peek(buffer->active_rbs[i]);
+    timeHere = rb->times[rb->start];
     if (timeHere < firstTime) {
-      firstBuffer = buffer->active_rbs[i];
+      firstBuffer = rb;
       firstChannel = buffer->active_channels[i];
       firstTime = timeHere;
     }

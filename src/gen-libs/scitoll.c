@@ -7,7 +7,7 @@
 
 long long scitoll(char* scinum, int* retcode) {
   char *eptr, *Eptr;
-  int offset;
+  int offset=0;
   long long output;
 
 
@@ -43,7 +43,7 @@ long long scitoll(char* scinum, int* retcode) {
 
   char mantissa[strlen(scinum)+1];
   char exponent[strlen(scinum)+1];
-  int i, sign;
+  int i;
 
   // Collect mantissa string
   for (i=0; i<offset; i++) {

@@ -3,17 +3,18 @@
 
 #include "ttd.h"
 
+//static ttd_t rb_duration;
+
 typedef struct {
-  ttd_t *times;
-  ttd_t duration;
+    int32_t size;		      // Max number of elems
+    int32_t start;		      // Index of oldest element
+    int32_t count;	      // Number of active elements
+    int32_t times_allocated;
+    int32_t duration;
 
-  int size;		      // Max number of elems 
-  int start;		      // Index of oldest element 
-  int count;	      // Number of active elements 
-
-  int times_allocated;
-  int allocated;
-
+    //int allocated;
+    //ttd_t duration;
+    ttd_t *times;
 } ttd_rb_t;
 
 void ttd_rb_init(ttd_rb_t *rb, int size, ttd_t duration);

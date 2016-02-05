@@ -64,11 +64,15 @@ void ttd_ccorr2_update(ttd_ccorr2_t *ccorr, int rb_num, ttd_t time) {
 
   int64_t times[2], delta_bins;
   int n;
+  size_t start, size;
   times[rb_num] = (int64_t)time;
 
   if (other_rb->count > 0) {
+    start = other_rb->start;
+    size = other_rb->size;
     for (n=0; n < other_rb_count; n++) {
-      times[other_rb_num] = ttd_rb_get(other_rb, n);
+      //times[other_rb_num] = ttd_rb_get(other_rb, n);
+      times[other_rb_num] = other_rb->times[(start + n) % size];
       delta_bins = (ccorr->center_bin +
                     int64_rounded_divide(times[1]-times[0], (int64_t)ccorr->bin_time));
       if (delta_bins >= 0) {
