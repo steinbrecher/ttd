@@ -20,7 +20,7 @@ ttd_ccorr3_t *ttd_g3(char* infile1, char* infile2, char* infile3, int* retcode) 
   int64_t output_buffer_count = 0;
   uint64_t t1, t2, t3, ta, tb, count;
 
-  ttd_ccorr3_t *ccorr = ttd_ccorr3_build(1024, g3_cli_args.window_time);
+  ttd_ccorr3_t *ccorr = ttd_ccorr3_build(g3_cli_args.bin_time, g3_cli_args.window_time, 1024);
 
   ttd_fb_t fb1, fb2, fb3;
 

@@ -25,9 +25,9 @@ typedef struct {
 
 } ttd_ccorr3_t;
 
-void ttd_ccorr3_init(ttd_ccorr3_t *ccorr, ttd_rb_t *rb1, ttd_rb_t *rb2, ttd_rb_t *rb3);
+void ttd_ccorr3_init(ttd_ccorr3_t *ccorr, ttd_t bin_time, ttd_t window_time, ttd_rb_t *rb1, ttd_rb_t *rb2, ttd_rb_t *rb3);
 
-ttd_ccorr3_t *ttd_ccorr3_build(int rb_size, ttd_t rb_duration);
+ttd_ccorr3_t *ttd_ccorr3_build(ttd_t bin_time, ttd_t window_time, int rb_size);
 
 void ttd_ccorr3_update(ttd_ccorr3_t *ccorr, int rb_num, ttd_t time);
 
