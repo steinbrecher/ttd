@@ -8,11 +8,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pq_filebuffer.h>
+#include <math.h>
 
 #include "ttd_crosscorr2.h"
 #include "pq_filebuffer.h"
 #include "pq_g2_cli.h"
 #include "pq_g2.h"
+//#include <time.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <unistd.h>
+#include <time.h>
+#include <sys/timeb.h>
 
 int pq_g2_many(char* infile, char* outfile_prefix) {
   int retcode=0;
@@ -103,20 +111,103 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
   }
 
   // Grab first photon
-  ttd_t time;
+  ttd_t photonTime;
   int16_t chan, activeNum;
-  retcode = pq_fb_get_next(&fb, &time, &chan);
+  retcode = 0;
+  //retcode = pq_fb_get_next(&fb, &time, &chan);
+
+
+  // Create shared memory
+  int shmid = shmget(IPC_PRIVATE, 2*sizeof(int64_t), 0777|IPC_CREAT);
+  int64_t *shvals = (int64_t *) shmat(shmid, 0, 0);
+  shvals[0] = 0;
+  shvals[1] = 0;
+
+
+  if (fork()==0) {
+    double totalRecords;
+    double progress, nextBarProgress;
+    double stepBarProgress;
+    double timeSoFar, timeRemaining;
+
+    int64_t numBarSteps, totalDrawSteps;
+    struct timeb currentTime;
+    double startTime;
+    ftime(&currentTime);
+    startTime = (currentTime.time + (double)(currentTime.millitm)/1000.0);
+
+    totalRecords = (double)fb.file_info.num_records;
+    nextBarProgress = 0.0;
+    stepBarProgress = 1.0 / 40.0;
+
+    numBarSteps = 0;
+    totalDrawSteps = (int64_t)round(1.0 / stepBarProgress) + 1;
+
+    struct timespec waitTime, remTime;
+    // Set waitTime to be 50ms
+    waitTime.tv_nsec = 5e7;
+    waitTime.tv_sec = 0;
+
+    /* Child process for drawing progress bar */
+    // Get shared memory
+    shvals = (int64_t *) shmat(shmid, 0, 0);
+    timeSoFar = 0.0;
+    fprintf(stderr, "\n");
+
+     // Use second value in array as done flag
+    while (shvals[1] == 0) {
+      nanosleep(&waitTime, &remTime);
+
+      progress = ((double)shvals[0])/totalRecords;
+      // See if we need to draw more progress bar fills
+      if (progress >= nextBarProgress) {
+        // Update counter for progress bar (# of populated spaces)
+        numBarSteps++;
+        nextBarProgress += stepBarProgress;
+      }
+
+      // Draw progress bar
+      fprintf(stderr, "\rProgress: [");
+      for(i=0; i < numBarSteps; i++) {
+        fprintf(stderr, "=");
+      }
+      fprintf(stderr, ">");
+      for (i=0; i<(totalDrawSteps - numBarSteps-1); i++) {
+        fprintf(stderr, " ");
+      }
+      fprintf(stderr, "] %3.0f%%", 100*progress);
+      fflush(stderr);
+
+      // Calculate predicted time remaining
+      ftime(&currentTime);
+
+      timeSoFar = (currentTime.time + (double)(currentTime.millitm)/1000.0) - startTime;
+      timeRemaining = ((double)timeSoFar) * (1.0/progress - 1.0);
+      fprintf(stderr, " (%4.02f seconds remaining)", timeRemaining);
+
+    }
+    fprintf(stderr, "\n");
+    // Detach shared mem
+    shmdt(shvals);
+    exit(0);
+  }
 
 
   // Loop over photons
   while ((fb.empty == 0)&&(retcode==0)) {
     activeNum = chanToActiveNum[chan];
+    // Get next photon
+    retcode = pq_fb_get_next(&fb, &photonTime, &chan);
+
+    // Update the g2s
     for (i=0; i<num_active_channels-1; i++) {
-      ttd_ccorr2_update(ccorrLookup[activeNum][i], ccorrNumLookup[activeNum][i], time);
+      ttd_ccorr2_update(ccorrLookup[activeNum][i], ccorrNumLookup[activeNum][i], photonTime);
     }
 
-    retcode = pq_fb_get_next(&fb, &time, &chan);
+    shvals[0] = fb.total_read;
   }
+
+  shvals[1] = 1;
 
   // Output the files
   char outfile[strlen(outfile_prefix)+20];
@@ -164,11 +255,6 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
     ttd_ccorr2_write_csv(&ccorrs[0], outfile, pq_g2_cli_args.normalize, pq_g2_cli_args.int_time, pq_g2_cli_args.window_time);
   }
 
-//  for (chan=0; chan<PQ_HH_MAX_CHANNELS; chan++) {
-//    if (fb.num_read_per_channel[chan] > 0) {
-//      printf("Number of records on channel %d: %lu\n", chan, fb.num_read_per_channel[chan]);
-//    }
-//  }
 
   // Clean up correlations
     for (i=0; i<nPairs; i++) {

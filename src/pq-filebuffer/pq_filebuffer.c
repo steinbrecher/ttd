@@ -210,6 +210,7 @@ uint64_t pq_fb_get_block(pq_fb_t *buffer) {
     // Otherwise, push it onto the correct ringbuffer, with offset added
     ttd_rb_insert(&(buffer->rbs[channel]), time + buffer->channel_offsets[channel]);
   }
+  buffer->total_read += num_photons;
   return num_photons;
 }
 
