@@ -1,20 +1,21 @@
-add_subdirectory(libs)
+# Generally useful functions / libraries that aren't pq/ttd specific
+add_subdirectory(gen-libs)
+
+# General library definining the ttd datatype. Used throughout, but should probably be deprecated
 add_subdirectory(ttd)
-add_subdirectory(pq-parse)
-add_subdirectory(pq-filebuffer)
-add_subdirectory(pq-ttd)
-add_subdirectory(ttd-ringbuffer)
-add_subdirectory(ttd-crosscorr)
-add_subdirectory(ttd-filebuffer)
+
+# Libraries to support working with picoquant files from C
+add_subdirectory(pq-lib)
+
+# Utilities (i.e. executables to be built) for working with picoquant files
+add_subdirectory(pq-utils)
+
+# Libraries to support working with ttd files from C
+add_subdirectory(ttd-lib)
+
+# Utilities (i.e. executables to be built) for working with .ttd files
 add_subdirectory(ttd-utils)
 
-### Executables for working with picoquant files ###
-# Print records in order to stdout -- mostly used for testing / as demo of pq-filebuffer
-add_executable(pq-dump pq_dump.c)
-target_link_libraries(pq-dump LINK_PUBLIC pq-filebuffer)
-
-# Compute g2 cross-correlation of photon counts directly from the picoquant file
-add_executable(pq-g2 pq_g2.c pq_g2_cli.c)
-target_link_libraries(pq-g2 LINK_PUBLIC pq-filebuffer ttd-crosscorr2 ttd-filebuffer scitoll)
-
-install (TARGETS pq-dump pq-g2 DESTINATION bin)
+# Conversion from picoquant to ttd data format
+# TODO: Reverse conversion (not a pressing issue -- i.e. "someday")
+add_subdirectory(pq-ttd)
