@@ -51,7 +51,7 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
   for (i=0; i<nPairs; i++) {
     ttd_ccorr2_init(ccorrs + i,
                     pq_g2_cli_args.bin_time,
-                    pq_g2_cli_args.window_time,
+                    pq_g2_cli_args.padded_window_time,
                     pq_g2_cli_args.rb_size);
 //    ccorrs[i] = ttd_ccorr2_build(pq_g2_cli_args.bin_time,
 //                                 pq_g2_cli_args.window_time,
@@ -129,7 +129,7 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
             outfile_prefix,
             ccorr_pairs[i][0],
             ccorr_pairs[i][1]);
-    ttd_ccorr2_write_csv(&ccorrs[i], outfile, pq_g2_cli_args.normalize, pq_g2_cli_args.int_time);
+    ttd_ccorr2_write_csv(&ccorrs[i], outfile, pq_g2_cli_args.normalize, pq_g2_cli_args.int_time, pq_g2_cli_args.window_time);
   }
 
   // If all correlations have the same number of bins (they should, but hey, may as well check),
@@ -161,7 +161,7 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
             outfile_prefix);
 
     // Write output
-    ttd_ccorr2_write_csv(&ccorrs[0], outfile, pq_g2_cli_args.normalize, pq_g2_cli_args.int_time);
+    ttd_ccorr2_write_csv(&ccorrs[0], outfile, pq_g2_cli_args.normalize, pq_g2_cli_args.int_time, pq_g2_cli_args.window_time);
   }
 
 //  for (chan=0; chan<PQ_HH_MAX_CHANNELS; chan++) {

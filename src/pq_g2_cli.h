@@ -26,6 +26,7 @@ struct {
 
     ttd_t bin_time; // -b
     ttd_t window_time; // -w
+    ttd_t padded_window_time;
     int64_t channel2_offset; // -T (note signed time for negative shifts)
 
     int block_size; // -B

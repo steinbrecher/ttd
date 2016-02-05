@@ -19,7 +19,7 @@ void ttd_ccorr2_init(ttd_ccorr2_t *ccorr, ttd_t bin_time, ttd_t window_time, siz
   ccorr->window_time = window_time;
   ccorr->total_coinc = 0;
 
-  int num_bins = (int)(2*ttd_rounded_divide(window_time, bin_time) + 1);
+  int num_bins = (int)(2*ttd_rounded_divide(ccorr->window_time, ccorr->bin_time) + 1);
   ccorr->num_bins = num_bins;
   ccorr->center_bin = (num_bins - 1)/2;
 
@@ -79,7 +79,7 @@ void ttd_ccorr2_update(ttd_ccorr2_t *ccorr, int rb_num, ttd_t time) {
   }
 }
 
-void ttd_ccorr2_write_csv(ttd_ccorr2_t *ccorr, char *file_name, int normalize, int int_time) {
+void ttd_ccorr2_write_csv(ttd_ccorr2_t *ccorr, char *file_name, int normalize, int int_time, ttd_t write_window) {
   FILE *output_file = fopen(file_name, "wb");
   int64_t window_time = ccorr->window_time;
   int m;
@@ -115,19 +115,30 @@ void ttd_ccorr2_write_csv(ttd_ccorr2_t *ccorr, char *file_name, int normalize, i
   // NOTE: Strangely, this causes valgrind to report memorly leaks on OSX
   // Seems to be an issue with valgrind, not anything here
   //printf("Rate Product: %f \n", rate_product);
-
+  int64_t bin_offset;
   if (normalize == 0) {
     for (m=0; m < ccorr->num_bins; m++) {
+      bin_offset = (m*bin_time) - window_time;
+      // Don't include bins outside window time
+      if (llabs(bin_offset) > write_window) {
+        //fprintf(stderr, "Skipping bin offset %"PRId64"\n", bin_offset);
+        continue;
+      }
       fprintf(output_file, "%" PRId64", %" PRIu64 " \n",
-              ((m*bin_time) - window_time), (ccorr->hist[m]));
+              bin_offset, (ccorr->hist[m]));
     }
   }
   else {
     // Perform normalization and output to file
-    int64_t bin_offset;
+
     double norm_denom, norm_counts;
     for (m=0; m < ccorr->num_bins; m++) {
       bin_offset = (m*bin_time) - window_time;
+      // Don't include bins outside window time
+      if (llabs(bin_offset) > write_window) {
+        //fprintf(stderr, "Skipping bin offset %"PRIu64"\n", bin_offset);
+        continue;
+      }
       norm_denom = rate_product * (double)(num_bins - llabs(bin_offset));
       norm_counts = ((double)ccorr->hist[m]) / norm_denom;
       fprintf(output_file, "%" PRId64", %f \n", bin_offset, norm_counts);

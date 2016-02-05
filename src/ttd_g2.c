@@ -111,7 +111,7 @@ int main(int argc, char* argv[]) {
 
   ttd_ccorr2_t *g2_ccorr = ttd_g2(infile1, infile2, &retcode);
   
-  ttd_ccorr2_write_csv(g2_ccorr, outfile, ttd_g2_cli_args.normalize, ttd_g2_cli_args.int_time);
+  ttd_ccorr2_write_csv(g2_ccorr, outfile, ttd_g2_cli_args.normalize, ttd_g2_cli_args.int_time, ttd_g2_cli_args.window_time);
 
 
  cleanup_ccorr:

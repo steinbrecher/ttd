@@ -199,6 +199,9 @@ int pq_g2_read_cli(int argc, char* argv[]) {
   if (!(window_time_set))
     fprintf(stderr, "Warning: Window time not specified. Using default value of %" PRIu64 " ps\n", pq_g2_cli_args.window_time);
 
+  // Add two padding bins worth of extra time to compensate for edge effects
+  pq_g2_cli_args.padded_window_time = pq_g2_cli_args.window_time + pq_g2_cli_args.bin_time;
+
   return(0);
 }
 
