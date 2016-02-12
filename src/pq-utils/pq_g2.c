@@ -22,8 +22,6 @@
 #include "pq_g2_cli.h"
 #include "pq_g2.h"
 
-
-
 #define PROGRESS_BAR_ENABLE
 
 int pq_g2_many(char* infile, char* outfile_prefix) {
@@ -251,7 +249,10 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
   for (i=0; i<nPairs; i++) {
     fprintf(stderr,
             KHEAD2 KCYN "  %d-%d: " KNUMBER "%'" PRIu64 " " KRATE "(%'0.01f Hz)\n",
-            ccorr_pairs[i][0], ccorr_pairs[i][1], ccorrs[i].total_coinc, (double)ccorrs[i].total_coinc/intTime);
+            active_channels[ccorr_pairs[i][0]],
+            active_channels[ccorr_pairs[i][1]],
+            ccorrs[i].total_coinc,
+            (double)ccorrs[i].total_coinc/intTime);
     totalCoinc += ccorrs[i].total_coinc;
   }
 
@@ -261,16 +262,18 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
           totalCoinc, totalCounts, runTime);
 
   // Output the files
+  fprintf(stderr, "\n");
   char outfile[strlen(outfile_prefix)+20];
   for (i=0; i<nPairs; i++) {
     if(ccorrs[i].total_coinc == 0) {
-      printf("WARNING: Correlation between channels %d and %d had no counts.\n", ccorr_pairs[i][0], ccorr_pairs[i][1]);
+      fprintf(stderr, KHEAD1 "WARNING" KHEAD2 ": Correlation between channels %d and %d had no counts.\n" KNRM,
+             active_channels[ccorr_pairs[i][0]], active_channels[ccorr_pairs[i][1]]);
       continue;
     }
     sprintf(outfile, "%s_%d-%d.csv",
             outfile_prefix,
-            ccorr_pairs[i][0],
-            ccorr_pairs[i][1]);
+            active_channels[ccorr_pairs[i][0]],
+            active_channels[ccorr_pairs[i][1]]);
     ttd_ccorr2_write_csv(&ccorrs[i], outfile, pq_g2_cli_args.normalize, pq_g2_cli_args.int_time, pq_g2_cli_args.window_time);
   }
 

@@ -25,7 +25,7 @@ ttd_t ttd_rb_get(ttd_rb_t *rb, int offset);
 
 ttd_t ttd_rb_peek(ttd_rb_t *rb);
 
-void ttd_rb_insert(ttd_rb_t *rb, ttd_t time);
+int ttd_rb_insert(ttd_rb_t *rb, ttd_t time);
 
 void ttd_rb_prune(ttd_rb_t *rb, ttd_t time);
 

@@ -5,11 +5,7 @@ This is a collection of programs intended for parsing PicoQuant data files, conv
 them to a format that's easier to work with, and doing some processing on them.
 
 Specifically, these programs are written for speed and are intended for parsing
-large numbers of records very quickly. As such, they are a little unstable 
-(i.e. prone to segfaults when things don't go as expected) and are somewhat
-bare-bones. At some point in the future, I'm planning to wrap these in MATLAB
-and Python scripts to make the user experience a little nicer, but for now
-that's in the future. 
+large numbers of records very quickly. As such, they are  somewhat bare-bones. 
 
 ## Basic installation instructions ##
 
@@ -23,16 +19,16 @@ that's in the future.
 
 3. Install the software. Commands are:
 
-		% ./configure
+		% mkdir build 
+		% cd build
+		% cmake ..
 		% make
 		% sudo make install
 
-	I usually break it out like this in case there are errors, but you can do it in 
-	one line also:
+Depending on your system 'sudo' may be optional in the last command.
 
-		% ./configure && make && sudo make install
+## Summary of Tools ##
 
-	The sudo command will ask you for your password; totally normal.
 
 ## G2 Instructions ##
 

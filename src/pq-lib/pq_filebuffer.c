@@ -26,7 +26,7 @@ int pq_fb_init(pq_fb_t *buffer, char* filename) {
   // Initialize Ringbuffers
   int i;
   for (i=0; i<PQ_HH_MAX_CHANNELS; i++) {
-    ttd_rb_init(&(buffer->rbs[i]), PHOTONBLOCK, 0);
+    ttd_rb_init(&(buffer->rbs[i]), 2*PHOTONBLOCK, 0);
   }
 
   // Initialize Offsets
@@ -235,7 +235,7 @@ int pq_fb_get_next(pq_fb_t *buffer, ttd_t *recTime, int16_t *recChannel) {
     if (rb->count == 0) {continue;}
     //printf("Peeking at buffer %d\n", buffer->active_channels[i]);
     timeHere = rb->times[rb->start];
-    if (timeHere < firstTime) {
+    if ((timeHere < firstTime)) {
       firstBuffer = rb;
       firstChannel = buffer->active_channels[i];
       firstTime = timeHere;
@@ -264,9 +264,17 @@ int pq_fb_get_next(pq_fb_t *buffer, ttd_t *recTime, int16_t *recChannel) {
     }
     else {
       pq_fb_disable_channel(buffer, firstChannel);
-      if(buffer->num_active_channels == 1) {
-        if (buffer->active_rbs[0]->count == 0) {
-          pq_fb_disable_channel(buffer, buffer->active_channels[0]);
+
+      // Check to see which (if any) remaining channels have zero counts
+      _Bool disableChannels[PQ_HH_MAX_CHANNELS];
+      for (i=0; i<buffer->num_active_channels; i++) {
+        if (buffer->active_rbs[i]->count == 0) {
+          disableChannels[buffer->active_channels[i]] = 1;
+        }
+      }
+      for (i=0; i<PQ_HH_MAX_CHANNELS; i++) {
+        if (disableChannels[i]) {
+          pq_fb_disable_channel(buffer, i);
         }
       }
       if (buffer->num_active_channels == 0) {
