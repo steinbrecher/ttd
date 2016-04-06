@@ -120,7 +120,13 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
 
 #ifdef PROGRESS_BAR_ENABLE
   // Create shared memory
-  int shmid = shmget(IPC_PRIVATE, 2*sizeof(int64_t), 0777|IPC_CREAT);
+
+  int shmid;
+  shmid = shmget(IPC_PRIVATE, 2*sizeof(int64_t), 0777|IPC_CREAT|IPC_EXCL);
+  if (shmid < 0) {
+    perror("shmget");
+    exit(1);
+  }
   int64_t *shvals = (int64_t *) shmat(shmid, 0, SHM_RND);
 
   shvals[0] = 0;
@@ -128,9 +134,12 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
 
   /* Child process for drawing progress bar */
   if (fork()==0) {
+
+    int64_t lastVal;
     double progress, nextBarProgress;
     double stepBarProgress;
     double timeSoFar, timeRemaining;
+    int64_t nFails = 0;
 
     int64_t numBarSteps, totalBarSteps;
 
@@ -145,17 +154,36 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
     waitTime.tv_nsec = 50000000;
     waitTime.tv_sec = 0;
 
-
     // Get shared memory
     shvals = (int64_t *) shmat(shmid, 0, SHM_RND);
+    if (shvals == NULL) {
+      perror("shmat");
+      exit(1);
+    }
     //fprintf(stderr, "\n");
     fprintf(stderr, CURSOROFF "");
 
      // Use second value in array as done flag
     while (shvals[1] == 0) {
       nanosleep(&waitTime, &remTime);
-
+      lastVal = shvals[0];
       progress = ((double)shvals[0])/fb.file_info.num_records;
+      // Check for stalled parent
+      if (shvals[0] == 0) {
+        nFails++;
+        if (nFails >= 5) {
+          fprintf(stderr, KNRM KCYN KRED "\nERROR: No progress is being made. Exiting...\n" KNRM CURSORON);
+          // Detach shared mem
+          shmdt(shvals);
+          shmctl(shmid, IPC_RMID, NULL);
+          perror("parent died");
+          exit(1);
+        }
+      }
+      else {
+        nFails = 0;
+        //lastVal = shvals[0];
+      }
       // See if we need to draw more progress bar fills
       if (progress >= nextBarProgress) {
         // Update counter for progress bar (# of populated spaces)
@@ -164,7 +192,7 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
       }
 
       // Draw progress bar
-      fprintf(stderr, "\r");
+      fprintf(stderr, CURSOROFF "\r");
       fprintf(stderr, KNRM KCYN KRED "[");
       for(i=0; i < numBarSteps; i++) {
         fprintf(stderr, "=");
@@ -181,11 +209,11 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
 
       timeSoFar = (currentTime.time + (double)(currentTime.millitm)/1000.0) - startTime;
       timeRemaining = ((double)timeSoFar) * (1.0/progress - 1.0);
-      fprintf(stderr, " (%4.02f seconds remaining)", timeRemaining);
+      fprintf(stderr, " (%4.02f seconds remaining) " KNRM CURSORON, timeRemaining);
 
     }
     fprintf(stderr, "\r" KNRM KBGRN KBLD "[");
-    for(i=0; i < numBarSteps; i++) {
+    for(i=0; i < totalBarSteps; i++) {
       fprintf(stderr, "=");
     }
     fprintf(stderr, ">] %3.0f%% Done", 100.0);
@@ -194,15 +222,18 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
     fprintf(stderr, CURSORON "");
     // Detach shared mem
     shmdt(shvals);
+    //
     exit(0);
   }
-#endif
 
+#endif
 
   // Loop over photons
   ttd_t photonTime;
   int16_t chan, activeNum;
   retcode = 0;
+  ttd_ccorr2_t *ccorrPtr;
+  int rbNum;
   while ((fb.empty == 0)&&(retcode==0)) {
     activeNum = chanToActiveNum[chan];
     // Get next photon
@@ -210,7 +241,11 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
 
     // Update the g2s
     for (i=0; i<num_active_channels-1; i++) {
-      ttd_ccorr2_update(ccorrLookup[activeNum][i], ccorrNumLookup[activeNum][i], photonTime);
+      // Note: do not inline ccorrPtr into the ttd_ccorr2_update call
+      // Results in null pointer being passed under certain situations
+      ccorrPtr = ccorrLookup[activeNum][i];
+      rbNum = ccorrNumLookup[activeNum][i];
+      ttd_ccorr2_update(ccorrPtr, rbNum, photonTime);
     }
 
 #ifdef PROGRESS_BAR_ENABLE
@@ -291,8 +326,8 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
     for (i=1; i<nPairs; i++) {
       // Needed in case we're normalizing
       // NOTE: have not actually checked that normalization still works here
-      ccorrs[0].stats.rbs_counts[0] += ccorrs[i].stats.rbs_counts[0];
-      ccorrs[0].stats.rbs_counts[1] += ccorrs[i].stats.rbs_counts[1];
+      ccorrs[0].rbs_counts[0] += ccorrs[i].rbs_counts[0];
+      ccorrs[0].rbs_counts[1] += ccorrs[i].rbs_counts[1];
 
       // Loop over bins to add to ccorrs[0].hist
       for (j=0; j<num_bins; j++) {
