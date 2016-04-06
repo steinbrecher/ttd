@@ -22,10 +22,10 @@ void ttd_ccorr4_init(ttd_ccorr4_t *ccorr, ttd_t bin_time, ttd_t window_time,
   ccorr->num_bins = num_bins;
   ccorr->center_bin = (num_bins - 1)/2;
 
-  ccorr->stats.rbs_counts[0] = 0;
-  ccorr->stats.rbs_counts[1] = 0;
-  ccorr->stats.rbs_counts[2] = 0;
-  ccorr->stats.rbs_counts[3] = 0;
+  ccorr->rbs_counts[0] = 0;
+  ccorr->rbs_counts[1] = 0;
+  ccorr->rbs_counts[2] = 0;
+  ccorr->rbs_counts[3] = 0;
   
   ccorr->rbs[0] = rb1;
   ccorr->rbs[1] = rb2;

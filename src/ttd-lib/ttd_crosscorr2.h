@@ -5,14 +5,6 @@
 #include "ttd_ringbuffer.h"
 
 typedef struct {
-    // Statistic tracking how many have been seen on each channel
-    // Used in normalization code
-    uint64_t rbs_counts[2];
-    // Unused currently
-    ttd_t most_common_time;
-} ttd_ccorr2_stats_t;
-
-typedef struct {
     ttd_t bin_time;
     ttd_t window_time;
 
@@ -21,7 +13,7 @@ typedef struct {
 
     int64_t total_coinc;
 
-    ttd_ccorr2_stats_t stats;
+    uint64_t rbs_counts[2];
 
     int rbs_allocated[2];
     ttd_rb_t *rbs[2];

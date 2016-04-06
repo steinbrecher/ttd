@@ -2,11 +2,6 @@
 #define _TTD_CROSSCORR3_HEADER
 
 typedef struct {
-  uint64_t rbs_counts[3];
-  ttd_t most_common_time;
-} ttd_ccorr3_stats_t;
-
-typedef struct {
   ttd_t bin_time;
   ttd_t window_time;
 
@@ -14,8 +9,7 @@ typedef struct {
   int center_bin;
 
   int64_t total;
-
-  ttd_ccorr3_stats_t stats;
+  uint64_t rbs_counts[3];
 
   int rbs_allocated[3];
   ttd_rb_t *rbs[3];

@@ -23,8 +23,8 @@ void ttd_ccorr2_init(ttd_ccorr2_t *ccorr, ttd_t bin_time, ttd_t window_time, siz
   ccorr->num_bins = num_bins;
   ccorr->center_bin = (num_bins - 1)/2;
 
-  ccorr->stats.rbs_counts[0] = 0;
-  ccorr->stats.rbs_counts[1] = 0;
+  ccorr->rbs_counts[0] = 0;
+  ccorr->rbs_counts[1] = 0;
 
   ccorr->rbs[0] = rb1;
   ccorr->rbs[1] = rb2;
@@ -51,7 +51,7 @@ void ttd_ccorr2_update(ttd_ccorr2_t *ccorr, int rb_num, ttd_t time) {
   ttd_rb_insert(ccorr->rbs[rb_num], time);
 
   // Increment totals counter
-  ccorr->stats.rbs_counts[rb_num]++;
+  ccorr->rbs_counts[rb_num]++;
 
   // Prune both ringbuffers
   ttd_rb_prune(ccorr->rbs[0], time);
@@ -110,8 +110,8 @@ void ttd_ccorr2_write_csv(ttd_ccorr2_t *ccorr, char *file_name, int normalize, i
   //printf("\nIntegration Time: %" PRIu64" \n", int_time_ps);
   //printf("Number of Time Bins: %" PRIu64 " \n", num_bins);
   // Calculate rates
-  rate0 = ((double)ccorr->stats.rbs_counts[0]) / (double)num_bins;
-  rate1 = ((double)ccorr->stats.rbs_counts[1]) / (double)num_bins;
+  rate0 = ((double)ccorr->rbs_counts[0]) / (double)num_bins;
+  rate1 = ((double)ccorr->rbs_counts[1]) / (double)num_bins;
   rate_product = rate0 * rate1;
   //printf("Channel 1 Counts: %" PRIu64 " \n", ccorr->stats.rbs_counts[0]);
   //printf("Channel 2 Counts: %" PRIu64 " \n", ccorr->stats.rbs_counts[1]);
