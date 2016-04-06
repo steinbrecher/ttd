@@ -29,8 +29,8 @@ struct {
     ttd_t padded_window_time;
     int64_t channel2_offset; // -T (note signed time for negative shifts)
 
-    int block_size; // -B
-    int rb_size; // -R
+    size_t block_size; // -B
+    size_t rb_size; // -R
 
 } pq_g2_cli_args;
 

@@ -17,10 +17,9 @@
 
 ttd_ccorr3_t *ttd_g3(char* infile1, char* infile2, char* infile3, int* retcode) {
 
-  int64_t output_buffer_count = 0;
-  uint64_t t1, t2, t3, ta, tb, count;
+  uint64_t t1, t2, t3, ta, tb;
 
-  ttd_ccorr3_t *ccorr = ttd_ccorr3_build(g3_cli_args.bin_time, g3_cli_args.window_time, 1024);
+  ttd_ccorr3_t *ccorr = ttd_ccorr3_build(g3_cli_args.bin_time, g3_cli_args.window_time, 256);
 
   ttd_fb_t fb1, fb2, fb3;
 
@@ -46,22 +45,22 @@ ttd_ccorr3_t *ttd_g3(char* infile1, char* infile2, char* infile3, int* retcode) 
   while ((fb1.empty + fb2.empty + fb3.empty) == 0) {
     if (t1 <= t2) {
       if (t1 <= t3) { // t1 is lowest
-	ttd_ccorr3_update(ccorr, 0, t1);
-	t1 = ttd_fb_pop(&fb1);
+	      ttd_ccorr3_update(ccorr, 0, t1);
+	      t1 = ttd_fb_pop(&fb1);
       }
       else { // t3 is lowest
-	ttd_ccorr3_update(ccorr, 2, t3);
-	t3 = ttd_fb_pop(&fb3);
+	      ttd_ccorr3_update(ccorr, 2, t3);
+	      t3 = ttd_fb_pop(&fb3);
       }
     }
     else { // t2 < t1
       if (t2 <= t3) {
-	ttd_ccorr3_update(ccorr, 1, t2);
-	t2 = ttd_fb_pop(&fb2);
+	      ttd_ccorr3_update(ccorr, 1, t2);
+	      t2 = ttd_fb_pop(&fb2);
       }
       else {
-	ttd_ccorr3_update(ccorr, 2, t3);
-	t3 = ttd_fb_pop(&fb3);
+	      ttd_ccorr3_update(ccorr, 2, t3);
+	      t3 = ttd_fb_pop(&fb3);
       }	
     }
   }
@@ -108,19 +107,17 @@ ttd_ccorr3_t *ttd_g3(char* infile1, char* infile2, char* infile3, int* retcode) 
     else {
       ttd_ccorr3_update(ccorr, ib, tb);
       tb = ttd_fb_pop(fbb);
-      output_buffer_count ++;
     }
   }
 
   while (fba->empty == 0) {
     ttd_ccorr3_update(ccorr, ia, ta);
-    ta = ttd_fb_pop(&fb1);
+    ta = ttd_fb_pop(fba);
   }
 
   while (fbb->empty == 0) {
     ttd_ccorr3_update(ccorr, ib, tb);
     tb = ttd_fb_pop(fbb);
-    output_buffer_count ++;
   }
 
  fb3_cleanup:

@@ -1,6 +1,7 @@
 #ifndef __STDC_FORMAT_MACROS
 #define __STDC_FORMAT_MACROS
 #endif
+
 #include <stdio.h>
 #include <inttypes.h>
 #include <stddef.h>
@@ -15,12 +16,12 @@
 #include "ttd_crosscorr4.h"
 #include "ttd_filebuffer.h"
 
-ttd_ccorr4_t *ttd_g4(char* infile1, char* infile2, char* infile3, char* infile4, int* retcode) {
+ttd_ccorr4_t *ttd_g4(char *infile1, char *infile2, char *infile3, char *infile4, int *retcode) {
 
   int64_t output_buffer_count = 0;
   //uint64_t t1, t2, t3, t4, ta, tb, tc, count;
   uint64_t count, times[4], times_alt[4];
-  int i,j,k; //counters
+  int i, j, k; //counters
 
   ttd_ccorr4_t *ccorr = ttd_ccorr4_build(g4_cli_args.bin_time, g4_cli_args.window_time, 1024);
 
@@ -29,7 +30,7 @@ ttd_ccorr4_t *ttd_g4(char* infile1, char* infile2, char* infile3, char* infile4,
 
   // Initialize buffers
   *retcode = ttd_fb_init(&fbs[0], g4_cli_args.block_size, infile1, 0);
-  if (retcode < 0) 
+  if (retcode < 0)
     goto fb1_cleanup;
 
   *retcode = ttd_fb_init(&fbs[1], g4_cli_args.block_size, infile2, 0);
@@ -46,7 +47,7 @@ ttd_ccorr4_t *ttd_g4(char* infile1, char* infile2, char* infile3, char* infile4,
 
 
   // Read out first records
-  for (i=0; i<4; i++) {
+  for (i = 0; i < 4; i++) {
     times[i] = ttd_fb_pop(&fbs[i]);
   }
 
@@ -58,10 +59,10 @@ ttd_ccorr4_t *ttd_g4(char* infile1, char* infile2, char* infile3, char* infile4,
     // Find least time
     least_index = 0;
     least_time = times[0];
-    for (i=1; i<4; i++) {
+    for (i = 1; i < 4; i++) {
       if (times[i] < least_time) {
-	least_index = i;
-	least_time = times[i];
+        least_index = i;
+        least_time = times[i];
       }
     }
 
@@ -70,30 +71,30 @@ ttd_ccorr4_t *ttd_g4(char* infile1, char* infile2, char* infile3, char* infile4,
     times[least_index] = ttd_fb_pop(&fbs[least_index]);
 
     // Check for emptyness
-    for (i=0; i<4; i++) {
+    for (i = 0; i < 4; i++) {
       num_empty += fbs[i].empty;
     }
   }
 
   // Loop again, this time with extra conditionals for empty buffers.
   int empty[4];
-  int start=1;
-  for (i=0; i<4; i++) {
+  int start = 1;
+  for (i = 0; i < 4; i++) {
     empty[i] = fbs[i].empty;
   }
   while (num_empty < 4) {
     // Find least time
-    for (i=0; i<4; i++) {
+    for (i = 0; i < 4; i++) {
       if (empty[i] == 0) {
-	if (start==1) {
-	  least_index = i;
-	  least_time = times[i];
-	  start = 0;
-	}
-	else if (times[i] < least_time) {
-	  least_index = i;
-	  least_time = times[i];
-	}
+        if (start == 1) {
+          least_index = i;
+          least_time = times[i];
+          start = 0;
+        }
+        else if (times[i] < least_time) {
+          least_index = i;
+          least_time = times[i];
+        }
       }
     }
 
@@ -102,35 +103,35 @@ ttd_ccorr4_t *ttd_g4(char* infile1, char* infile2, char* infile3, char* infile4,
     times[least_index] = ttd_fb_pop(&fbs[least_index]);
 
     // Check for emptyness
-    for (i=0; i<4; i++) {
-      if (empty[i]==0) {
-	num_empty += fbs[i].empty;
-	empty[i] = fbs[i].empty;
+    for (i = 0; i < 4; i++) {
+      if (empty[i] == 0) {
+        num_empty += fbs[i].empty;
+        empty[i] = fbs[i].empty;
       }
     }
 
     // Reset start variable for next loop
-    start=1;
+    start = 1;
   }
 
 
- fb4_cleanup:
+  fb4_cleanup:
   ttd_fb_cleanup(&fbs[3]);
 
- fb3_cleanup:
+  fb3_cleanup:
   ttd_fb_cleanup(&fbs[2]);
 
- fb2_cleanup:
+  fb2_cleanup:
   ttd_fb_cleanup(&fbs[1]);
 
- fb1_cleanup:
+  fb1_cleanup:
   ttd_fb_cleanup(&fbs[0]);
 
-  return(ccorr);
+  return (ccorr);
 }
 
-int main(int argc, char* argv[]) {
-  int retcode, exitcode=0;
+int main(int argc, char *argv[]) {
+  int retcode, exitcode = 0;
 
   retcode = g4_read_cli(argc, argv);
 
@@ -152,7 +153,7 @@ int main(int argc, char* argv[]) {
   char *infile4 = g4_cli_args.infiles[3];
 
   char *outfile = g4_cli_args.outfile;
-  
+
   if (infile1 == NULL) {
     printf("Error: Missing input file 1. Please specify with the '-1' flag.\n");
     exitcode = -1;
@@ -187,19 +188,19 @@ int main(int argc, char* argv[]) {
 
 
   // Allocate the filename for the times csv. '-times.csv'
-  char *times_fname=append_before_extension("-times", outfile);
+  char *times_fname = append_before_extension("-times", outfile);
 
   // Write said times csv and free string from previous line
   ttd_ccorr4_write_times_csv(g4_ccorr, times_fname);
   free(times_fname);
 
- cleanup_ccorr:
+  cleanup_ccorr:
   ttd_ccorr4_cleanup(g4_ccorr);
   free(g4_ccorr);
 
- cleanup_g4_cli:
+  cleanup_g4_cli:
   g4_cli_cleanup();
-  
- exit_block:
+
+  exit_block:
   exit(exitcode);
 }

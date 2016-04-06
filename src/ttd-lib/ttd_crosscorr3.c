@@ -65,11 +65,16 @@ void ttd_ccorr3_update(ttd_ccorr3_t *ccorr, int rb_num, ttd_t time) {
   ttd_rb_prune(ccorr->rbs[1], time);
   ttd_rb_prune(ccorr->rbs[2], time);
 
-  ttd_rb_t *other_rb1 = ccorr->rbs[other_rbs[rb_num][0]];
-  ttd_rb_t *other_rb2 = ccorr->rbs[other_rbs[rb_num][1]];
+  int otherRbNum0, otherRbNum1;
 
-  int other_rb1_count = other_rb1->count;
-  int other_rb2_count = other_rb2->count;
+  otherRbNum0 = other_rbs[rb_num][0];
+  otherRbNum1 = other_rbs[rb_num][1];
+
+  ttd_rb_t *other_rb1 = ccorr->rbs[otherRbNum0];
+  ttd_rb_t *other_rb2 = ccorr->rbs[otherRbNum1];
+
+  int32_t other_rb1_count = other_rb1->count;
+  int32_t other_rb2_count = other_rb2->count;
 
   int64_t delta_t1, delta_t2;
   int m, n, delta_bins1, delta_bins2;
@@ -79,19 +84,19 @@ void ttd_ccorr3_update(ttd_ccorr3_t *ccorr, int rb_num, ttd_t time) {
   if ((other_rb1_count > 0) && (other_rb2_count > 0)) {
     for (m=0; m < other_rb2_count; m++) {
       for (n=0; n < other_rb1_count; n++) {
-	times[other_rbs[rb_num][0]] = ttd_rb_get(other_rb1, n);
-	times[other_rbs[rb_num][1]] = ttd_rb_get(other_rb2, m);
+	      times[otherRbNum0] = ttd_rb_get(other_rb1, n);
+	      times[otherRbNum1] = ttd_rb_get(other_rb2, m);
 
-	// Column Delta
-	delta_t1 = times[1] - times[0];
-	delta_bins1 = (int)(ccorr->center_bin + int64_rounded_divide(delta_t1, ccorr->bin_time));
+	      // Column Delta
+	      delta_bins1 = (ccorr->center_bin + int64_rounded_divide(times[1] - times[0], (int64_t)ccorr->bin_time));
 
-	// Row Delta
-	delta_t2 = times[2] - times[0];
-	delta_bins2 = (int)(ccorr->center_bin + int64_rounded_divide(delta_t2, ccorr->bin_time));
+	      // Row Delta
+	      delta_bins2 = (ccorr->center_bin + int64_rounded_divide(times[2] - times[0], (int64_t)ccorr->bin_time));
 
-	// tau1 is on the rows and tau2 is on the columns
-	++ ccorr->hist[delta_bins2 + ccorr->num_bins*delta_bins1];
+        // tau1 is on the rows and tau2 is on the columns
+        if ((delta_bins1 > 0) && (delta_bins2 > 0)) {
+          ++ ccorr->hist[delta_bins2 + ccorr->num_bins*delta_bins1];
+        }
       }
     }
   }
@@ -119,7 +124,7 @@ char* append_before_extension(char* to_append, char* old_filename) {
   int i, old_len = strlen(old_filename), app_len=strlen(to_append);
   int new_len = old_len + app_len + 1;
   int has_period = 0, period_index;
-  char *new_str = (char *)malloc(new_len*sizeof(char));
+  char *new_str = (char *)calloc(new_len, sizeof(char));
 
   // Try to find last period
   for (i=old_len-1; i>=0; i--) {

@@ -137,12 +137,12 @@ void pq_fb_update_active(pq_fb_t *buffer) {
   buffer->num_active_channels = count;
 }
 
-void pq_fb_enable_channel(pq_fb_t *buffer, int16_t channel) {
+void pq_fb_enable_channel(pq_fb_t *buffer, size_t channel) {
   buffer->channel_active[channel] = 1;
   pq_fb_update_active(buffer);
 }
 
-void pq_fb_disable_channel(pq_fb_t *buffer, int16_t channel) {
+void pq_fb_disable_channel(pq_fb_t *buffer, size_t channel) {
   buffer->channel_active[channel] = 0;
   pq_fb_update_active(buffer);
 }
@@ -213,7 +213,7 @@ uint64_t pq_fb_get_block(pq_fb_t *buffer) {
   return num_photons;
 }
 
-int pq_fb_get_next(pq_fb_t *buffer, ttd_t *recTime, int16_t *recChannel) {
+int pq_fb_get_next(pq_fb_t *buffer, ttd_t *recTime, size_t *recChannel) {
   if (buffer->empty) {
     return -1;
   }

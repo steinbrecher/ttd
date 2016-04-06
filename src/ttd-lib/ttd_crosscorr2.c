@@ -56,8 +56,9 @@ void ttd_ccorr2_update(ttd_ccorr2_t *ccorr, int rb_num, ttd_t time) {
   // Prune both ringbuffers
   ttd_rb_prune(ccorr->rbs[0], time);
   ttd_rb_prune(ccorr->rbs[1], time);
+
   // Sign is 1 if rb_num is 1, -1 if it's 0 (i.e. delta_t = rb2_time - rb1_time)
-  int other_rb_num = 1-rb_num;
+  int other_rb_num = 1 - rb_num;
   ttd_rb_t *other_rb = ccorr->rbs[other_rb_num];
   int other_rb_count = other_rb->count;
 
@@ -83,7 +84,7 @@ void ttd_ccorr2_update(ttd_ccorr2_t *ccorr, int rb_num, ttd_t time) {
   }
 }
 
-void ttd_ccorr2_write_csv(ttd_ccorr2_t *ccorr, char *file_name, int normalize, int int_time, ttd_t write_window) {
+void ttd_ccorr2_write_csv(ttd_ccorr2_t *ccorr, char *file_name, int normalize, ttd_t int_time, ttd_t write_window) {
   FILE *output_file = fopen(file_name, "wb");
   int64_t window_time = ccorr->window_time;
   int m;

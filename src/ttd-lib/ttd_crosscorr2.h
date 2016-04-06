@@ -28,7 +28,7 @@ ttd_ccorr2_t *ttd_ccorr2_build(ttd_t bin_time, ttd_t window_time, int rb_size);
 
 void ttd_ccorr2_update(ttd_ccorr2_t *ccorr, int rb_num, ttd_t time);
 
-void ttd_ccorr2_write_csv(ttd_ccorr2_t *ccorr, char *file_name, int normalize, int int_time, ttd_t write_window);
+void ttd_ccorr2_write_csv(ttd_ccorr2_t *ccorr, char *file_name, int normalize, ttd_t int_time, ttd_t write_window);
 
 void ttd_ccorr2_cleanup(ttd_ccorr2_t *ccorr);
 

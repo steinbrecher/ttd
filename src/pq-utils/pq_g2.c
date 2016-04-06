@@ -24,6 +24,108 @@
 
 #define PROGRESS_BAR_ENABLE
 
+#ifdef PROGRESS_BAR_ENABLE
+void draw_progress_bar(int shmid, int64_t num_records) {
+  struct timeb currentTime;
+  double startTime, runTime;
+
+  ftime(&currentTime);
+  startTime = (currentTime.time + (double)(currentTime.millitm)/1000.0);
+
+  int64_t i, lastVal;
+  int64_t *shvals;
+  double progress, nextBarProgress;
+  double stepBarProgress;
+  double timeSoFar, timeRemaining;
+  int64_t nFails = 0;
+
+  int64_t numBarSteps, totalBarSteps;
+
+  nextBarProgress = 0.0;
+  stepBarProgress = 1.0 / 40.0;
+
+  numBarSteps = 0;
+  totalBarSteps = (int64_t)round(1.0 / stepBarProgress) + 1;
+
+  struct timespec waitTime, remTime;
+  // Set waitTime to be 50ms
+  waitTime.tv_nsec = 50000000;
+  waitTime.tv_sec = 0;
+
+  // Get shared memory
+  shvals = (int64_t *) shmat(shmid, 0, SHM_RND);
+  if (shvals == NULL) {
+    perror("shmat");
+    exit(1);
+  }
+
+  fprintf(stderr, CURSOROFF "");
+
+  // Use second value in array as done flag
+  while (shvals[1] == 0) {
+    nanosleep(&waitTime, &remTime);
+    lastVal = shvals[0];
+    progress = ((double)shvals[0])/num_records;
+    // Check for stalled parent
+    if (shvals[0] == 0) {
+      nFails++;
+      if (nFails >= 5) {
+        fprintf(stderr, KNRM KCYN KRED "\nERROR: No progress is being made. Exiting...\n" KNRM CURSORON);
+        // Detach shared mem
+        shmdt(shvals);
+        shmctl(shmid, IPC_RMID, NULL);
+        perror("parent died");
+        exit(1);
+      }
+    }
+    else {
+      nFails = 0;
+      //lastVal = shvals[0];
+    }
+    // See if we need to draw more progress bar fills
+    if (progress >= nextBarProgress) {
+      // Update counter for progress bar (# of populated spaces)
+      numBarSteps++;
+      nextBarProgress += stepBarProgress;
+    }
+
+    // Draw progress bar
+    fprintf(stderr, CURSOROFF "\r");
+    fprintf(stderr, KNRM KCYN KRED "[");
+    for(i=0; i < numBarSteps; i++) {
+      fprintf(stderr, "=");
+    }
+    fprintf(stderr, ">");
+    for (i=0; i<(totalBarSteps - numBarSteps - 1); i++) {
+      fprintf(stderr, " ");
+    }
+    fprintf(stderr, "] %3.0f%% Done", 100*progress);
+    fflush(stderr);
+
+    // Calculate predicted time remaining
+    ftime(&currentTime);
+
+    timeSoFar = (currentTime.time + (double)(currentTime.millitm)/1000.0) - startTime;
+    timeRemaining = ((double)timeSoFar) * (1.0/progress - 1.0);
+    fprintf(stderr, " (%4.02f seconds remaining) " KNRM CURSORON, timeRemaining);
+
+  }
+  fprintf(stderr, "\r" KNRM KBGRN KBLD "[");
+  for(i=0; i < totalBarSteps; i++) {
+    fprintf(stderr, "=");
+  }
+  fprintf(stderr, ">] %3.0f%% Done", 100.0);
+  fprintf(stderr, " (%4.02f seconds remaining)", 0.0);
+  fprintf(stderr, "\n" KNRM);
+  fprintf(stderr, CURSORON "");
+  // Detach shared mem
+  shmdt(shvals);
+  //
+  exit(0);
+
+}
+#endif //PROGRESS_BAR_ENABLED
+
 int pq_g2_many(char* infile, char* outfile_prefix) {
   int retcode=0;
 
@@ -32,7 +134,7 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
   pq_fb_init(&fb, infile);
 
   // Set active channels
-  int16_t i,j;
+  size_t i,j;
   int64_t channel_offsets[PQ_HH_MAX_CHANNELS];
   int64_t min_offset = 0;
   for (i=0; i<PQ_HH_MAX_CHANNELS; i++) {
@@ -47,16 +149,15 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
       //pq_fb_disable_channel(&fb, i);
       channel_offsets[i] = 0;
     }
-    //printf("Offset channel %d by %d\n", i, channel_offsets[i]);
   }
 
   // Make all offsets non-negative, and set filebuffer offsets
   for (i=0; i<PQ_HH_MAX_CHANNELS; i++) {
-    fb.channel_offsets[i] = channel_offsets[i] + (-1 * min_offset);
+    fb.channel_offsets[i] = (ttd_t)(channel_offsets[i] + (-1 * min_offset));
   }
 
-  // Allocate and initialize the correlation structures
-  int16_t nPairs = (fb.num_active_channels * (fb.num_active_channels-1)) / 2;
+  // Allocate and initialize the g2 correlation structures
+  size_t nPairs = (fb.num_active_channels * (fb.num_active_channels-1)) / 2;
   ttd_ccorr2_t ccorrs[nPairs];
   for (i=0; i<nPairs; i++) {
     ttd_ccorr2_init(ccorrs + i,
@@ -65,14 +166,16 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
                     pq_g2_cli_args.rb_size);
   }
 
+  // Allocate and initialize the g3 correlation structures
+
   // Select the pairings for cross-correlation
-  int16_t num_active_channels = fb.num_active_channels;
-  int16_t ccorr_pairs[nPairs][2];
+  size_t num_active_channels = fb.num_active_channels;
+  size_t ccorr_pairs[nPairs][2];
   int64_t count;
-  int16_t chanToActiveNum[PQ_HH_MAX_CHANNELS];
+  size_t chanToActiveNum[PQ_HH_MAX_CHANNELS];
 
   // Back up which channels are active
-  int16_t active_channels[PQ_HH_MAX_CHANNELS];
+  size_t active_channels[PQ_HH_MAX_CHANNELS];
   memcpy(active_channels, fb.active_channels, PQ_HH_MAX_CHANNELS);
 
   // Reverse lookup for active num
@@ -92,7 +195,7 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
   // Precompute correlation lookups
   // Each of the N channels is a member of N-1 ccorr structures
   ttd_ccorr2_t *ccorrLookup[num_active_channels][num_active_channels-1];
-  int16_t ccorrNumLookup[num_active_channels][num_active_channels-1];
+  size_t ccorrNumLookup[num_active_channels][num_active_channels-1];
 
 
   for (i=0; i<num_active_channels; i++) {
@@ -134,106 +237,18 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
 
   /* Child process for drawing progress bar */
   if (fork()==0) {
+    draw_progress_bar(shmid, fb.file_info.num_records);
 
-    int64_t lastVal;
-    double progress, nextBarProgress;
-    double stepBarProgress;
-    double timeSoFar, timeRemaining;
-    int64_t nFails = 0;
-
-    int64_t numBarSteps, totalBarSteps;
-
-    nextBarProgress = 0.0;
-    stepBarProgress = 1.0 / 40.0;
-
-    numBarSteps = 0;
-    totalBarSteps = (int64_t)round(1.0 / stepBarProgress) + 1;
-
-    struct timespec waitTime, remTime;
-    // Set waitTime to be 50ms
-    waitTime.tv_nsec = 50000000;
-    waitTime.tv_sec = 0;
-
-    // Get shared memory
-    shvals = (int64_t *) shmat(shmid, 0, SHM_RND);
-    if (shvals == NULL) {
-      perror("shmat");
-      exit(1);
-    }
-    //fprintf(stderr, "\n");
-    fprintf(stderr, CURSOROFF "");
-
-     // Use second value in array as done flag
-    while (shvals[1] == 0) {
-      nanosleep(&waitTime, &remTime);
-      lastVal = shvals[0];
-      progress = ((double)shvals[0])/fb.file_info.num_records;
-      // Check for stalled parent
-      if (shvals[0] == 0) {
-        nFails++;
-        if (nFails >= 5) {
-          fprintf(stderr, KNRM KCYN KRED "\nERROR: No progress is being made. Exiting...\n" KNRM CURSORON);
-          // Detach shared mem
-          shmdt(shvals);
-          shmctl(shmid, IPC_RMID, NULL);
-          perror("parent died");
-          exit(1);
-        }
-      }
-      else {
-        nFails = 0;
-        //lastVal = shvals[0];
-      }
-      // See if we need to draw more progress bar fills
-      if (progress >= nextBarProgress) {
-        // Update counter for progress bar (# of populated spaces)
-        numBarSteps++;
-        nextBarProgress += stepBarProgress;
-      }
-
-      // Draw progress bar
-      fprintf(stderr, CURSOROFF "\r");
-      fprintf(stderr, KNRM KCYN KRED "[");
-      for(i=0; i < numBarSteps; i++) {
-        fprintf(stderr, "=");
-      }
-      fprintf(stderr, ">");
-      for (i=0; i<(totalBarSteps - numBarSteps - 1); i++) {
-        fprintf(stderr, " ");
-      }
-      fprintf(stderr, "] %3.0f%% Done", 100*progress);
-      fflush(stderr);
-
-      // Calculate predicted time remaining
-      ftime(&currentTime);
-
-      timeSoFar = (currentTime.time + (double)(currentTime.millitm)/1000.0) - startTime;
-      timeRemaining = ((double)timeSoFar) * (1.0/progress - 1.0);
-      fprintf(stderr, " (%4.02f seconds remaining) " KNRM CURSORON, timeRemaining);
-
-    }
-    fprintf(stderr, "\r" KNRM KBGRN KBLD "[");
-    for(i=0; i < totalBarSteps; i++) {
-      fprintf(stderr, "=");
-    }
-    fprintf(stderr, ">] %3.0f%% Done", 100.0);
-    fprintf(stderr, " (%4.02f seconds remaining)", 0.0);
-    fprintf(stderr, "\n" KNRM);
-    fprintf(stderr, CURSORON "");
-    // Detach shared mem
-    shmdt(shvals);
-    //
-    exit(0);
   }
 
 #endif
 
   // Loop over photons
-  ttd_t photonTime;
-  int16_t chan, activeNum;
+  ttd_t photonTime=0;
+  size_t chan=0, activeNum=0;
   retcode = 0;
   ttd_ccorr2_t *ccorrPtr;
-  int rbNum;
+  size_t rbNum;
   while ((fb.empty == 0)&&(retcode==0)) {
     activeNum = chanToActiveNum[chan];
     // Get next photon
@@ -276,7 +291,7 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
     numSeen = fb.num_read_per_channel[chan];
     fprintf(stderr,
             KHEAD2 KCYN "  %d: " KNUMBER "%'" PRId64 " " KRATE "(%'0.01f Hz)\n",
-            chan, (int64_t)numSeen, (double)numSeen / intTime);
+            (int)chan, (int64_t)numSeen, (double)numSeen / intTime);
     totalCounts += numSeen;
   }
 
@@ -284,8 +299,8 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
   for (i=0; i<nPairs; i++) {
     fprintf(stderr,
             KHEAD2 KCYN "  %d-%d: " KNUMBER "%'" PRIu64 " " KRATE "(%'0.01f Hz)\n",
-            active_channels[ccorr_pairs[i][0]],
-            active_channels[ccorr_pairs[i][1]],
+            (int)active_channels[ccorr_pairs[i][0]],
+            (int)active_channels[ccorr_pairs[i][1]],
             ccorrs[i].total_coinc,
             (double)ccorrs[i].total_coinc/intTime);
     totalCoinc += ccorrs[i].total_coinc;
@@ -301,11 +316,11 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
   char outfile[strlen(outfile_prefix)+20];
   for (i=0; i<nPairs; i++) {
     if(ccorrs[i].total_coinc == 0) {
-      fprintf(stderr, KHEAD1 "WARNING" KHEAD2 ": Correlation between channels %d and %d had no counts.\n" KNRM,
-             active_channels[ccorr_pairs[i][0]], active_channels[ccorr_pairs[i][1]]);
+      fprintf(stderr, KHEAD1 "WARNING" KHEAD2 ": Correlation between channels %d and %d had no coincidences.\n" KNRM,
+              (int)active_channels[ccorr_pairs[i][0]], (int)active_channels[ccorr_pairs[i][1]]);
       continue;
     }
-    sprintf(outfile, "%s_%d-%d.csv",
+    sprintf(outfile, "%s_%lu-%lu.csv",
             outfile_prefix,
             active_channels[ccorr_pairs[i][0]],
             active_channels[ccorr_pairs[i][1]]);
