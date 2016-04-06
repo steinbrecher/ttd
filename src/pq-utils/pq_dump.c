@@ -35,11 +35,11 @@ int main(int argc, char* argv[]) {
   }
 
   ttd_t time;
-  int16_t channel;
+  size_t channel;
   uint64_t i;
   while (!(fb.empty)) {
     pq_fb_get_next(&fb, &time, &channel);
-    printf("%" PRId16 ": %" PRIu64 "\n", channel, time);
+    printf("%lu: %" PRIu64 "\n", channel, time);
   }
 
   pq_fb_cleanup(&fb);

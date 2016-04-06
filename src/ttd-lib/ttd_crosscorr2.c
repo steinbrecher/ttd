@@ -9,10 +9,10 @@
 #include "ttd_crosscorr2.h"
 
 void ttd_ccorr2_init(ttd_ccorr2_t *ccorr, ttd_t bin_time, ttd_t window_time, size_t rb_size) {
-  ttd_rb_t *rb1 = ttd_rb_build(rb_size, window_time);
+  ccorr->rbs[0] = ttd_rb_build(rb_size, window_time);
   ccorr->rbs_allocated[0] = 1;
 
-  ttd_rb_t *rb2 = ttd_rb_build(rb_size, window_time);
+  ccorr->rbs[1] = ttd_rb_build(rb_size, window_time);
   ccorr->rbs_allocated[1] = 1;
 
   ccorr->bin_time = bin_time;
@@ -26,8 +26,6 @@ void ttd_ccorr2_init(ttd_ccorr2_t *ccorr, ttd_t bin_time, ttd_t window_time, siz
   ccorr->rbs_counts[0] = 0;
   ccorr->rbs_counts[1] = 0;
 
-  ccorr->rbs[0] = rb1;
-  ccorr->rbs[1] = rb2;
   ccorr->hist = (ttd_t *)calloc(num_bins, sizeof(ttd_t));
   if (ccorr->hist != NULL) {
     ccorr->hist_allocated = 1;

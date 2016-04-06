@@ -13,10 +13,7 @@
 #include "ttd_ringbuffer.h"
 #include "ttd_crosscorr3.h"
 
-void ttd_ccorr3_init(ttd_ccorr3_t *ccorr, ttd_t bin_time, ttd_t window_time, ttd_rb_t *rb1, ttd_rb_t *rb2, ttd_rb_t *rb3) {
-//  ttd_t bin_time = g3_cli_args.bin_time;
-//  ttd_t window_time = g3_cli_args.window_time;
-
+void ttd_ccorr3_init(ttd_ccorr3_t *ccorr, ttd_t bin_time, ttd_t window_time, size_t rb_size) {
   ccorr->bin_time = bin_time;
   ccorr->window_time = window_time;
 
@@ -24,32 +21,29 @@ void ttd_ccorr3_init(ttd_ccorr3_t *ccorr, ttd_t bin_time, ttd_t window_time, ttd
 
   ccorr->num_bins = num_bins;
   ccorr->center_bin = (num_bins - 1)/2;
+  ccorr->total_coinc = 0;
 
   ccorr->rbs_counts[0] = 0;
   ccorr->rbs_counts[1] = 0;
   ccorr->rbs_counts[2] = 0;
-  
-  ccorr->rbs[0] = rb1;
-  ccorr->rbs[1] = rb2;
-  ccorr->rbs[2] = rb3;
+
+  ccorr->rbs[0] = ttd_rb_build(rb_size, window_time);
+  ccorr->rbs_allocated[0] = 1;
+
+  ccorr->rbs[1] = ttd_rb_build(rb_size, window_time);
+  ccorr->rbs_allocated[1] = 1;
+
+  ccorr->rbs[2] = ttd_rb_build(rb_size, window_time);
+  ccorr->rbs_allocated[2] = 1;
 
   ccorr->hist = (ttd_t *)calloc(sizeof(ttd_t *), num_bins * num_bins); 
   ccorr->hist_allocated = 1;
 }
 
-ttd_ccorr3_t *ttd_ccorr3_build(ttd_t bin_time, ttd_t window_time, int rb_size) {
+ttd_ccorr3_t *ttd_ccorr3_build(ttd_t bin_time, ttd_t window_time, size_t rb_size) {
   ttd_ccorr3_t *ccorr = (ttd_ccorr3_t *)malloc(sizeof(ttd_ccorr3_t));
 
-  ttd_rb_t *rb1 = ttd_rb_build(rb_size, window_time);
-  ccorr->rbs_allocated[0] = 1;
-
-  ttd_rb_t *rb2 = ttd_rb_build(rb_size, window_time);
-  ccorr->rbs_allocated[1] = 1;
-
-  ttd_rb_t *rb3 = ttd_rb_build(rb_size, window_time);
-  ccorr->rbs_allocated[2] = 1;
-
-  ttd_ccorr3_init(ccorr, bin_time, window_time, rb1, rb2, rb3);
+  ttd_ccorr3_init(ccorr, bin_time, window_time, rb_size);
   return ccorr;
 }
 
@@ -96,6 +90,7 @@ void ttd_ccorr3_update(ttd_ccorr3_t *ccorr, int rb_num, ttd_t time) {
         // tau1 is on the rows and tau2 is on the columns
         if ((delta_bins1 > 0) && (delta_bins2 > 0)) {
           ++ ccorr->hist[delta_bins2 + ccorr->num_bins*delta_bins1];
+          ++ ccorr->total_coinc;
         }
       }
     }

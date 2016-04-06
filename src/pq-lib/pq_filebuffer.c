@@ -24,7 +24,7 @@ int pq_fb_init(pq_fb_t *buffer, char* filename) {
   buffer->lastTime = 0;
 
   // Initialize Ringbuffers
-  int i;
+  size_t i;
   for (i=0; i<PQ_HH_MAX_CHANNELS; i++) {
     ttd_rb_init(&(buffer->rbs[i]), 2*PHOTONBLOCK, 0);
   }
@@ -81,7 +81,7 @@ int pq_fb_init(pq_fb_t *buffer, char* filename) {
 
   // Disable channels that aren't in use
   for (i=buffer->file_info.num_channels+1; i<PQ_HH_MAX_CHANNELS; i++) {
-    pq_fb_disable_channel(buffer, (int16_t)i);
+    pq_fb_disable_channel(buffer, i);
   }
 
   // Allocate block for photon records
@@ -101,7 +101,7 @@ int pq_fb_init(pq_fb_t *buffer, char* filename) {
     pq_fb_closefile(buffer);
   }
 //  _Bool anyEmpty = 0;
-  int16_t chan;
+  size_t chan;
   //printf("Num active: %d\n", buffer->num_active_channels);
   for (i=0; i<buffer->num_active_channels; i++) {
     chan = buffer->active_channels[i];
@@ -125,7 +125,7 @@ int pq_fb_init(pq_fb_t *buffer, char* filename) {
 }
 
 void pq_fb_update_active(pq_fb_t *buffer) {
-  int16_t i, count;
+  size_t i, count;
   count = 0;
   for (i=0; i<PQ_HH_MAX_CHANNELS; i++) {
     if (buffer->channel_active[i]) {
