@@ -6,11 +6,11 @@
 //static ttd_t rb_duration;
 
 typedef struct {
-    int32_t size;		      // Max number of elems
-    int32_t start;		      // Index of oldest element
-    int32_t count;	      // Number of active elements
-    int32_t times_allocated;
+    size_t size;          // Max number of elems
+    size_t start;          // Index of oldest element
+    size_t count;        // Number of active elements
     int32_t duration;
+    _Bool times_allocated;
 
     //int allocated;
     //ttd_t duration;
