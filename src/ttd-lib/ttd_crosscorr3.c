@@ -93,6 +93,45 @@ void ttd_ccorr3_update(ttd_ccorr3_t *ccorr, size_t rb_num, ttd_t time) {
   }
 }
 
+void ttd_ccorr3_update_no_insert(ttd_ccorr3_t *ccorr, size_t rb_num, ttd_t time) {
+  int otherRbNum0, otherRbNum1;
+
+  otherRbNum0 = other_rbs[rb_num][0];
+  otherRbNum1 = other_rbs[rb_num][1];
+
+  ttd_rb_t *other_rb1 = ccorr->rbs[otherRbNum0];
+  ttd_rb_t *other_rb2 = ccorr->rbs[otherRbNum1];
+
+  size_t  other_rb1_count = other_rb1->count;
+  size_t other_rb2_count = other_rb2->count;
+
+  size_t m, n;
+  int64_t delta_bins1, delta_bins2;
+  ttd_t times[3];
+
+  times[rb_num] = time;
+  if ((other_rb1_count > 0) && (other_rb2_count > 0)) {
+    for (m=0; m < other_rb2_count; m++) {
+      for (n=0; n < other_rb1_count; n++) {
+        times[otherRbNum0] = ttd_rb_get(other_rb1, n);
+        times[otherRbNum1] = ttd_rb_get(other_rb2, m);
+
+        // Column Delta
+        delta_bins1 = ((int64_t)ccorr->center_bin + int64_rounded_divide(times[1] - times[0], (int64_t)ccorr->bin_time));
+
+        // Row Delta
+        delta_bins2 = ((int64_t)ccorr->center_bin + int64_rounded_divide(times[2] - times[0], (int64_t)ccorr->bin_time));
+
+        // tau1 is on the rows and tau2 is on the columns
+        if ((delta_bins1 >= 0) && (delta_bins2 >= 0)) {
+          ++ ccorr->hist[delta_bins2 + delta_bins1 * ccorr->num_bins];
+          ++ ccorr->total_coinc;
+        }
+      }
+    }
+  }
+}
+
 void ttd_ccorr3_write_csv(ttd_ccorr3_t *ccorr, char *file_name) {
   FILE *output_file = fopen(file_name, "wb");
   ttd_t bin_time = ccorr->bin_time;

@@ -28,6 +28,7 @@ void ttd_ccorr4_init(ttd_ccorr4_t *ccorr, ttd_t bin_time, ttd_t window_time, siz
 ttd_ccorr4_t *ttd_ccorr4_build(ttd_t bin_time, ttd_t window_time, size_t rb_size);
 
 void ttd_ccorr4_update(ttd_ccorr4_t *ccorr, size_t rb_num, ttd_t time);
+void ttd_ccorr4_update_no_insert(ttd_ccorr4_t *ccorr, size_t rb_num, ttd_t time);
 
 void ttd_ccorr4_write_csv(ttd_ccorr4_t *ccorr, char *file_name);
 

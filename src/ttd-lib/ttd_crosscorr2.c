@@ -43,7 +43,8 @@ ttd_ccorr2_t *ttd_ccorr2_build(ttd_t bin_time, ttd_t window_time, size_t rb_size
   return ccorr;
 }
 
-// Note: Unlike in previous versions, rb_num is the channel the photon *did* arrive on
+// Per-photon-arrival function that updates the correlation histogram and prunes the ringbuffers
+// rb_num is the channel the photon arrived on
 void ttd_ccorr2_update(ttd_ccorr2_t *ccorr, size_t rb_num, ttd_t time) {
   // Insert into the appropriate ringbuffer
   ttd_rb_insert(ccorr->rbs[rb_num], time);
@@ -54,6 +55,37 @@ void ttd_ccorr2_update(ttd_ccorr2_t *ccorr, size_t rb_num, ttd_t time) {
   // Prune both ringbuffers
   ttd_rb_prune(ccorr->rbs[0], time);
   ttd_rb_prune(ccorr->rbs[1], time);
+
+  // Sign is 1 if rb_num is 1, -1 if it's 0 (i.e. delta_t = rb2_time - rb1_time)
+  size_t other_rb_num = 1 - rb_num;
+  ttd_rb_t *other_rb = ccorr->rbs[other_rb_num];
+  size_t other_rb_count = other_rb->count;
+
+
+  int64_t times[2], delta_bins;
+  int n;
+  size_t start, size;
+  times[rb_num] = (int64_t)time;
+
+  if (other_rb->count > 0) {
+    start = other_rb->start;
+    size = other_rb->size;
+    for (n=0; n < other_rb_count; n++) {
+      //times[other_rb_num] = ttd_rb_get(other_rb, n);
+      times[other_rb_num] = other_rb->times[(start + n) % size];
+      delta_bins = ((int64_t)ccorr->center_bin +
+                    int64_rounded_divide(times[1]-times[0], (int64_t)ccorr->bin_time));
+      if (delta_bins >= 0) {
+        ++ ccorr->hist[delta_bins];
+        ++ ccorr->total_coinc;
+      }
+    }
+  }
+}
+
+void ttd_ccorr2_update_no_insert(ttd_ccorr2_t *ccorr, size_t rb_num, ttd_t time) {
+  // Increment the local totals counter (could be globalized also)
+  ccorr->rbs_counts[rb_num]++;
 
   // Sign is 1 if rb_num is 1, -1 if it's 0 (i.e. delta_t = rb2_time - rb1_time)
   size_t other_rb_num = 1 - rb_num;

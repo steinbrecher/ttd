@@ -182,46 +182,64 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
     return(-1);
   }
 
-
-
   // num_pairs = Choose[num_active, 2]
   size_t num_pairs = num_active * (num_active - 1);
   num_pairs /= 2;
 
-  // Allocate and initialize the g2 correlation structures
+  // Allocate and initialize the g2 correlation structures, freeing the ringbuffers
   ttd_ccorr2_t g2_ccorrs[num_pairs];
   for (i=0; i<num_pairs; i++) {
     ttd_ccorr2_init(g2_ccorrs + i,
                     pq_gn_cli_args.bin_time,
                     pq_gn_cli_args.padded_window_time,
                     pq_gn_cli_args.rb_size);
+    for (j=0; j<2; j++) {
+      ttd_rb_cleanup(g2_ccorrs[i].rbs[j]);
+      free(g2_ccorrs[i].rbs[j]);
+      g2_ccorrs[i].rbs_allocated[j] = 0;
+    }
   }
 
+  // Allocate and initialize global ringbuffers
+  ttd_rb_t global_rbs[num_active];
+  for (i=0; i<num_active; i++) {
+    ttd_rb_init(&global_rbs[i], pq_gn_cli_args.rb_size, pq_gn_cli_args.padded_window_time);
+  }
 
   // num_triplets = Choose[num_active, 3]
   size_t num_triplets = num_active * (num_active - 1) * (num_active - 2);
   num_triplets /= 6;
 
-  // Allocate and initialize the g3 correlation structures
+  // Allocate and initialize the g3 correlation structures, freeing the ringbuffers
   ttd_ccorr3_t g3_ccorrs[num_triplets];
   for (i=0; i<num_triplets; i++) {
     ttd_ccorr3_init(g3_ccorrs + i,
                     pq_gn_cli_args.bin_time,
                     pq_gn_cli_args.window_time,
                     pq_gn_cli_args.rb_size);
+    for (j=0; j<3; j++) {
+      ttd_rb_cleanup(g3_ccorrs[i].rbs[j]);
+      free(g3_ccorrs[i].rbs[j]);
+      g3_ccorrs[i].rbs_allocated[j] = 0;
+    }
   }
 
   // num_quads = Choose[num_active, 4]
   size_t num_quads = num_active * (num_active - 1) * (num_active - 2) * (num_active - 3);
   num_quads /= 24;
 
-  // Allocate and initialize the g4 correlation structures
+  // Allocate and initialize the g4 correlation structures, freeing the ringbuffers
   ttd_ccorr4_t g4_ccorrs[num_quads];
   for (i=0; i<num_quads; i++) {
     ttd_ccorr4_init(g4_ccorrs + i,
                     pq_gn_cli_args.bin_time,
                     pq_gn_cli_args.window_time,
                     pq_gn_cli_args.rb_size);
+    for (j=0; j<4; j++) {
+      ttd_rb_cleanup(g4_ccorrs[i].rbs[j]);
+      free(g4_ccorrs[i].rbs[j]);
+      g4_ccorrs[i].rbs_allocated[j] = 0;
+    }
   }
 
   // Back up which channels are active
@@ -235,6 +253,7 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
   }
 
   // Select the pairings for g2 cross-correlation
+  // Also assign the global g2 ringbuffers
   size_t ccorr_pairs[num_pairs][2];
   size_t count;
   count = 0;
@@ -242,6 +261,8 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
     for (j=i+1; j<num_active; j++) {
       ccorr_pairs[count][0] = i;
       ccorr_pairs[count][1] = j;
+      g2_ccorrs[count].rbs[0] = &global_rbs[i];
+      g2_ccorrs[count].rbs[1] = &global_rbs[j];
       count++;
     }
   }
@@ -255,6 +276,9 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
         ccorr_triplets[count][0] = i;
         ccorr_triplets[count][1] = j;
         ccorr_triplets[count][2] = k;
+        g3_ccorrs[count].rbs[0] = &global_rbs[i];
+        g3_ccorrs[count].rbs[1] = &global_rbs[j];
+        g3_ccorrs[count].rbs[2] = &global_rbs[k];
         count++;
       }
     }
@@ -271,6 +295,10 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
           ccorr_quads[count][1] = j;
           ccorr_quads[count][2] = k;
           ccorr_quads[count][3] = l;
+          g4_ccorrs[count].rbs[0] = &global_rbs[i];
+          g4_ccorrs[count].rbs[1] = &global_rbs[j];
+          g4_ccorrs[count].rbs[2] = &global_rbs[k];
+          g4_ccorrs[count].rbs[3] = &global_rbs[l];
           count++;
         }
       }
@@ -403,6 +431,12 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
     retcode = pq_fb_get_next(&fb, &photonTime, &chan);
     activeNum = chanToActiveNum[chan];
 
+    // Update the photon ringbuffers
+    ttd_rb_insert(&global_rbs[activeNum], photonTime);
+    for(j=0; j<num_active; j++) {
+      ttd_rb_prune(&global_rbs[j], photonTime);
+    }
+
     // Update the g2s
     if (run_g2) {
       for (i = 0; i < num_g2_friends; i++) {
@@ -410,7 +444,7 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
         // Results in null pointer being passed under certain situations
         g2_ccorr_ptr = g2_ccorr_lookup[activeNum][i];
         rbNum = g2_ccorr_num_lookup[activeNum][i];
-        ttd_ccorr2_update(g2_ccorr_ptr, rbNum, photonTime);
+        ttd_ccorr2_update_no_insert(g2_ccorr_ptr, rbNum, photonTime);
       }
     }
 
@@ -419,7 +453,7 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
       for (i = 0; i < num_g3_friends; i++) {
         g3_ccorr_ptr = g3_ccorr_lookup[activeNum][i];
         rbNum = g3_ccorr_num_lookup[activeNum][i];
-        ttd_ccorr3_update(g3_ccorr_ptr, rbNum, photonTime);
+        ttd_ccorr3_update_no_insert(g3_ccorr_ptr, rbNum, photonTime);
       }
     }
 
@@ -428,7 +462,7 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
       for (i = 0; i < num_g4_friends; i++) {
         g4_ccorr_ptr = g4_ccorr_lookup[activeNum][i];
         rbNum = g4_ccorr_num_lookup[activeNum][i];
-        ttd_ccorr4_update(g4_ccorr_ptr, rbNum, photonTime);
+        ttd_ccorr4_update_no_insert(g4_ccorr_ptr, rbNum, photonTime);
       }
     }
 
@@ -671,7 +705,10 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
     }
   }
 
-
+  // Clean up global ringbuffers
+  for(i=0; i<num_active; i++) {
+    ttd_rb_cleanup(&global_rbs[i]);
+  }
 
   // Clean up g2 correlations
   for (i=0; i<num_pairs; i++) {

@@ -12,7 +12,7 @@ typedef struct {
     size_t center_bin;
 
     int64_t total_coinc;
-    uint64_t rbs_counts[2];
+    uint64_t rbs_counts[2]; // Per-ring-buffer tallies; used for normalization
 
     _Bool rbs_allocated[2];
     ttd_rb_t *rbs[2];
@@ -26,6 +26,8 @@ void ttd_ccorr2_init(ttd_ccorr2_t *ccorr, ttd_t bin_time, ttd_t window_time, siz
 ttd_ccorr2_t *ttd_ccorr2_build(ttd_t bin_time, ttd_t window_time, size_t rb_size);
 
 void ttd_ccorr2_update(ttd_ccorr2_t *ccorr, size_t rb_num, ttd_t time);
+
+void ttd_ccorr2_update_no_insert(ttd_ccorr2_t *ccorr, size_t rb_num, ttd_t time);
 
 void ttd_ccorr2_write_csv(ttd_ccorr2_t *ccorr, char *file_name, int normalize, ttd_t int_time, ttd_t write_window);
 
