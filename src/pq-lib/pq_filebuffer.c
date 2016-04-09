@@ -267,6 +267,8 @@ int pq_fb_get_next(pq_fb_t *buffer, ttd_t *recTime, size_t *recChannel) {
 
       // Check to see which (if any) remaining channels have zero counts
       _Bool disableChannels[PQ_HH_MAX_CHANNELS];
+      // Initialize disableChannels
+      memset(disableChannels, 0, PQ_HH_MAX_CHANNELS * sizeof(_Bool));
       for (i=0; i<buffer->num_active_channels; i++) {
         if (buffer->active_rbs[i]->count == 0) {
           disableChannels[buffer->active_channels[i]] = 1;

@@ -313,8 +313,12 @@ int pq_parse_header(FILE *fp, pq_fileinfo_t *file_info) {
     file_info->num_channels = 2;
     fseek(fp, image_header_size*sizeof(pq_image_header_record), SEEK_CUR);
   }
-
-  file_info->sync_period = (ttd_t) round(1e12 / ((double)file_info->sync_rate));
+  if (file_info->sync_rate > 0) {
+    file_info->sync_period = (ttd_t) round(1e12 / ((double) file_info->sync_rate));
+  }
+  else {
+    file_info->sync_period = 0;
+  }
 
  exit_block:
   return(retcode);

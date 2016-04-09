@@ -10,7 +10,7 @@
 #define TTD_MAX_TIME 0xFFFFFFFFFFFFFFFF
 typedef uint64_t ttd_t;
 
-static const char _ttd_version_string[] = "0.3.0";
+static const char _ttd_version_string[] = "0.4.0";
 void ttd_print_version(char* program_name);
 
 ttd_t ttd_rounded_divide(ttd_t t1, ttd_t t2);

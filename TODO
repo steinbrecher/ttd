@@ -4,21 +4,10 @@ Ideas for future work:
   Would probably be best accomplished by compiling the g^(2) code as a shared
   library and then linking it to a bare-bones .mex implementation. 
 
-* Fix edge errors for g2 correlations. Probably need to extend window by 1 bin 
-  and drop first/last bins before output.
-
-* Calculate all orders of correlations between input files and output to CSV,
-  so that we don't have to run through the files so many times
-
-* Write a filebuffer group to handle getting next photon from multiple channels
-
 * Convert API (esp. variables for filenames, buffers, etc.) to be universally
   zero-indexed.
 
 * Write to .mat and/or .h5 files rather than CSV
-
-* Run correlations directly on picoquant files rather than requiring conversion
-  to .ttd (halfway done, need to finish pq_filebuffer)
 
 * Output channel markers as .ttd files
 
