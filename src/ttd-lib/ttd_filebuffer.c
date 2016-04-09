@@ -3,23 +3,14 @@
 #endif
 #include <stdio.h>
 #include <inttypes.h>
-#include <stddef.h>
 #include <stdlib.h>
-#include <math.h>
 #include <string.h>
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
 
 #include "ttd.h"
 #include "ttd_filebuffer.h"
 
-//#include "ttz.h"
-
 char *get_extension(char* filename) {
-  int i, dot_index = -1;
+  int i;
   char *extension = (char *)malloc(4*sizeof(char));
 
   for (i=0; i<3; i++) {
@@ -29,7 +20,7 @@ char *get_extension(char* filename) {
   return extension;
 }
 
-int ttd_fb_openfile(ttd_fb_t *buffer, char* filename) {
+int ttd_fb_openfile(ttd_fb_t *buffer) {
   if ((buffer->fp = fopen(buffer->filename, "rb")) == NULL) {
     printf("ERROR: Could not open %s for reading\n", buffer->filename);
     return TTD_FB_FILE_OPEN_ERROR;
@@ -73,7 +64,7 @@ int ttd_fb_init(ttd_fb_t *buffer, uint64_t buffer_size, char* filename, int64_t 
     buffer->compressed = 0;
   }*/
   buffer->file_open = 0;
-  retcode = ttd_fb_openfile(buffer, buffer->filename);
+  retcode = ttd_fb_openfile(buffer);
 
   if (retcode < 0) {
     ttd_fb_cleanup(buffer);
@@ -104,7 +95,7 @@ int ttd_fb_cleanup(ttd_fb_t *buffer) {
 }
 
 ttd_t ttd_fb_pop(ttd_fb_t *buffer) {
-  ttd_t event_time;
+  ttd_t event_time = 0;
   if (buffer->empty == 1) {
     fprintf(stderr, "Error: ttd_fb_pop called on empty buffer. Zero returned; bug present in calling code.\n");
     return(0);

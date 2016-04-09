@@ -19,7 +19,7 @@ void ttd_ccorr2_init(ttd_ccorr2_t *ccorr, ttd_t bin_time, ttd_t window_time, siz
   ccorr->window_time = window_time;
   ccorr->total_coinc = 0;
 
-  int num_bins = (int)(2*ttd_rounded_divide(ccorr->window_time, ccorr->bin_time) + 1);
+  size_t num_bins = (2*ttd_rounded_divide(ccorr->window_time, ccorr->bin_time) + 1);
   ccorr->num_bins = num_bins;
   ccorr->center_bin = (num_bins - 1)/2;
 
@@ -36,7 +36,7 @@ void ttd_ccorr2_init(ttd_ccorr2_t *ccorr, ttd_t bin_time, ttd_t window_time, siz
   }
 }
 
-ttd_ccorr2_t *ttd_ccorr2_build(ttd_t bin_time, ttd_t window_time, int rb_size) {
+ttd_ccorr2_t *ttd_ccorr2_build(ttd_t bin_time, ttd_t window_time, size_t rb_size) {
   ttd_ccorr2_t *ccorr = (ttd_ccorr2_t *)calloc(1, sizeof(ttd_ccorr2_t));
 
   ttd_ccorr2_init(ccorr, bin_time, window_time, rb_size);
@@ -44,7 +44,7 @@ ttd_ccorr2_t *ttd_ccorr2_build(ttd_t bin_time, ttd_t window_time, int rb_size) {
 }
 
 // Note: Unlike in previous versions, rb_num is the channel the photon *did* arrive on
-void ttd_ccorr2_update(ttd_ccorr2_t *ccorr, int rb_num, ttd_t time) {
+void ttd_ccorr2_update(ttd_ccorr2_t *ccorr, size_t rb_num, ttd_t time) {
   // Insert into the appropriate ringbuffer
   ttd_rb_insert(ccorr->rbs[rb_num], time);
 
@@ -56,9 +56,9 @@ void ttd_ccorr2_update(ttd_ccorr2_t *ccorr, int rb_num, ttd_t time) {
   ttd_rb_prune(ccorr->rbs[1], time);
 
   // Sign is 1 if rb_num is 1, -1 if it's 0 (i.e. delta_t = rb2_time - rb1_time)
-  int other_rb_num = 1 - rb_num;
+  size_t other_rb_num = 1 - rb_num;
   ttd_rb_t *other_rb = ccorr->rbs[other_rb_num];
-  int other_rb_count = other_rb->count;
+  size_t other_rb_count = other_rb->count;
 
 
   int64_t times[2], delta_bins;
@@ -72,7 +72,7 @@ void ttd_ccorr2_update(ttd_ccorr2_t *ccorr, int rb_num, ttd_t time) {
     for (n=0; n < other_rb_count; n++) {
       //times[other_rb_num] = ttd_rb_get(other_rb, n);
       times[other_rb_num] = other_rb->times[(start + n) % size];
-      delta_bins = (ccorr->center_bin +
+      delta_bins = ((int64_t)ccorr->center_bin +
                     int64_rounded_divide(times[1]-times[0], (int64_t)ccorr->bin_time));
       if (delta_bins >= 0) {
         ++ ccorr->hist[delta_bins];

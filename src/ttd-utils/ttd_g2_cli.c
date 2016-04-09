@@ -9,7 +9,7 @@
 #include <math.h>
 #include <inttypes.h>
 
-#include "scitoll.h"
+#include "sci_to_int64.h"
 #include "ttd.h"
 #include "ttd_g2_cli.h"
 
@@ -108,7 +108,7 @@ int ttd_g2_read_cli(int argc, char* argv[]) {
       break;
 
     case 't':
-      ttd_g2_cli_args.int_time = scitoll(optarg, &retcode);
+      ttd_g2_cli_args.int_time = sci_to_int64(optarg, &retcode);
       break;
 
     case 'h':
@@ -134,22 +134,22 @@ int ttd_g2_read_cli(int argc, char* argv[]) {
       break;
 
     case 'b':
-      ttd_g2_cli_args.bin_time = scitoll(optarg, &retcode);
+      ttd_g2_cli_args.bin_time = sci_to_int64(optarg, &retcode);
       bin_time_set = 1;
       break;
     case 'w':
-      ttd_g2_cli_args.window_time = scitoll(optarg, &retcode);
+      ttd_g2_cli_args.window_time = sci_to_int64(optarg, &retcode);
       window_time_set = 1;
       break;
     case 'T':
-      ttd_g2_cli_args.infile2_offset = scitoll(optarg, &retcode);
+      ttd_g2_cli_args.infile2_offset = sci_to_int64(optarg, &retcode);
 
     case 'B':
-      ttd_g2_cli_args.block_size = scitoll(optarg, &retcode);
+      ttd_g2_cli_args.block_size = sci_to_int64(optarg, &retcode);
       break;
 
     case 'R':
-      ttd_g2_cli_args.rb_size = scitoll(optarg, &retcode);
+      ttd_g2_cli_args.rb_size = sci_to_int64(optarg, &retcode);
       break;
 
     default:

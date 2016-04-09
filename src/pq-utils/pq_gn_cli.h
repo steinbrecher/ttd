@@ -4,6 +4,11 @@
 #define PQ_G2_CLI_EXIT_RETCODE 1
 #define PQ_G2_PRINTOPTIONS_NOVERBOSE 1
 
+#define PQ_GN_MAX_CORRELATION_ORDER 4
+
+#define COLORFUL_OUTPUT
+#include "terminal_colors.h" // Draw terminal colors
+
 #include "ttd.h"
 #include "pq_parse.h"
 
@@ -24,6 +29,10 @@ struct {
     int outfile_prefix_allocated;
     char *outfile_prefix; // -o
 
+    // This is padded by 1 to make code more obvious & easier to read
+    // If activeCorrelationOrders[3] == 1, will compute G(3)
+    _Bool activeCorrelationOrders[PQ_GN_MAX_CORRELATION_ORDER + 1]; // -g
+
     ttd_t bin_time; // -b
     ttd_t window_time; // -w
     ttd_t padded_window_time;
@@ -39,6 +48,8 @@ void pq_g2_cli_print_help(char* program_name);
 void pq_g2_print_options(int no_verbose);
 
 int pq_g2_read_cli(int argc, char* argv[]);
+
+int check_pq_g2_cli_args();
 
 void pq_g2_cli_cleanup();
 

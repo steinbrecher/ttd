@@ -6,7 +6,11 @@
 #define SCITOLL_NO_EXPONENT -3
 #define SCITOLL_NEGATIVE -4
 #define SCITOLL_DECIMAL -5
+#define SCITOLL_STRTOLL_FAILED -6
+#define SCITOLL_OVERFLOW -7
+
     
-long long scitoll(char* scinum, int* retcode);
+int64_t sci_to_int64(const char *scinum, int *retcode);
+void sci_to_int64_printerr(const char* scinum, int retcode);
 
 #endif // _SCITOLL_HEADER_SEEN

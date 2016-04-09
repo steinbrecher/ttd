@@ -3,13 +3,9 @@
 #endif
 #include <stdio.h>
 #include <inttypes.h>
-#include <stddef.h>
 #include <stdlib.h>
-#include <math.h>
-#include <string.h>
 
 #include "ttd.h"
-//#include "ttd_g3_cli.h"
 #include "ttd_ringbuffer.h"
 #include "ttd_crosscorr3.h"
 
@@ -17,7 +13,7 @@ void ttd_ccorr3_init(ttd_ccorr3_t *ccorr, ttd_t bin_time, ttd_t window_time, siz
   ccorr->bin_time = bin_time;
   ccorr->window_time = window_time;
 
-  int num_bins = (int)(2*ttd_rounded_divide(window_time, bin_time) + 1);
+  size_t num_bins = 1 + 2 * ttd_rounded_divide(window_time, bin_time);
 
   ccorr->num_bins = num_bins;
   ccorr->center_bin = (num_bins - 1)/2;
@@ -50,7 +46,7 @@ ttd_ccorr3_t *ttd_ccorr3_build(ttd_t bin_time, ttd_t window_time, size_t rb_size
 int other_rbs[3][2] = {{1, 2}, {0, 2}, {0, 1}};
 
 // Note: Unlike in previous versions, rb_num is the channel the photon *did* arrive on
-void ttd_ccorr3_update(ttd_ccorr3_t *ccorr, int rb_num, ttd_t time) {
+void ttd_ccorr3_update(ttd_ccorr3_t *ccorr, size_t rb_num, ttd_t time) {
   // Insert into the appropriate ringbuffer
   ttd_rb_insert(ccorr->rbs[rb_num], time);
 
@@ -67,11 +63,11 @@ void ttd_ccorr3_update(ttd_ccorr3_t *ccorr, int rb_num, ttd_t time) {
   ttd_rb_t *other_rb1 = ccorr->rbs[otherRbNum0];
   ttd_rb_t *other_rb2 = ccorr->rbs[otherRbNum1];
 
-  int32_t other_rb1_count = other_rb1->count;
-  int32_t other_rb2_count = other_rb2->count;
+  size_t  other_rb1_count = other_rb1->count;
+  size_t other_rb2_count = other_rb2->count;
 
-  int64_t delta_t1, delta_t2;
-  int m, n, delta_bins1, delta_bins2;
+  size_t m, n;
+  int64_t delta_bins1, delta_bins2;
   ttd_t times[3];
 
   times[rb_num] = time;
@@ -82,13 +78,13 @@ void ttd_ccorr3_update(ttd_ccorr3_t *ccorr, int rb_num, ttd_t time) {
 	      times[otherRbNum1] = ttd_rb_get(other_rb2, m);
 
 	      // Column Delta
-	      delta_bins1 = (ccorr->center_bin + int64_rounded_divide(times[1] - times[0], (int64_t)ccorr->bin_time));
+	      delta_bins1 = ((int64_t)ccorr->center_bin + int64_rounded_divide(times[1] - times[0], (int64_t)ccorr->bin_time));
 
 	      // Row Delta
-	      delta_bins2 = (ccorr->center_bin + int64_rounded_divide(times[2] - times[0], (int64_t)ccorr->bin_time));
+	      delta_bins2 = ((int64_t)ccorr->center_bin + int64_rounded_divide(times[2] - times[0], (int64_t)ccorr->bin_time));
 
         // tau1 is on the rows and tau2 is on the columns
-        if ((delta_bins1 > 0) && (delta_bins2 > 0)) {
+        if ((delta_bins1 >= 0) && (delta_bins2 >= 0)) {
           ++ ccorr->hist[delta_bins2 + ccorr->num_bins*delta_bins1];
           ++ ccorr->total_coinc;
         }
@@ -101,59 +97,22 @@ void ttd_ccorr3_write_csv(ttd_ccorr3_t *ccorr, char *file_name) {
   FILE *output_file = fopen(file_name, "wb");
   ttd_t bin_time = ccorr->bin_time;
   ttd_t window_time = ccorr->window_time;
-  int num_bins =  ccorr->num_bins;
-  int m,n;
+  size_t num_bins =  ccorr->num_bins;
+  size_t m,n;
+  int64_t dt1, dt2;
+  // Histogram location is [num_bins * dbins1 + dbins2]
+  // i.e. row index is the first delta time, column index the second
 
   for (m=0; m < num_bins; m++) { // Row Loop
-    for (n=0; n < num_bins-1; n++) { // Column loop
-      fprintf(output_file, "%" PRIu64 ", ", ccorr->hist[n + m*num_bins]);
+    dt1 = -1 * (int64_t)(window_time + m*bin_time);
+    for (n=0; n < num_bins; n++) { // Column loop
+      dt2 = -1 * (int64_t)(window_time + n*bin_time);
+      fprintf(output_file,
+              "%" PRId64 ",%" PRId64 ",%" PRIu64 "\n",
+              dt1,
+              dt2,
+              ccorr->hist[n + m*num_bins]);
     }
-    // Pull this out to avoid the trailing comma
-    fprintf(output_file, "%" PRIu64 "\n", ccorr->hist[num_bins - 1 + m*num_bins]);
-  }
-  fclose(output_file);
-}
-
-// Note: Has side-effect of a malloc
-char* append_before_extension(char* to_append, char* old_filename) {
-  int i, old_len = strlen(old_filename), app_len=strlen(to_append);
-  int new_len = old_len + app_len + 1;
-  int has_period = 0, period_index;
-  char *new_str = (char *)calloc(new_len, sizeof(char));
-
-  // Try to find last period
-  for (i=old_len-1; i>=0; i--) {
-    if (old_filename[i] == '.') {
-      has_period = 1;
-      period_index = i;
-      break;
-    }
-  }
-  
-  // If no period found, just copy over the two pieces and return
-  if (has_period == 0) {
-    strncpy(new_str, old_filename, old_len);
-    strncpy(new_str+old_len, to_append, app_len);
-    return(new_str);
-  }
-  
-  // Otherwise, copy over the first string in two pieces with append in middle
-  strncpy(new_str, old_filename, period_index);
-  strncpy(new_str+period_index, to_append, app_len);
-  strncpy(new_str+period_index+app_len, old_filename+period_index, old_len-period_index);
-  return new_str;
-}
-
-void ttd_ccorr3_write_times_csv(ttd_ccorr3_t *ccorr, char *file_name) {
-  FILE *output_file = fopen(file_name, "wb");
-  ttd_t bin_time = ccorr->bin_time;
-  ttd_t window_time = ccorr->window_time;
-  int num_bins = ccorr->num_bins;
-  int n;
-  int64_t time;
-  for (n=0; n<num_bins; n++) {
-    time = -1*(int64_t)window_time + n*(int64_t)bin_time;
-    fprintf(output_file, "%" PRId64 "\n", time);
   }
   fclose(output_file);
 }

@@ -4,45 +4,37 @@
 
 #include <stdio.h>
 #include <inttypes.h>
-#include <stddef.h>
 #include <stdlib.h>
-#include <math.h>
-#include <string.h>
 
 #include "ttd_g4_cli.h"
 
-#include "ttd.h"
-#include "ttd_ringbuffer.h"
 #include "ttd_crosscorr4.h"
 #include "ttd_filebuffer.h"
 
 ttd_ccorr4_t *ttd_g4(char *infile1, char *infile2, char *infile3, char *infile4, int *retcode) {
 
-  int64_t output_buffer_count = 0;
-  //uint64_t t1, t2, t3, t4, ta, tb, tc, count;
-  uint64_t count, times[4], times_alt[4];
-  int i, j, k; //counters
+  uint64_t times[4];
+  size_t i; //counter
 
   ttd_ccorr4_t *ccorr = ttd_ccorr4_build(g4_cli_args.bin_time, g4_cli_args.window_time, 1024);
 
   ttd_fb_t fbs[4];
-  //  ttd_fb_t fb1, fb2, fb3;
 
   // Initialize buffers
   *retcode = ttd_fb_init(&fbs[0], g4_cli_args.block_size, infile1, 0);
-  if (retcode < 0)
+  if (*retcode < 0)
     goto fb1_cleanup;
 
   *retcode = ttd_fb_init(&fbs[1], g4_cli_args.block_size, infile2, 0);
-  if (retcode < 0)
+  if (*retcode < 0)
     goto fb2_cleanup;
 
   *retcode = ttd_fb_init(&fbs[2], g4_cli_args.block_size, infile3, 0);
-  if (retcode < 0)
+  if (*retcode < 0)
     goto fb3_cleanup;
 
   *retcode = ttd_fb_init(&fbs[3], g4_cli_args.block_size, infile4, 0);
-  if (retcode < 0)
+  if (*retcode < 0)
     goto fb4_cleanup;
 
 
@@ -53,12 +45,10 @@ ttd_ccorr4_t *ttd_g4(char *infile1, char *infile2, char *infile3, char *infile4,
 
   // Loop over files while all four still have records; this is bulk of operation and we can
   // skip a lot of inner-loop conditionals while all four are non-empty
-  int num_empty = 0, least_index;
-  ttd_t least_time;
+  size_t num_empty = 0;
+  size_t least_index = 0;
+  ttd_t least_time = times[0];
   while (num_empty == 0) {
-    // Find least time
-    least_index = 0;
-    least_time = times[0];
     for (i = 1; i < 4; i++) {
       if (times[i] < least_time) {
         least_index = i;
@@ -186,21 +176,11 @@ int main(int argc, char *argv[]) {
 
   ttd_ccorr4_write_csv(g4_ccorr, outfile);
 
-
-  // Allocate the filename for the times csv. '-times.csv'
-  char *times_fname = append_before_extension("-times", outfile);
-
-  // Write said times csv and free string from previous line
-  ttd_ccorr4_write_times_csv(g4_ccorr, times_fname);
-  free(times_fname);
-
-  cleanup_ccorr:
   ttd_ccorr4_cleanup(g4_ccorr);
   free(g4_ccorr);
 
   cleanup_g4_cli:
   g4_cli_cleanup();
 
-  exit_block:
   exit(exitcode);
 }

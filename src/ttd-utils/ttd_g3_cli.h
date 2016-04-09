@@ -7,27 +7,27 @@
 #include "ttd.h"
 
 struct {
-  int verbose; // -v
+  _Bool verbose; // -v
 
-  int infiles_allocated[3];
+  _Bool infiles_allocated[3];
 
   char *infile1; // -1
   char *infile2; // -2
   char *infile3; // -3
 
-  int outfile_allocated;
+  _Bool outfile_allocated;
   char *outfile; // -o
 
   ttd_t bin_time; // -b
   ttd_t window_time; // -w
 
-  int block_size; // -B
+  size_t block_size; // -B
 
 } g3_cli_args;
 
 void g3_cli_print_help(char* program_name);
 
-void g3_cli_print_options(int no_verbose);
+void g3_cli_print_options(_Bool no_verbose);
 
 int g3_read_cli(int argc, char* argv[]);
 

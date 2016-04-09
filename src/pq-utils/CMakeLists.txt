@@ -4,7 +4,7 @@ add_executable(pq-dump pq_dump.c)
 target_link_libraries(pq-dump LINK_PUBLIC pq-filebuffer)
 
 # Compute g2 cross-correlation of photon counts directly from the picoquant file
-add_executable(pq-g2 pq_g2.c pq_g2_cli.c)
-target_link_libraries(pq-g2 LINK_PUBLIC pq-filebuffer ttd-crosscorr2 ttd-crosscorr3 ttd-filebuffer scitoll)
+add_executable(pq-gn pq_gn.c pq_gn_cli.c)
+target_link_libraries(pq-gn LINK_PUBLIC pq-filebuffer ttd-crosscorr2 ttd-crosscorr3 ttd-crosscorr4 ttd-filebuffer sci_to_int64 terminal_colors)
 
-install (TARGETS pq-dump pq-g2 DESTINATION bin)
+install (TARGETS pq-dump pq-gn DESTINATION bin)

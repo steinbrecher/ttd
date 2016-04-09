@@ -7,25 +7,25 @@
 #include "ttd.h"
 
 struct {
-  int verbose; // -v
+  _Bool verbose; // -v
 
-  int infiles_allocated[4];
+  _Bool infiles_allocated[4];
 
   char *infiles[4]; // -1 thru -4
 
-  int outfile_allocated;
+  _Bool outfile_allocated;
   char *outfile; // -o
 
   ttd_t bin_time; // -b
   ttd_t window_time; // -w
 
-  int block_size; // -B
+  size_t block_size; // -B
 
 } g4_cli_args;
 
 void g4_cli_print_help(char* program_name);
 
-void g4_cli_print_options();
+void g4_cli_print_options(int no_verbose);
 
 int g4_read_cli(int argc, char* argv[]);
 

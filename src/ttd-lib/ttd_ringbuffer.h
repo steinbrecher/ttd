@@ -9,7 +9,7 @@ typedef struct {
     size_t size;          // Max number of elems
     size_t start;          // Index of oldest element
     size_t count;        // Number of active elements
-    int32_t duration;
+    ttd_t duration;
     _Bool times_allocated;
 
     //int allocated;
@@ -17,13 +17,13 @@ typedef struct {
     ttd_t *times;
 } ttd_rb_t;
 
-void ttd_rb_init(ttd_rb_t *rb, int size, ttd_t duration);
+void ttd_rb_init(ttd_rb_t *rb, size_t size, ttd_t duration);
 
-ttd_rb_t *ttd_rb_build(int size, ttd_t duration);
+ttd_rb_t *ttd_rb_build(size_t size, ttd_t duration);
 
-ttd_t ttd_rb_get(ttd_rb_t *rb, int offset);
+ttd_t ttd_rb_get(ttd_rb_t *rb, size_t offset);
 
-ttd_t ttd_rb_peek(ttd_rb_t *rb);
+//ttd_t ttd_rb_peek(ttd_rb_t *rb);
 
 int ttd_rb_insert(ttd_rb_t *rb, ttd_t time);
 

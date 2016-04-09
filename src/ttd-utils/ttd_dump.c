@@ -3,12 +3,7 @@
 #endif
 #include <stdio.h>
 #include <inttypes.h>
-#include <stddef.h>
 #include <stdlib.h>
-#include <math.h>
-#include <getopt.h>
-#include <time.h>
-#include <string.h>
 
 #include "ttd.h"
 

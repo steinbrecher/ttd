@@ -11,7 +11,7 @@
 
 #include "ttd.h"
 #include "ttd_filebuffer.h"
-#include "scitoll.h"
+#include "sci_to_int64.h"
 
 #define TTD_SHIFT_EXIT 1
 
@@ -98,7 +98,7 @@ int ttd_shift_read_cli(int argc, char* argv[]) {
       break;
 
     case 'T':
-      ttd_shift_cli_args.delay = scitoll(optarg, &retcode);
+      ttd_shift_cli_args.delay = sci_to_int64(optarg, &retcode);
       if (retcode < 0) {
 	switch(retcode) {
 	case SCITOLL_MULTIPLE_E:

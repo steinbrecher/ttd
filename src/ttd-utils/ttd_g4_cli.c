@@ -3,13 +3,11 @@
 #endif
 #include <stdio.h>
 #include <stdlib.h>
-#include <stddef.h>
 #include <getopt.h>
 #include <string.h>
-#include <math.h>
 #include <inttypes.h>
 
-#include "scitoll.h"
+#include "sci_to_int64.h"
 #include "ttd_g4_cli.h"
 
 static const struct option ttd_g4_longopts[] = {
@@ -35,7 +33,7 @@ static const char *ttd_g4_optstring = "Vhv1:2:3:4:o:T:b:w:B:";
 
 void g4_cli_print_help(char* program_name) {
   // Need a string of spaces equal in length to the program name
-  int len = strlen(program_name)+1;
+  size_t len = strlen(program_name)+1;
   char pn_spaces[len];
   int i;
   for (i=0; i<len-1; i++) {
@@ -86,12 +84,10 @@ int g4_read_cli(int argc, char* argv[]) {
     case 'V':
       ttd_print_version(argv[0]);
       return(G4_CLI_EXIT_RETCODE);
-      break;
 
     case 'h':
       g4_cli_print_help(argv[0]);
       return(G4_CLI_EXIT_RETCODE);
-      break;
 
     case '1':
       g4_cli_args.infiles[0] = (char *)malloc((strlen(optarg)+1)*sizeof(char));
@@ -123,16 +119,16 @@ int g4_read_cli(int argc, char* argv[]) {
       break;
 
     case 'b':
-      g4_cli_args.bin_time = scitoll(optarg, &retcode);
+      g4_cli_args.bin_time = (ttd_t)sci_to_int64(optarg, &retcode);
       bin_time_set = 1;
       break;
     case 'w':
-      g4_cli_args.window_time = scitoll(optarg, &retcode);
+      g4_cli_args.window_time = (ttd_t)sci_to_int64(optarg, &retcode);
       window_time_set = 1;
       break;
 
     case 'B':
-      g4_cli_args.block_size = scitoll(optarg, &retcode);
+      g4_cli_args.block_size = (ttd_t)sci_to_int64(optarg, &retcode);
       break;
 
     default:
@@ -168,7 +164,7 @@ void g4_cli_print_options(int no_verbose) {
 
   printf("Bin time: %" PRIu64 " ps\n", g4_cli_args.bin_time);
   printf("Window time: %" PRIu64 " ps\n", g4_cli_args.window_time);
-  printf("Block size: %d records\n", g4_cli_args.block_size);
+  printf("Block size: %lu records\n", g4_cli_args.block_size);
 }  
 
 void g4_cli_cleanup() {

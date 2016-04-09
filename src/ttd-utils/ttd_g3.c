@@ -3,15 +3,10 @@
 #endif
 #include <stdio.h>
 #include <inttypes.h>
-#include <stddef.h>
 #include <stdlib.h>
-#include <math.h>
-#include <string.h>
 
 #include "ttd_g3_cli.h"
 
-#include "ttd.h"
-#include "ttd_ringbuffer.h"
 #include "ttd_crosscorr3.h"
 #include "ttd_filebuffer.h"
 
@@ -67,7 +62,7 @@ ttd_ccorr3_t *ttd_g3(char* infile1, char* infile2, char* infile3, int* retcode) 
 
   // Clean up remaining pair of channels
   ttd_fb_t *fba, *fbb;
-  int ia, ib;
+  size_t ia, ib;
   if (fb1.empty == 1) {
     fba = &fb2;
     fbb = &fb3;
@@ -78,7 +73,7 @@ ttd_ccorr3_t *ttd_g3(char* infile1, char* infile2, char* infile3, int* retcode) 
     ia = 1;
     ib = 2;
   }
-  else if (fb2.empty == 2) {
+  else if (fb2.empty == 1) {
     fba = &fb1;
     fbb = &fb3;
 
@@ -180,19 +175,11 @@ int main(int argc, char* argv[]) {
 
   ttd_ccorr3_write_csv(g3_ccorr, outfile);
 
-
-  // Allocate the filename for the times csv. '-times.csv'
-  char *times_fname=append_before_extension("-times", outfile);
-  ttd_ccorr3_write_times_csv(g3_ccorr, times_fname);
-  free(times_fname);
-
- cleanup_ccorr:
   ttd_ccorr3_cleanup(g3_ccorr);
   free(g3_ccorr);
 
  cleanup_g3_cli:
   g3_cli_cleanup();
   
- exit_block:
   exit(exitcode);
 }
