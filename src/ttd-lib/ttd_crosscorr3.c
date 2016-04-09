@@ -85,7 +85,7 @@ void ttd_ccorr3_update(ttd_ccorr3_t *ccorr, size_t rb_num, ttd_t time) {
 
         // tau1 is on the rows and tau2 is on the columns
         if ((delta_bins1 >= 0) && (delta_bins2 >= 0)) {
-          ++ ccorr->hist[delta_bins2 + ccorr->num_bins*delta_bins1];
+          ++ ccorr->hist[delta_bins2 + delta_bins1 * ccorr->num_bins];
           ++ ccorr->total_coinc;
         }
       }
