@@ -140,9 +140,9 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
   int64_t channel_offsets[PQ_HH_MAX_CHANNELS];
   int64_t min_offset = 0;
   for (i=0; i<PQ_HH_MAX_CHANNELS; i++) {
-    if (pq_g2_cli_args.channel_active[i]) {
+    if (pq_gn_cli_args.channel_active[i]) {
       //pq_fb_enable_channel(&fb, i);
-      channel_offsets[i] = pq_g2_cli_args.channel_offset[i];
+      channel_offsets[i] = pq_gn_cli_args.channel_offset[i];
       if (channel_offsets[i] < min_offset) {
         min_offset = channel_offsets[i];
       }
@@ -160,6 +160,30 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
 
   size_t num_active = fb.num_active_channels;
 
+  _Bool run_g2, run_g3, run_g4;
+  run_g2 = pq_gn_cli_args.activeCorrelationOrders[2];
+  run_g3 = pq_gn_cli_args.activeCorrelationOrders[3];
+  run_g4 = pq_gn_cli_args.activeCorrelationOrders[4];
+
+  _Bool too_few_channels = 0;
+  if (num_active < 2) {
+    fprintf(stderr, "Error: need at least two active channels.\n");
+    too_few_channels = 1;
+  }
+  for (i=2; i < PQ_GN_MAX_CORRELATION_ORDER; i++) {
+    if ((num_active < i) && (pq_gn_cli_args.activeCorrelationOrders[i])) {
+      fprintf(stderr, "Error: need at least %lu active channels for G(%lu)\n", i, i);
+      too_few_channels = 1;
+    }
+  }
+
+  if (too_few_channels) {
+    pq_fb_cleanup(&fb);
+    return(-1);
+  }
+
+
+
   // num_pairs = Choose[num_active, 2]
   size_t num_pairs = num_active * (num_active - 1);
   num_pairs /= 2;
@@ -168,9 +192,9 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
   ttd_ccorr2_t g2_ccorrs[num_pairs];
   for (i=0; i<num_pairs; i++) {
     ttd_ccorr2_init(g2_ccorrs + i,
-                    pq_g2_cli_args.bin_time,
-                    pq_g2_cli_args.padded_window_time,
-                    pq_g2_cli_args.rb_size);
+                    pq_gn_cli_args.bin_time,
+                    pq_gn_cli_args.padded_window_time,
+                    pq_gn_cli_args.rb_size);
   }
 
 
@@ -182,9 +206,9 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
   ttd_ccorr3_t g3_ccorrs[num_triplets];
   for (i=0; i<num_triplets; i++) {
     ttd_ccorr3_init(g3_ccorrs + i,
-                    pq_g2_cli_args.bin_time,
-                    pq_g2_cli_args.window_time,
-                    pq_g2_cli_args.rb_size);
+                    pq_gn_cli_args.bin_time,
+                    pq_gn_cli_args.window_time,
+                    pq_gn_cli_args.rb_size);
   }
 
   // num_quads = Choose[num_active, 4]
@@ -195,9 +219,9 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
   ttd_ccorr4_t g4_ccorrs[num_quads];
   for (i=0; i<num_quads; i++) {
     ttd_ccorr4_init(g4_ccorrs + i,
-                    pq_g2_cli_args.bin_time,
-                    pq_g2_cli_args.window_time,
-                    pq_g2_cli_args.rb_size);
+                    pq_gn_cli_args.bin_time,
+                    pq_gn_cli_args.window_time,
+                    pq_gn_cli_args.rb_size);
   }
 
   // Back up which channels are active
@@ -374,11 +398,6 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
   ttd_ccorr4_t *g4_ccorr_ptr;
   size_t rbNum;
 
-  _Bool run_g2, run_g3, run_g4;
-  run_g2 = pq_g2_cli_args.activeCorrelationOrders[2];
-  run_g3 = pq_g2_cli_args.activeCorrelationOrders[3];
-  run_g4 = pq_g2_cli_args.activeCorrelationOrders[4];
-
   while ((fb.empty == 0)&&(retcode==0)) {
     // Get next photon
     retcode = pq_fb_get_next(&fb, &photonTime, &chan);
@@ -519,8 +538,8 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
               outfile_prefix,
               active_channels[ccorr_pairs[i][0]],
               active_channels[ccorr_pairs[i][1]]);
-      ttd_ccorr2_write_csv(&g2_ccorrs[i], outfile, pq_g2_cli_args.normalize, pq_g2_cli_args.int_time,
-                           pq_g2_cli_args.window_time);
+      ttd_ccorr2_write_csv(&g2_ccorrs[i], outfile, pq_gn_cli_args.normalize, pq_gn_cli_args.int_time,
+                           pq_gn_cli_args.window_time);
     }
   }
 
@@ -595,8 +614,8 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
               outfile_prefix);
 
       // Write output
-      ttd_ccorr2_write_csv(&g2_ccorrs[0], outfile, pq_g2_cli_args.normalize, pq_g2_cli_args.int_time,
-                           pq_g2_cli_args.window_time);
+      ttd_ccorr2_write_csv(&g2_ccorrs[0], outfile, pq_gn_cli_args.normalize, pq_gn_cli_args.int_time,
+                           pq_gn_cli_args.window_time);
     }
   }
 
@@ -676,26 +695,26 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
 int main(int argc, char* argv[]) {
   int retcode, exitcode=0;
 
-  retcode = pq_g2_read_cli(argc, argv);
+  retcode = pq_gn_read_cli(argc, argv);
 
   if (retcode < 0) {
     exitcode = retcode;
     goto cleanup_pq_g2_cli;
   }
-  else if (retcode == PQ_G2_CLI_EXIT_RETCODE) {
+  else if (retcode == PQ_GN_CLI_EXIT_RETCODE) {
     goto cleanup_pq_g2_cli;
   }
 
-  if (check_pq_g2_cli_args() != 0) {
+  if (check_pq_gn_cli_args() != 0) {
     goto cleanup_pq_g2_cli;
   }
 
   fprintf(stderr, "\n\t\t" KHEAD1 "Time Tagged Data Processor" KNRM ": G(N) Cross-Correlation Calculator\n\n" KNRM);
 
-  //if (pq_g2_cli_args.verbose) {
-    pq_g2_print_options(PQ_G2_PRINTOPTIONS_NOVERBOSE);
+  //if (pq_gn_cli_args.verbose) {
+  pq_gn_print_options(PQ_GN_PRINTOPTIONS_NOVERBOSE);
   //}
-  char *outfile_prefix = pq_g2_cli_args.outfile_prefix;
+  char *outfile_prefix = pq_gn_cli_args.outfile_prefix;
 
   if (outfile_prefix == NULL) {
     printf("Error: Missing output file prefix. Please specify with the '-o' flag.\n");
@@ -703,10 +722,10 @@ int main(int argc, char* argv[]) {
     goto cleanup_pq_g2_cli;
   }
 
-  pq_g2_many(pq_g2_cli_args.infile, outfile_prefix);
+  pq_g2_many(pq_gn_cli_args.infile, outfile_prefix);
 
   cleanup_pq_g2_cli:
-  pq_g2_cli_cleanup();
+  pq_gn_cli_cleanup();
   fprintf(stderr, "\n");
 
   exit(exitcode);

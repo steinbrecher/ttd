@@ -1,8 +1,8 @@
-#ifndef _PQ_G2_CLI_HEADER
-#define _PQ_G2_CLI_HEADER
+#ifndef _PQ_GN_CLI_HEADER
+#define _PQ_GN_CLI_HEADER
 
-#define PQ_G2_CLI_EXIT_RETCODE 1
-#define PQ_G2_PRINTOPTIONS_NOVERBOSE 1
+#define PQ_GN_CLI_EXIT_RETCODE 1
+#define PQ_GN_PRINTOPTIONS_NOVERBOSE 1
 
 #define PQ_GN_MAX_CORRELATION_ORDER 4
 
@@ -41,17 +41,17 @@ struct {
     size_t block_size; // -B
     size_t rb_size; // -R
 
-} pq_g2_cli_args;
+} pq_gn_cli_args;
 
-void pq_g2_cli_print_help(char* program_name);
+void pq_gn_cli_print_help(char *program_name);
 
-void pq_g2_print_options(int no_verbose);
+void pq_gn_print_options(int no_verbose);
 
-int pq_g2_read_cli(int argc, char* argv[]);
+int pq_gn_read_cli(int argc, char **argv);
 
-int check_pq_g2_cli_args();
+int check_pq_gn_cli_args();
 
-void pq_g2_cli_cleanup();
+void pq_gn_cli_cleanup();
 
 
 #endif

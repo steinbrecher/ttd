@@ -12,7 +12,7 @@
 #include "ttd.h"
 #include "pq_gn_cli.h"
 
-static const struct option pq_g2_longopts[] = {
+static const struct option pq_gn_longopts[] = {
         { "version", no_argument, NULL, 'V' },
         { "help", no_argument, NULL, 'h' },
 
@@ -35,9 +35,9 @@ static const struct option pq_g2_longopts[] = {
         { "ringbuffer-size", required_argument, NULL, 'R' },
 };
 
-static const char *pq_g2_optstring = "Vhvg:Ni:d:o:T:b:w:B:R:";
+static const char *pq_gn_optstring = "Vhvg:Ni:d:o:T:b:w:B:R:";
 
-void pq_g2_cli_print_help(char* program_name) {
+void pq_gn_cli_print_help(char *program_name) {
   // Need a string of spaces equal in length to the program name
   size_t len = strlen(program_name)+1;
   char pn_spaces[len];
@@ -118,33 +118,33 @@ int16_t parse_delay(char* input, int16_t *channel, int64_t *delay) {
   return 0;
 }
 
-int pq_g2_read_cli(int argc, char* argv[]) {
+int pq_gn_read_cli(int argc, char **argv) {
   int i, retcode=0;
   // Initialize default values
-  pq_g2_cli_args.verbose = 1;
-  pq_g2_cli_args.normalize = 0;
-  pq_g2_cli_args.int_time = 0;
+  pq_gn_cli_args.verbose = 1;
+  pq_gn_cli_args.normalize = 0;
+  pq_gn_cli_args.int_time = 0;
 
   int bin_time_set = 0;
-  pq_g2_cli_args.bin_time = 10;
+  pq_gn_cli_args.bin_time = 10;
 
   int window_time_set = 0;
-  pq_g2_cli_args.window_time = 10000;
-  pq_g2_cli_args.channel2_offset = 0;
+  pq_gn_cli_args.window_time = 10000;
+  pq_gn_cli_args.channel2_offset = 0;
 
-  pq_g2_cli_args.block_size = 16384;
-  pq_g2_cli_args.rb_size = 1024;
+  pq_gn_cli_args.block_size = 16384;
+  pq_gn_cli_args.rb_size = 1024;
 
-  pq_g2_cli_args.infile_allocated = 0;
-  pq_g2_cli_args.outfile_prefix_allocated = 0;
+  pq_gn_cli_args.infile_allocated = 0;
+  pq_gn_cli_args.outfile_prefix_allocated = 0;
 
   for(i=0; i<PQ_HH_MAX_CHANNELS; i++) {
-    pq_g2_cli_args.channel_offset[i] = 0;
-    pq_g2_cli_args.channel_active[i] = 1;
+    pq_gn_cli_args.channel_offset[i] = 0;
+    pq_gn_cli_args.channel_active[i] = 1;
   }
 
   for(i=0; i<= PQ_GN_MAX_CORRELATION_ORDER; i++) {
-    pq_g2_cli_args.activeCorrelationOrders[i] = 0;
+    pq_gn_cli_args.activeCorrelationOrders[i] = 0;
   }
 
   int16_t channel;
@@ -155,12 +155,12 @@ int pq_g2_read_cli(int argc, char* argv[]) {
   int64_t g;
   char end = '\0';
   char *pEnd = &end;
-  opt = getopt_long(argc, argv, pq_g2_optstring, pq_g2_longopts, &option_index);
+  opt = getopt_long(argc, argv, pq_gn_optstring, pq_gn_longopts, &option_index);
   while (opt != -1) {
     switch (opt) {
       case 'd':
         parse_delay(optarg, &channel, &delay);
-        pq_g2_cli_args.channel_offset[channel] = delay;
+        pq_gn_cli_args.channel_offset[channel] = delay;
         break;
 
       case 'g':
@@ -170,7 +170,7 @@ int pq_g2_read_cli(int argc, char* argv[]) {
           return(-1);
         }
         if ((g > 1) && (g <= PQ_GN_MAX_CORRELATION_ORDER)) {
-          pq_g2_cli_args.activeCorrelationOrders[g] = 1;
+          pq_gn_cli_args.activeCorrelationOrders[g] = 1;
         }
         else {
           fprintf(stderr, "Error: %" PRId64 " is not a valid correlation order.\n", g);
@@ -181,14 +181,14 @@ int pq_g2_read_cli(int argc, char* argv[]) {
 
       case 'V':
         ttd_print_version(argv[0]);
-        return(PQ_G2_CLI_EXIT_RETCODE);
+        return(PQ_GN_CLI_EXIT_RETCODE);
 
       case 'N':
-        pq_g2_cli_args.normalize = 1;
+        pq_gn_cli_args.normalize = 1;
         break;
 
       case 't':
-        pq_g2_cli_args.int_time = (uint64_t) sci_to_int64(optarg, &retcode);
+        pq_gn_cli_args.int_time = (uint64_t) sci_to_int64(optarg, &retcode);
         if (retcode != 0) {
           sci_to_int64_printerr(optarg, retcode);
           return(-1);
@@ -196,17 +196,17 @@ int pq_g2_read_cli(int argc, char* argv[]) {
         break;
 
       case 'h':
-        pq_g2_cli_print_help(argv[0]);
-        return(PQ_G2_CLI_EXIT_RETCODE);
+        pq_gn_cli_print_help(argv[0]);
+        return(PQ_GN_CLI_EXIT_RETCODE);
 
       case 'i':
         if (strlen(optarg) > 4096) {
           fprintf(stderr, "Error: Input filename too long.\n");
           return(-1);
         }
-        pq_g2_cli_args.infile = (char *)malloc((strlen(optarg)+1)*sizeof(char));
-        pq_g2_cli_args.infile_allocated = 1;
-        strcpy(pq_g2_cli_args.infile, optarg);
+        pq_gn_cli_args.infile = (char *)malloc((strlen(optarg)+1)*sizeof(char));
+        pq_gn_cli_args.infile_allocated = 1;
+        strcpy(pq_gn_cli_args.infile, optarg);
         break;
 
       case 'o':
@@ -214,13 +214,13 @@ int pq_g2_read_cli(int argc, char* argv[]) {
           fprintf(stderr, "Error: Output prefix too long.\n");
           return(-1);
         }
-        pq_g2_cli_args.outfile_prefix = (char *)malloc((strlen(optarg)+1)*sizeof(char));
-        pq_g2_cli_args.outfile_prefix_allocated = 1;
-        strcpy(pq_g2_cli_args.outfile_prefix, optarg);
+        pq_gn_cli_args.outfile_prefix = (char *)malloc((strlen(optarg)+1)*sizeof(char));
+        pq_gn_cli_args.outfile_prefix_allocated = 1;
+        strcpy(pq_gn_cli_args.outfile_prefix, optarg);
         break;
 
       case 'b':
-        pq_g2_cli_args.bin_time = (ttd_t) sci_to_int64(optarg, &retcode);
+        pq_gn_cli_args.bin_time = (ttd_t) sci_to_int64(optarg, &retcode);
         if (retcode != 0) {
           sci_to_int64_printerr(optarg, retcode);
           return(-1);
@@ -229,7 +229,7 @@ int pq_g2_read_cli(int argc, char* argv[]) {
         break;
 
       case 'w':
-        pq_g2_cli_args.window_time = (ttd_t) sci_to_int64(optarg, &retcode);
+        pq_gn_cli_args.window_time = (ttd_t) sci_to_int64(optarg, &retcode);
         if (retcode != 0) {
           sci_to_int64_printerr(optarg, retcode);
           return(-1);
@@ -238,7 +238,7 @@ int pq_g2_read_cli(int argc, char* argv[]) {
         break;
 
       case 'B':
-        pq_g2_cli_args.block_size = (ttd_t) sci_to_int64(optarg, &retcode);
+        pq_gn_cli_args.block_size = (ttd_t) sci_to_int64(optarg, &retcode);
         if (retcode != 0) {
           sci_to_int64_printerr(optarg, retcode);
           return(-1);
@@ -246,7 +246,7 @@ int pq_g2_read_cli(int argc, char* argv[]) {
         break;
 
       case 'R':
-        pq_g2_cli_args.rb_size = (ttd_t) sci_to_int64(optarg, &retcode);
+        pq_gn_cli_args.rb_size = (ttd_t) sci_to_int64(optarg, &retcode);
         if (retcode != 0) {
           sci_to_int64_printerr(optarg, retcode);
           return(-1);
@@ -257,22 +257,22 @@ int pq_g2_read_cli(int argc, char* argv[]) {
         // Shouldn't actually get here
         break;
     }
-    opt = getopt_long(argc, argv, pq_g2_optstring, pq_g2_longopts, &option_index);
+    opt = getopt_long(argc, argv, pq_gn_optstring, pq_gn_longopts, &option_index);
   }
 
   if (!(bin_time_set))
-    fprintf(stderr, "Warning: Bin time not specified. Using default value of %" PRIu64 " ps\n", pq_g2_cli_args.bin_time);
+    fprintf(stderr, "Warning: Bin time not specified. Using default value of %" PRIu64 " ps\n", pq_gn_cli_args.bin_time);
 
   if (!(window_time_set))
-    fprintf(stderr, "Warning: Window time not specified. Using default value of %" PRIu64 " ps\n", pq_g2_cli_args.window_time);
+    fprintf(stderr, "Warning: Window time not specified. Using default value of %" PRIu64 " ps\n", pq_gn_cli_args.window_time);
 
   // Add two padding bins worth of extra time to compensate for edge effects
-  pq_g2_cli_args.padded_window_time = pq_g2_cli_args.window_time + pq_g2_cli_args.bin_time;
+  pq_gn_cli_args.padded_window_time = pq_gn_cli_args.window_time + pq_gn_cli_args.bin_time;
 
   return(0);
 }
 
-int check_pq_g2_cli_args() {
+int check_pq_gn_cli_args() {
   int i;
   // -V (--version)
   // -h (--help)
@@ -280,16 +280,16 @@ int check_pq_g2_cli_args() {
 
   // -g (--include-g)
   // Test g1: Orders 0 or 1 set?
-  if (pq_g2_cli_args.activeCorrelationOrders[0] || pq_g2_cli_args.activeCorrelationOrders[1]) {
+  if (pq_gn_cli_args.activeCorrelationOrders[0] || pq_gn_cli_args.activeCorrelationOrders[1]) {
     fprintf(stderr, "Warning: -g 0 and -g 1 do not do anything.\n");
-    pq_g2_cli_args.activeCorrelationOrders[0] = 0;
-    pq_g2_cli_args.activeCorrelationOrders[1] = 0;
+    pq_gn_cli_args.activeCorrelationOrders[0] = 0;
+    pq_gn_cli_args.activeCorrelationOrders[1] = 0;
   }
 
   // Test g2: Any order set?
   _Bool any_order_set = 0;
   for (i=2; i <= PQ_GN_MAX_CORRELATION_ORDER; i++) {
-    if (pq_g2_cli_args.activeCorrelationOrders[i] == 1) {
+    if (pq_gn_cli_args.activeCorrelationOrders[i] == 1) {
       any_order_set = 1;
     }
   }
@@ -300,9 +300,9 @@ int check_pq_g2_cli_args() {
 
   // -N (--normalize)
   // Test N1: Make sure only g(2) selected
-  if (pq_g2_cli_args.normalize) {
+  if (pq_gn_cli_args.normalize) {
     for (i = 3; i <= PQ_GN_MAX_CORRELATION_ORDER; i++) {
-      if (pq_g2_cli_args.activeCorrelationOrders[i]) {
+      if (pq_gn_cli_args.activeCorrelationOrders[i]) {
         fprintf(stderr, "Error: Histogram normalization only supported for g(2) in this version.\n");
         return (-1);
       }
@@ -312,13 +312,13 @@ int check_pq_g2_cli_args() {
   // -d (--delay)
   // -i (--input-file)
   // Test i1: Was an input file provided?
-  if (!pq_g2_cli_args.infile_allocated) {
+  if (!pq_gn_cli_args.infile_allocated) {
     fprintf(stderr, "Error: Please provide an input file with the -i flag\n");
     return(-1);
   }
   // Test i2: Does file exist?
-  if (access(pq_g2_cli_args.infile, F_OK ) == -1) {
-    fprintf(stderr, "Error: Input file %s does not exist\n", pq_g2_cli_args.infile);
+  if (access(pq_gn_cli_args.infile, F_OK ) == -1) {
+    fprintf(stderr, "Error: Input file %s does not exist\n", pq_gn_cli_args.infile);
     return(-1);
   }
 
@@ -326,7 +326,7 @@ int check_pq_g2_cli_args() {
   // -b (--bin-time)
   // -w (--window-time)
   // Test w1: Is window time > bin time?
-  if (pq_g2_cli_args.bin_time >= pq_g2_cli_args.window_time) {
+  if (pq_gn_cli_args.bin_time >= pq_gn_cli_args.window_time) {
     fprintf(stderr, "Error: Window time must be greater than bin time\n");
     return(-1);
   }
@@ -335,39 +335,39 @@ int check_pq_g2_cli_args() {
   return(0);
 }
 
-void pq_g2_print_options(int no_verbose) {
+void pq_gn_print_options(int no_verbose) {
   setlocale(LC_NUMERIC, "");
   fprintf(stderr, KHEAD1 "Options Summary\n" KNRM);
 
-  if (pq_g2_cli_args.infile_allocated) {
-    fprintf(stderr, KHEAD2 "Input File:" KNRM KFILE " %s\n" KNRM, pq_g2_cli_args.infile);
+  if (pq_gn_cli_args.infile_allocated) {
+    fprintf(stderr, KHEAD2 "Input File:" KNRM KFILE " %s\n" KNRM, pq_gn_cli_args.infile);
   }
 
-  if (pq_g2_cli_args.outfile_prefix != NULL) {
-    fprintf(stderr, KHEAD2 "Output File Format: " KNRM KFILE "%s_" KITL "<chanA>" KFILE "-" KITL "<chanB>" KFILE ".csv\n" KNRM, pq_g2_cli_args.outfile_prefix);
+  if (pq_gn_cli_args.outfile_prefix != NULL) {
+    fprintf(stderr, KHEAD2 "Output File Format: " KNRM KFILE "%s_" KITL "<chanA>" KFILE "-" KITL "<chanB>" KFILE ".csv\n" KNRM, pq_gn_cli_args.outfile_prefix);
   }
 
-  fprintf(stderr, KHEAD2 "Bin time: " KNRM KTIME "%'" PRIu64 " ps\n" KNRM, pq_g2_cli_args.bin_time);
-  fprintf(stderr, KHEAD2 "Window time: " KNRM KTIME "%'" PRIu64 " ps\n" KNRM, pq_g2_cli_args.window_time);
+  fprintf(stderr, KHEAD2 "Bin time: " KNRM KTIME "%'" PRIu64 " ps\n" KNRM, pq_gn_cli_args.bin_time);
+  fprintf(stderr, KHEAD2 "Window time: " KNRM KTIME "%'" PRIu64 " ps\n" KNRM, pq_gn_cli_args.window_time);
 
   int i;
   fprintf(stderr, "\n");
   for (i=0; i<PQ_HH_MAX_CHANNELS; i++) {
-    if (pq_g2_cli_args.channel_offset[i] != 0) {
-      fprintf(stderr, KHEAD2 KCYN "Channel %d: " KHEAD2 "Delay by " KNRM KTIME "%'" PRId64 " ps\n" KNRM, i, pq_g2_cli_args.channel_offset[i]);
+    if (pq_gn_cli_args.channel_offset[i] != 0) {
+      fprintf(stderr, KHEAD2 KCYN "Channel %d: " KHEAD2 "Delay by " KNRM KTIME "%'" PRId64 " ps\n" KNRM, i, pq_gn_cli_args.channel_offset[i]);
     }
   }
 }
 
-void pq_g2_cli_cleanup() {
-  if(pq_g2_cli_args.infile_allocated) {
-    free(pq_g2_cli_args.infile);
-    pq_g2_cli_args.infile_allocated = 0;
+void pq_gn_cli_cleanup() {
+  if(pq_gn_cli_args.infile_allocated) {
+    free(pq_gn_cli_args.infile);
+    pq_gn_cli_args.infile_allocated = 0;
   }
 
-  if(pq_g2_cli_args.outfile_prefix_allocated) {
-    free(pq_g2_cli_args.outfile_prefix);
-    pq_g2_cli_args.outfile_prefix_allocated = 0;
+  if(pq_gn_cli_args.outfile_prefix_allocated) {
+    free(pq_gn_cli_args.outfile_prefix);
+    pq_gn_cli_args.outfile_prefix_allocated = 0;
   }
 
 
