@@ -107,10 +107,10 @@ int pq_parse_ptu_header(FILE *fp, pq_fileinfo_t *file_info) {
         //printf("%lld", TagHead.TagValue);
         // get some Values we need to analyse records
         if (strcmp(TagHead.Ident, TTTRTagNumRecords)==0) // Number of records
-          file_info->num_records = TagHead.TagValue;
+          file_info->num_records = (size_t)TagHead.TagValue;
 
         if (strcmp(TagHead.Ident, TTTRInputChannels)==0) // number of input chans
-          file_info->num_channels = (int32_t)TagHead.TagValue;
+          file_info->num_channels = (size_t)TagHead.TagValue;
         if (strcmp(TagHead.Ident, TTTRSyncRate)==0) // sync rate
           file_info->sync_rate = (int32_t) TagHead.TagValue;
       }
@@ -278,8 +278,8 @@ int pq_parse_header(FILE *fp, pq_fileinfo_t *file_info) {
     fread(&pq_hh_header, sizeof(pq_hh_header), 1, fp);
 
     // Read channel-dependent data
-    fread(&pq_hh_chanblock, sizeof(pq_hh_chan_t), pq_hh_header.num_input_channels, fp);
-    fread(&pq_hh_rates, sizeof(int32_t), pq_hh_header.num_input_channels, fp);
+    fread(&pq_hh_chanblock, sizeof(pq_hh_chan_t), (size_t)pq_hh_header.num_input_channels, fp);
+    fread(&pq_hh_rates, sizeof(int32_t), (size_t)pq_hh_header.num_input_channels, fp);
     // Read tttr data
     fread(&pq_hh_tttr, sizeof(pq_hh_tttr), 1, fp);
 
@@ -289,8 +289,8 @@ int pq_parse_header(FILE *fp, pq_fileinfo_t *file_info) {
     file_info->meas_mode = pq_hh_header.meas_mode;
     file_info->resolution = (ttd_t) round(pq_hh_header.resolution);
     file_info->sync_rate = pq_hh_tttr.sync_rate;
-    file_info->num_records = pq_hh_tttr.num_records;
-    file_info->num_channels = pq_hh_header.num_input_channels;
+    file_info->num_records = (size_t)pq_hh_tttr.num_records;
+    file_info->num_channels = (size_t)pq_hh_header.num_input_channels;
     fseek(fp, image_header_size*sizeof(pq_image_header_record), SEEK_CUR);
   }
   else if (file_info->instrument == PQ_PH) {
@@ -309,7 +309,7 @@ int pq_parse_header(FILE *fp, pq_fileinfo_t *file_info) {
       file_info->resolution = (ttd_t)round(res_d * 1e3);
     }
     file_info->sync_rate = pq_ph_header.chan0_inp_rate;
-    file_info->num_records = pq_ph_header.num_records;
+    file_info->num_records = (size_t)pq_ph_header.num_records;
     file_info->num_channels = 2;
     fseek(fp, image_header_size*sizeof(pq_image_header_record), SEEK_CUR);
   }
@@ -342,7 +342,7 @@ void pq_print_file_info(pq_fileinfo_t *file_info) {
     printf(KHEAD2 "Unrecgonized Measurement Mode!\n");
   }
   printf(KHEAD2"File Format Version: " "%d\n", file_info->fmt_version);
-  printf(KHEAD2"Number of records: " KNUMBER "%'" PRId64 "\n", file_info->num_records);
+  printf(KHEAD2"Number of records: " KNUMBER "%lu\n", file_info->num_records);
   printf(KHEAD2"Timing Resolution: " KTIME "%" PRIu64 " ps\n", file_info->resolution);
   printf(KHEAD2"Sync Period: " KTIME "%" PRIu64 " ps\n", file_info->sync_period);
   printf(KHEAD2"Sync Rate: " KRATE "%d Hz\n", file_info->sync_rate);

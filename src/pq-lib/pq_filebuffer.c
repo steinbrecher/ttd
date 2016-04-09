@@ -26,7 +26,7 @@ int pq_fb_init(pq_fb_t *buffer, char* filename) {
   // Initialize Ringbuffers
   size_t i;
   for (i=0; i<PQ_HH_MAX_CHANNELS; i++) {
-    ttd_rb_init(&(buffer->rbs[i]), 2*PHOTONBLOCK, 0);
+    ttd_rb_init(&(buffer->rbs[i]), 2*buffer->num_photons, 0);
   }
 
   // Initialize Offsets
@@ -42,7 +42,7 @@ int pq_fb_init(pq_fb_t *buffer, char* filename) {
   }
 
   // Allocate array for buffering
-  buffer->buffered_records = (pq_chanrec_t *)malloc(PHOTONBLOCK * sizeof(pq_chanrec_t));
+  buffer->buffered_records = (pq_chanrec_t *)malloc(buffer->num_photons * sizeof(pq_chanrec_t));
   if (buffer->buffered_records == NULL) {
     retcode = PQ_FB_MALLOC_ERROR;
     goto error_cleanup;
@@ -86,9 +86,9 @@ int pq_fb_init(pq_fb_t *buffer, char* filename) {
 
   // Allocate block for photon records
   buffer->file_block_allocated = 0;
-  buffer->file_block = (pq_rec_t *) malloc(PHOTONBLOCK*sizeof(pq_rec_t));
+  buffer->file_block = (pq_rec_t *) malloc(buffer->num_photons*sizeof(pq_rec_t));
   if (buffer->file_block == NULL) {
-    printf("ERROR: Could not allocate %d bytes for file buffer\n", PHOTONBLOCK);
+    printf("ERROR: Could not allocate %llu bytes for file buffer\n", buffer->num_photons*sizeof(pq_rec_t));
     retcode = PQ_FB_MALLOC_ERROR;
   }
   buffer->file_block_allocated = 1;
@@ -96,7 +96,7 @@ int pq_fb_init(pq_fb_t *buffer, char* filename) {
   // Get first file block
   uint64_t num_photons;
   num_photons = pq_fb_get_block(buffer);
-  if (num_photons < PHOTONBLOCK) {
+  if (num_photons < buffer->num_photons) {
     printf("Only got %"PRIu64 " photon records.\n", num_photons);
     pq_fb_closefile(buffer);
   }
@@ -197,7 +197,7 @@ uint64_t pq_fb_get_block(pq_fb_t *buffer) {
 
   size_t n;
 
-  num_photons = fread(buffer->file_block, sizeof(pq_rec_t), PHOTONBLOCK, buffer->fp);
+  num_photons = fread(buffer->file_block, sizeof(pq_rec_t), buffer->num_photons, buffer->fp);
 
 
   for (n=0; n<num_photons; n++) {
@@ -218,7 +218,7 @@ int pq_fb_get_next(pq_fb_t *buffer, ttd_t *recTime, size_t *recChannel) {
     return -1;
   }
 
-  int16_t i, firstChannel;
+  size_t i, firstChannel;
   ttd_rb_t *firstBuffer, *rb;
   ttd_t firstTime, timeHere;
 
@@ -242,7 +242,7 @@ int pq_fb_get_next(pq_fb_t *buffer, ttd_t *recTime, size_t *recChannel) {
     }
   }
   if (firstTime < buffer->lastTime) {
-    printf("Got out of order time %" PRIu64 " on channel %d\n", firstTime, firstChannel);
+    printf("Got out of order time %" PRIu64 " on channel %lu\n", firstTime, firstChannel);
   }
   buffer->lastTime = firstTime;
 
@@ -258,7 +258,7 @@ int pq_fb_get_next(pq_fb_t *buffer, ttd_t *recTime, size_t *recChannel) {
   // If not available (i.e. we're at end of file), disable the channel.
   if (firstBuffer->count == 0) {
     if (buffer->file_open) {
-      if (pq_fb_get_block(buffer) < PHOTONBLOCK) {
+      if (pq_fb_get_block(buffer) < buffer->num_photons) {
         pq_fb_closefile(buffer);
       }
     }

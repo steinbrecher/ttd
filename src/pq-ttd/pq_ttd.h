@@ -1,7 +1,7 @@
 #ifndef _PQ_CONVERT_HEADER_SEEN
 #define _PQ_CONVERT_HEADER_SEEN
 
-#define PHOTONBLOCK 16384
+#define PHOTONBLOCK 65536
 
 #include "ttd.h"
 #include "pq_parse.h"

@@ -247,8 +247,8 @@ typedef struct {
   ttd_t resolution;
   int32_t sync_rate;
   ttd_t sync_period;
-  int64_t num_records;
-  int32_t num_channels;
+  size_t num_records;
+  size_t num_channels;
 } pq_fileinfo_t;
 
 

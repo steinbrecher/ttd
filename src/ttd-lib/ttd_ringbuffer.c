@@ -8,6 +8,8 @@
 #include "ttd.h"
 #include "ttd_ringbuffer.h"
 
+#define RB_NEXT(rb, idx) (rb->start + rb->idx + 1) % rb->size
+
 void ttd_rb_init(ttd_rb_t *rb, size_t size, uint64_t duration) {
   rb->size  = size;
   rb->start = 0;
