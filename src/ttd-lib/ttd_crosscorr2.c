@@ -8,10 +8,21 @@
 #include "ttd.h"
 #include "ttd_crosscorr2.h"
 
+// TODO: Error checking / return value for ttd_ccorr2_init
+/** \brief Initializes ttd_ccorr2_t structs
+ *
+ * Summary:
+ *  - Allocate rbs[0] and rbs[1] (setting ccorr->rbs_allocated[] = {1,1})
+ *  - Assign ccorr->bin_time and ccorr->window_time according to function arguments
+ *  - Calculate number of bins needed and allocate histogram (setting ccorr->hist_allocated = 1)
+ *  - Initialize the rest of the variables
+ * */
 void ttd_ccorr2_init(ttd_ccorr2_t *ccorr, ttd_t bin_time, ttd_t window_time, size_t rb_size) {
+  // TODO: Error checking here
   ccorr->rbs[0] = ttd_rb_build(rb_size, window_time);
   ccorr->rbs_allocated[0] = 1;
 
+  // TODO: Error checking here
   ccorr->rbs[1] = ttd_rb_build(rb_size, window_time);
   ccorr->rbs_allocated[1] = 1;
 
