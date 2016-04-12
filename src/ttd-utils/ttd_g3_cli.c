@@ -64,10 +64,10 @@ int g3_read_cli(int argc, char* argv[]) {
 
   g3_cli_args.block_size = 16384;
 
-  g3_cli_args.infiles_allocated[0] = 0;
-  g3_cli_args.infiles_allocated[1] = 0;
-  g3_cli_args.infiles_allocated[2] = 0;
-  g3_cli_args.outfile_allocated = 0;
+  g3_cli_args.infile1 = NULL;
+  g3_cli_args.infile2 = NULL;
+  g3_cli_args.infile3 = NULL;
+  g3_cli_args.outfile = NULL;
 
   int retcode = 0;
 
@@ -90,24 +90,20 @@ int g3_read_cli(int argc, char* argv[]) {
 
     case '1':
       g3_cli_args.infile1 = (char *)malloc((strlen(optarg)+1)*sizeof(char));
-      g3_cli_args.infiles_allocated[0] = 1;
       strcpy(g3_cli_args.infile1, optarg);
       break;
     case '2':
       g3_cli_args.infile2 = (char *)malloc((strlen(optarg)+1)*sizeof(char));
-      g3_cli_args.infiles_allocated[1] = 1;
       strcpy(g3_cli_args.infile2, optarg);
       break;
 
     case '3':
       g3_cli_args.infile3 = (char *)malloc((strlen(optarg)+1)*sizeof(char));
-      g3_cli_args.infiles_allocated[2] = 1;
       strcpy(g3_cli_args.infile3, optarg);
       break;
 
     case 'o':
       g3_cli_args.outfile = (char *)malloc((strlen(optarg)+1)*sizeof(char));
-      g3_cli_args.outfile_allocated = 1;
       strcpy(g3_cli_args.outfile, optarg);
       break;
 
@@ -162,23 +158,14 @@ void g3_cli_print_options(_Bool no_verbose) {
 }  
 
 void g3_cli_cleanup() {
-  if(g3_cli_args.infiles_allocated[0]) {
-    free(g3_cli_args.infile1);
-    g3_cli_args.infiles_allocated[0] = 0;
-  }
-  if(g3_cli_args.infiles_allocated[1]) {
-    free(g3_cli_args.infile2);
-    g3_cli_args.infiles_allocated[1] = 0;
-  }
-  if(g3_cli_args.infiles_allocated[2]) {
-    free(g3_cli_args.infile3);
-    g3_cli_args.infiles_allocated[2] = 0;
-  }
+  free(g3_cli_args.infile1);
+  g3_cli_args.infile1 = NULL;
 
-  if(g3_cli_args.outfile_allocated) {
-    free(g3_cli_args.outfile);
-    g3_cli_args.outfile_allocated = 0;
-  }
+  free(g3_cli_args.infile2);
+  g3_cli_args.infile2 = NULL;
 
-					  
+  free(g3_cli_args.infile3);
+  g3_cli_args.infile2 = NULL;
+
+  free(g3_cli_args.outfile);
 }

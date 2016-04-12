@@ -11,10 +11,8 @@ struct {
   int verbose; // -v
   int compress; // -c
 
-  int infile_allocated;
   char *infile; // -i
 
-  int output_prefix_allocated;
   char *output_prefix; // -o
 
   int block_size;

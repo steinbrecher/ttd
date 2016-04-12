@@ -66,9 +66,9 @@ int g4_read_cli(int argc, char* argv[]) {
 
   int i;
   for (i=0; i<4; i++) {
-    g4_cli_args.infiles_allocated[i] = 0;
+    g4_cli_args.infiles[i] = NULL;
   }
-  g4_cli_args.outfile_allocated = 0;
+  g4_cli_args.outfile = NULL;
 
   int retcode=0;
 
@@ -91,30 +91,25 @@ int g4_read_cli(int argc, char* argv[]) {
 
     case '1':
       g4_cli_args.infiles[0] = (char *)malloc((strlen(optarg)+1)*sizeof(char));
-      g4_cli_args.infiles_allocated[0] = 1;
       strcpy(g4_cli_args.infiles[0], optarg);
       break;
     case '2':
       g4_cli_args.infiles[1] = (char *)malloc((strlen(optarg)+1)*sizeof(char));
-      g4_cli_args.infiles_allocated[1] = 1;
       strcpy(g4_cli_args.infiles[1], optarg);
       break;
 
     case '3':
       g4_cli_args.infiles[2] = (char *)malloc((strlen(optarg)+1)*sizeof(char));
-      g4_cli_args.infiles_allocated[2] = 1;
       strcpy(g4_cli_args.infiles[2], optarg);
       break;
 
     case '4':
       g4_cli_args.infiles[3] = (char *)malloc((strlen(optarg)+1)*sizeof(char));
-      g4_cli_args.infiles_allocated[3] = 1;
       strcpy(g4_cli_args.infiles[3], optarg);
       break;
 
     case 'o':
       g4_cli_args.outfile = (char *)malloc((strlen(optarg)+1)*sizeof(char));
-      g4_cli_args.outfile_allocated = 1;
       strcpy(g4_cli_args.outfile, optarg);
       break;
 
@@ -170,16 +165,10 @@ void g4_cli_print_options(int no_verbose) {
 void g4_cli_cleanup() {
   int i;
   for (i=0; i<4; i++) {
-    if(g4_cli_args.infiles_allocated[i]) {
-      free(g4_cli_args.infiles[i]);
-      g4_cli_args.infiles_allocated[i] = 0;
-    }
+    free(g4_cli_args.infiles[i]);
+    g4_cli_args.infiles[i] = NULL;
   }
 
-  if(g4_cli_args.outfile_allocated) {
-    free(g4_cli_args.outfile);
-    g4_cli_args.outfile_allocated = 0;
-  }
-
-					  
+  free(g4_cli_args.outfile);
+  g4_cli_args.outfile = NULL;
 }

@@ -10,7 +10,6 @@ typedef struct {
     size_t start;          // Index of oldest element
     size_t count;        // Number of active elements
     ttd_t duration;
-    _Bool times_allocated;
 
     //int allocated;
     //ttd_t duration;

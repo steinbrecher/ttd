@@ -9,6 +9,7 @@
 #include "ttd.h"
 #include "ttd_filebuffer.h"
 
+// TODO: Make allocation safe
 char *get_extension(char* filename) {
   int i;
   char *extension = (char *)malloc(4*sizeof(char));
@@ -31,8 +32,13 @@ int ttd_fb_openfile(ttd_fb_t *buffer) {
 }
 
 int ttd_fb_init(ttd_fb_t *buffer, uint64_t buffer_size, char* filename, int64_t offset) {
+  // Initialize pointers to (not yet) allocated memory to NULL
+  buffer->buffered_records = NULL;
+  buffer->filename = NULL;
+
   int retcode = 0;
-  char *extension = get_extension(filename);
+  char *extension = NULL;
+  extension = get_extension(filename);
   buffer->offset = offset;
 
   buffer->buffer_size = buffer_size;
@@ -41,28 +47,20 @@ int ttd_fb_init(ttd_fb_t *buffer, uint64_t buffer_size, char* filename, int64_t 
   buffer->num_read = 0;
   buffer->empty = 0;
 
-  buffer->buffer_allocated = 0;
-  buffer->buffered_records = (ttd_t *)malloc(buffer->buffer_size * sizeof(ttd_t));
+  buffer->buffered_records = (ttd_t *)calloc(buffer->buffer_size, sizeof(ttd_t));
   if (buffer->buffered_records == NULL) {
     retcode = TTD_FB_MALLOC_ERROR;
     goto error_cleanup;
   }
-  buffer->buffer_allocated = 1;
 
 
-  buffer->filename = (char *)malloc((strlen(filename)+1)*sizeof(char));
+  buffer->filename = (char *)calloc((strlen(filename)+1), sizeof(char));
   if (buffer->filename == NULL) {
     retcode = TTD_FB_MALLOC_ERROR;
     goto error_cleanup;
   }
-  buffer->filename_allocated = 1;
   strcpy(buffer->filename, filename);
-  /*if (strcmp(extension, "ttz")==0) {
-    buffer->compressed = 1;
-  }
-  else {
-    buffer->compressed = 0;
-  }*/
+
   buffer->file_open = 0;
   retcode = ttd_fb_openfile(buffer);
 
@@ -79,18 +77,17 @@ int ttd_fb_init(ttd_fb_t *buffer, uint64_t buffer_size, char* filename, int64_t 
 }
 
 int ttd_fb_cleanup(ttd_fb_t *buffer) {
-  if (buffer->filename_allocated) {
-    free(buffer->filename);
-    buffer->filename_allocated = 0;
-  }
   if (buffer->file_open) {
     fclose(buffer->fp);
     buffer->file_open = 0;
   }
-  if (buffer->buffer_allocated == 1) {
-    free(buffer->buffered_records);
-    buffer->buffer_allocated = 0;
-  }
+
+  free(buffer->filename);
+  buffer->filename = NULL;
+
+  free(buffer->buffered_records);
+  buffer->buffered_records = NULL;
+
   return(0);
 }
 

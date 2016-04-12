@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.10"/>
-<title>Time-Tagged Data Processor: ttd_ccorr2_t Struct Reference</title>
+<title>Time Tagged Data Processor: ttd_ccorr2_t Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -23,10 +23,10 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">Time-Tagged Data Processor
+   <div id="projectname">Time Tagged Data Processor
    &#160;<span id="projectnumber">0.4.0</span>
    </div>
-   <div id="projectbrief">Packages and libraries for manipulating time-tagged data</div>
+   <div id="projectbrief">Packages and libraries for manipulating time tagged data</div>
   </td>
  </tr>
  </tbody>
@@ -109,12 +109,8 @@ Data Fields</h2></td></tr>
 <tr class="separator:a127fca4b0a397dc24cf6c3165273ca97"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8413d9d1551e1fafbaf6d168ca997b0c"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structttd__ccorr2__t.html#a8413d9d1551e1fafbaf6d168ca997b0c">rbs_counts</a> [2]</td></tr>
 <tr class="separator:a8413d9d1551e1fafbaf6d168ca997b0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a929ec0473292ca0d1826513116842207"><td class="memItemLeft" align="right" valign="top">_Bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structttd__ccorr2__t.html#a929ec0473292ca0d1826513116842207">rbs_allocated</a> [2]</td></tr>
-<tr class="separator:a929ec0473292ca0d1826513116842207"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa64b2c0039a6466a4d15e18e1d4e22cf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structttd__rb__t.html">ttd_rb_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structttd__ccorr2__t.html#aa64b2c0039a6466a4d15e18e1d4e22cf">rbs</a> [2]</td></tr>
 <tr class="separator:aa64b2c0039a6466a4d15e18e1d4e22cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a171c849ac19bc37d49c0d6de41d64057"><td class="memItemLeft" align="right" valign="top">_Bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structttd__ccorr2__t.html#a171c849ac19bc37d49c0d6de41d64057">hist_allocated</a></td></tr>
-<tr class="separator:a171c849ac19bc37d49c0d6de41d64057"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6670bb2f511309d52c6c0cf9ccc9cf43"><td class="memItemLeft" align="right" valign="top">ttd_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structttd__ccorr2__t.html#a6670bb2f511309d52c6c0cf9ccc9cf43">hist</a></td></tr>
 <tr class="separator:a6670bb2f511309d52c6c0cf9ccc9cf43"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -162,19 +158,6 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a171c849ac19bc37d49c0d6de41d64057"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">_Bool ttd_ccorr2_t::hist_allocated</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Track whether <a class="el" href="structttd__ccorr2__t.html#a6670bb2f511309d52c6c0cf9ccc9cf43">ttd_ccorr2_t::hist</a> should be freed when ttd_ccorr2_cleanup called </p>
-
-</div>
-</div>
 <a class="anchor" id="a811a546cf1b2cf24a6c907c4917932ef"></a>
 <div class="memitem">
 <div class="memproto">
@@ -198,19 +181,6 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Pointers to <a class="el" href="structttd__rb__t.html">ttd_rb_t</a> ringbuffer structures; all differential times calculated as (time in rbs[1]) - (time in rbs[0]) </p>
-
-</div>
-</div>
-<a class="anchor" id="a929ec0473292ca0d1826513116842207"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">_Bool ttd_ccorr2_t::rbs_allocated[2]</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Track whether <a class="el" href="structttd__ccorr2__t.html#aa64b2c0039a6466a4d15e18e1d4e22cf">ttd_ccorr2_t::rbs</a>[] should be freed when ttd_ccorr2_cleanup is called </p>
 
 </div>
 </div>

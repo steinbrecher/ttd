@@ -9,10 +9,8 @@ typedef struct {
   _Bool empty;
 
   ttd_t *buffered_records;
-  _Bool buffer_allocated;
 
   char *filename;
-  _Bool filename_allocated;
 
   _Bool file_open;
   FILE *fp;

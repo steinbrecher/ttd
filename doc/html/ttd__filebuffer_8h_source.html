@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.10"/>
-<title>Time-Tagged Data Processor: src/ttd-lib/ttd_filebuffer.h Source File</title>
+<title>Time Tagged Data Processor: src/ttd-lib/ttd_filebuffer.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -23,10 +23,10 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">Time-Tagged Data Processor
+   <div id="projectname">Time Tagged Data Processor
    &#160;<span id="projectnumber">0.4.0</span>
    </div>
-   <div id="projectbrief">Packages and libraries for manipulating time-tagged data</div>
+   <div id="projectbrief">Packages and libraries for manipulating time tagged data</div>
   </td>
  </tr>
  </tbody>
@@ -100,26 +100,24 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;  _Bool empty;</div>
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;</div>
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;  ttd_t *buffered_records;</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;  _Bool buffer_allocated;</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;  <span class="keywordtype">char</span> *filename;</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;  _Bool filename_allocated;</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;  _Bool file_open;</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;  FILE *fp;</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;} <a class="code" href="structttd__fb__t.html">ttd_fb_t</a>;</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="keywordtype">int</span> ttd_fb_init(<a class="code" href="structttd__fb__t.html">ttd_fb_t</a> *buffer, uint64_t buffer_size, <span class="keywordtype">char</span>* filename, int64_t offset);</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keywordtype">int</span> ttd_fb_openfile(<a class="code" href="structttd__fb__t.html">ttd_fb_t</a> *buffer);</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="keywordtype">int</span> ttd_fb_cleanup(<a class="code" href="structttd__fb__t.html">ttd_fb_t</a> *buffer);</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;ttd_t ttd_fb_pop(<a class="code" href="structttd__fb__t.html">ttd_fb_t</a> *buffer);</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="preprocessor">#define TTD_FB_MALLOC_ERROR -1;</span></div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="preprocessor">#define TTD_FB_FILE_OPEN_ERROR -2;</span></div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="keywordtype">char</span> *get_extension(<span class="keywordtype">char</span>* filename);</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;  <span class="keywordtype">char</span> *filename;</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;  _Bool file_open;</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;  FILE *fp;</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;} <a class="code" href="structttd__fb__t.html">ttd_fb_t</a>;</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="keywordtype">int</span> ttd_fb_init(<a class="code" href="structttd__fb__t.html">ttd_fb_t</a> *buffer, uint64_t buffer_size, <span class="keywordtype">char</span>* filename, int64_t offset);</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="keywordtype">int</span> ttd_fb_openfile(<a class="code" href="structttd__fb__t.html">ttd_fb_t</a> *buffer);</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="keywordtype">int</span> ttd_fb_cleanup(<a class="code" href="structttd__fb__t.html">ttd_fb_t</a> *buffer);</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;ttd_t ttd_fb_pop(<a class="code" href="structttd__fb__t.html">ttd_fb_t</a> *buffer);</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="preprocessor">#define TTD_FB_MALLOC_ERROR -1;</span></div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor">#define TTD_FB_FILE_OPEN_ERROR -2;</span></div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="keywordtype">char</span> *get_extension(<span class="keywordtype">char</span>* filename);</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="preprocessor">#endif // _TTD_FILEBUFFER_HEADER_SEEN</span></div>
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="preprocessor">#endif // _TTD_FILEBUFFER_HEADER_SEEN</span></div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;</div>
 <div class="ttc" id="structttd__fb__t_html"><div class="ttname"><a href="structttd__fb__t.html">ttd_fb_t</a></div><div class="ttdef"><b>Definition:</b> ttd_filebuffer.h:3</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->

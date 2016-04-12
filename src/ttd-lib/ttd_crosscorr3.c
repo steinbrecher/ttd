@@ -10,6 +10,12 @@
 #include "ttd_crosscorr3.h"
 
 void ttd_ccorr3_init(ttd_ccorr3_t *ccorr, ttd_t bin_time, ttd_t window_time, size_t rb_size) {
+  // Initialize pointers before allocating anything
+  ccorr->rbs[0] = NULL;
+  ccorr->rbs[1] = NULL;
+  ccorr->rbs[2] = NULL;
+  ccorr->hist = NULL;
+
   ccorr->bin_time = bin_time;
   ccorr->window_time = window_time;
 
@@ -24,16 +30,12 @@ void ttd_ccorr3_init(ttd_ccorr3_t *ccorr, ttd_t bin_time, ttd_t window_time, siz
   ccorr->rbs_counts[2] = 0;
 
   ccorr->rbs[0] = ttd_rb_build(rb_size, window_time);
-  ccorr->rbs_allocated[0] = 1;
 
   ccorr->rbs[1] = ttd_rb_build(rb_size, window_time);
-  ccorr->rbs_allocated[1] = 1;
 
   ccorr->rbs[2] = ttd_rb_build(rb_size, window_time);
-  ccorr->rbs_allocated[2] = 1;
 
-  ccorr->hist = (ttd_t *)calloc(sizeof(ttd_t *), num_bins * num_bins); 
-  ccorr->hist_allocated = 1;
+  ccorr->hist = (ttd_t *)calloc(num_bins * num_bins, sizeof(ttd_t));
 }
 
 ttd_ccorr3_t *ttd_ccorr3_build(ttd_t bin_time, ttd_t window_time, size_t rb_size) {
@@ -157,26 +159,21 @@ void ttd_ccorr3_write_csv(ttd_ccorr3_t *ccorr, char *file_name) {
 }
 
 void ttd_ccorr3_cleanup(ttd_ccorr3_t *ccorr) {
+  if (ccorr == NULL) {return;}
+
   ttd_rb_cleanup(ccorr->rbs[0]);
   ttd_rb_cleanup(ccorr->rbs[1]);
   ttd_rb_cleanup(ccorr->rbs[2]);
 
-  if (ccorr->rbs_allocated[0]) {
-    free(ccorr->rbs[0]);
-    ccorr->rbs_allocated[0] = 0;
-  }
+  free(ccorr->rbs[0]);
+  ccorr->rbs[0] = NULL;
 
-  if (ccorr->rbs_allocated[1]) {
-    free(ccorr->rbs[1]);
-    ccorr->rbs_allocated[1] = 0;
-  }
+  free(ccorr->rbs[1]);
+  ccorr->rbs[1] = NULL;
 
-  if (ccorr->rbs_allocated[2]) {
-    free(ccorr->rbs[2]);
-    ccorr->rbs_allocated[2] = 0;
-  }
+  free(ccorr->rbs[2]);
+  ccorr->rbs[2] = NULL;
 
-  if (ccorr->hist_allocated) {
-    free(ccorr->hist);
-  }
+  free(ccorr->hist);
+  ccorr->hist = NULL;
 }

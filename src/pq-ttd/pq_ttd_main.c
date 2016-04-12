@@ -36,8 +36,6 @@ char *get_prefix(char* filename) {
 int main(int argc, char* argv[]) {
   FILE *ht_file;
   int retcode,exitcode=0;
-  int prefix_allocated=0;
-  char *output_prefix;
 
   retcode = pq_ttd_read_cli(argc, argv);
   if (retcode < 0) {
@@ -55,7 +53,6 @@ int main(int argc, char* argv[]) {
 
   if (pq_ttd_cli_args.output_prefix == NULL) {
     pq_ttd_cli_args.output_prefix = get_prefix(pq_ttd_cli_args.infile);
-    pq_ttd_cli_args.output_prefix_allocated = 1;
   }
 
   printf("Output Prefix: %s\n", pq_ttd_cli_args.output_prefix);

@@ -1,6 +1,7 @@
 #ifndef __STDC_FORMAT_MACROS
 #define __STDC_FORMAT_MACROS
 #endif
+
 #include <stdio.h>
 #include <inttypes.h>
 #include <stdlib.h>
@@ -9,7 +10,13 @@
 #include "pq_filebuffer.h"
 
 
-int pq_fb_init(pq_fb_t *buffer, char* filename) {
+int pq_fb_init(pq_fb_t *buffer, char *filename) {
+  // Initialize pointers to allocted objects to NULL
+  buffer->buffered_records = NULL;
+  buffer->file_block = NULL;
+  buffer->filename = NULL;
+
+
   // Set up default values
   int retcode = 0;
 
@@ -25,37 +32,35 @@ int pq_fb_init(pq_fb_t *buffer, char* filename) {
 
   // Initialize Ringbuffers
   size_t i;
-  for (i=0; i<PQ_HH_MAX_CHANNELS; i++) {
-    ttd_rb_init(&(buffer->rbs[i]), 2*buffer->num_photons, 0);
+  for (i = 0; i < PQ_HH_MAX_CHANNELS; i++) {
+    ttd_rb_init(&(buffer->rbs[i]), 2 * buffer->num_photons, 0);
   }
 
   // Initialize Offsets
-  for (i=0; i<PQ_HH_MAX_CHANNELS; i++) {
+  for (i = 0; i < PQ_HH_MAX_CHANNELS; i++) {
     buffer->channel_offsets[i] = 0;
     buffer->channel_active[i] = 1;
   }
   pq_fb_update_active(buffer);
 
   // Initialize counters
-  for (i=0; i<PQ_HH_MAX_CHANNELS; i++) {
+  for (i = 0; i < PQ_HH_MAX_CHANNELS; i++) {
     buffer->num_read_per_channel[i] = 0;
   }
 
   // Allocate array for buffering
-  buffer->buffered_records = (pq_chanrec_t *)malloc(buffer->num_photons * sizeof(pq_chanrec_t));
+  buffer->buffered_records = (pq_chanrec_t *) calloc(buffer->num_photons, sizeof(pq_chanrec_t));
   if (buffer->buffered_records == NULL) {
     retcode = PQ_FB_MALLOC_ERROR;
     goto error_cleanup;
   }
-  buffer->buffer_allocated = 1;
 
   // Allocate filename string
-  buffer->filename = (char *)malloc((strlen(filename)+1)*sizeof(char));
+  buffer->filename = (char *) calloc((strlen(filename) + 1), sizeof(char));
   if (buffer->filename == NULL) {
     retcode = PQ_FB_MALLOC_ERROR;
     goto error_cleanup;
   }
-  buffer->filename_allocated = 1;
   strcpy(buffer->filename, filename);
 
   // Open file for reading
@@ -72,7 +77,7 @@ int pq_fb_init(pq_fb_t *buffer, char* filename) {
   }
 
   // Figure out which conversion function to use
-  if (get_pq_converter(&(buffer->to_ttd), &(buffer->file_info) ) < 0) {
+  if (get_pq_converter(&(buffer->to_ttd), &(buffer->file_info)) < 0) {
     goto error_cleanup;
   }
 
@@ -80,30 +85,29 @@ int pq_fb_init(pq_fb_t *buffer, char* filename) {
   pq_print_file_info(&(buffer->file_info));
 
   // Disable channels that aren't in use
-  for (i=buffer->file_info.num_channels+1; i<PQ_HH_MAX_CHANNELS; i++) {
+  for (i = buffer->file_info.num_channels + 1; i < PQ_HH_MAX_CHANNELS; i++) {
     pq_fb_disable_channel(buffer, i);
   }
 
   // Allocate block for photon records
-  buffer->file_block_allocated = 0;
-  buffer->file_block = (pq_rec_t *) malloc(buffer->num_photons*sizeof(pq_rec_t));
+  buffer->file_block = (pq_rec_t *) calloc(buffer->num_photons, sizeof(pq_rec_t));
   if (buffer->file_block == NULL) {
-    printf("ERROR: Could not allocate %llu bytes for file buffer\n", buffer->num_photons*sizeof(pq_rec_t));
+    printf("ERROR: Could not allocate %llu bytes for file buffer\n", buffer->num_photons * sizeof(pq_rec_t));
     retcode = PQ_FB_MALLOC_ERROR;
   }
-  buffer->file_block_allocated = 1;
 
   // Get first file block
   uint64_t num_photons;
   num_photons = pq_fb_get_block(buffer);
   if (num_photons < buffer->num_photons) {
-    printf("Only got %"PRIu64 " photon records.\n", num_photons);
+    printf("Only got %" PRIu64 " photon records.\n", num_photons);
     pq_fb_closefile(buffer);
   }
-//  _Bool anyEmpty = 0;
+
   size_t chan;
-  //printf("Num active: %d\n", buffer->num_active_channels);
-  for (i=0; i<buffer->num_active_channels; i++) {
+
+
+  for (i = 0; i < buffer->num_active_channels; i++) {
     chan = buffer->active_channels[i];
 
     if (buffer->active_rbs[chan]->count == 0) {
@@ -112,9 +116,10 @@ int pq_fb_init(pq_fb_t *buffer, char* filename) {
       //anyEmpty = 1;
     }
     //else {
-      //printf("Channel %d started with %d counts\n", chan, buffer->active_rbs[chan]->count);
+    //printf("Channel %d started with %d counts\n", chan, buffer->active_rbs[chan]->count);
     //}
   }
+
 
   return retcode;
 
@@ -127,7 +132,7 @@ int pq_fb_init(pq_fb_t *buffer, char* filename) {
 void pq_fb_update_active(pq_fb_t *buffer) {
   size_t i, count;
   count = 0;
-  for (i=0; i<PQ_HH_MAX_CHANNELS; i++) {
+  for (i = 0; i < PQ_HH_MAX_CHANNELS; i++) {
     if (buffer->channel_active[i]) {
       buffer->active_channels[count] = i;
       buffer->active_rbs[count] = &(buffer->rbs[i]);
@@ -154,7 +159,7 @@ int pq_fb_openfile(pq_fb_t *buffer) {
   }
   buffer->file_open = 1;
 
-  return(0);
+  return (0);
 }
 
 int pq_fb_closefile(pq_fb_t *buffer) {
@@ -163,27 +168,24 @@ int pq_fb_closefile(pq_fb_t *buffer) {
   return 0;
 }
 
-int pq_fb_cleanup(pq_fb_t *buffer){
+int pq_fb_cleanup(pq_fb_t *buffer) {
   int i;
-  if (buffer->filename_allocated) {
-    free(buffer->filename);
-    buffer->filename_allocated = 0;
-  }
+  free(buffer->filename);
+  buffer->filename = NULL;
+
   if (buffer->file_open) {
     fclose(buffer->fp);
     buffer->file_open = 0;
   }
-  if (buffer->buffer_allocated) {
-    free(buffer->buffered_records);
-    buffer->buffer_allocated = 0;
-  }
 
-  if (buffer->file_block_allocated) {
-    free(buffer->file_block);
-    buffer->file_block_allocated = 0;
-  }
+  free(buffer->buffered_records);
+  buffer->buffered_records = NULL;
 
-  for(i=0; i<PQ_HH_MAX_CHANNELS; i++) {
+  free(buffer->file_block);
+  buffer->file_block = NULL;
+
+
+  for (i = 0; i < PQ_HH_MAX_CHANNELS; i++) {
     ttd_rb_cleanup(&(buffer->rbs[i]));
   }
 
@@ -191,7 +193,7 @@ int pq_fb_cleanup(pq_fb_t *buffer){
 }
 
 uint64_t pq_fb_get_block(pq_fb_t *buffer) {
-  uint64_t num_photons=0;
+  uint64_t num_photons = 0;
   int16_t channel;
   ttd_t time;
 
@@ -200,12 +202,12 @@ uint64_t pq_fb_get_block(pq_fb_t *buffer) {
   num_photons = fread(buffer->file_block, sizeof(pq_rec_t), buffer->num_photons, buffer->fp);
 
 
-  for (n=0; n<num_photons; n++) {
+  for (n = 0; n < num_photons; n++) {
     channel = buffer->to_ttd(buffer->file_block[n], &time, &buffer->overflow_correction, &buffer->file_info);
     // Make sure not to buffer special records (trying to do so would result in forbidden memory access)
-    if (channel < 0) {continue;}
+    if (channel < 0) { continue; }
     // If channel isn't active, skip it
-    if (!(buffer->channel_active[channel])) {continue;}
+    if (!(buffer->channel_active[channel])) { continue; }
     // Otherwise, push it onto the correct ringbuffer, with offset added
     ttd_rb_insert(&(buffer->rbs[channel]), time + buffer->channel_offsets[channel]);
   }
@@ -230,9 +232,9 @@ int pq_fb_get_next(pq_fb_t *buffer, ttd_t *recTime, size_t *recChannel) {
 
 
   // Loop over other active channels to find smallest time
-  for (i=1; i<buffer->num_active_channels; i++) {
+  for (i = 1; i < buffer->num_active_channels; i++) {
     rb = buffer->active_rbs[i];
-    if (rb->count == 0) {continue;}
+    if (rb->count == 0) { continue; }
     //printf("Peeking at buffer %d\n", buffer->active_channels[i]);
     timeHere = rb->times[rb->start];
     if ((timeHere < firstTime)) {
@@ -269,12 +271,12 @@ int pq_fb_get_next(pq_fb_t *buffer, ttd_t *recTime, size_t *recChannel) {
       _Bool disableChannels[PQ_HH_MAX_CHANNELS];
       // Initialize disableChannels
       memset(disableChannels, 0, PQ_HH_MAX_CHANNELS * sizeof(_Bool));
-      for (i=0; i<buffer->num_active_channels; i++) {
+      for (i = 0; i < buffer->num_active_channels; i++) {
         if (buffer->active_rbs[i]->count == 0) {
           disableChannels[buffer->active_channels[i]] = 1;
         }
       }
-      for (i=0; i<PQ_HH_MAX_CHANNELS; i++) {
+      for (i = 0; i < PQ_HH_MAX_CHANNELS; i++) {
         if (disableChannels[i]) {
           pq_fb_disable_channel(buffer, i);
         }

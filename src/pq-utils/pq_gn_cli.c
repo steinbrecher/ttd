@@ -135,8 +135,8 @@ int pq_gn_read_cli(int argc, char **argv) {
   pq_gn_cli_args.block_size = 16384;
   pq_gn_cli_args.rb_size = 1024;
 
-  pq_gn_cli_args.infile_allocated = 0;
-  pq_gn_cli_args.outfile_prefix_allocated = 0;
+  pq_gn_cli_args.infile = NULL;
+  pq_gn_cli_args.outfile_prefix = NULL;
 
   for(i=0; i<PQ_HH_MAX_CHANNELS; i++) {
     pq_gn_cli_args.channel_offset[i] = 0;
@@ -204,8 +204,7 @@ int pq_gn_read_cli(int argc, char **argv) {
           fprintf(stderr, "Error: Input filename too long.\n");
           return(-1);
         }
-        pq_gn_cli_args.infile = (char *)malloc((strlen(optarg)+1)*sizeof(char));
-        pq_gn_cli_args.infile_allocated = 1;
+        pq_gn_cli_args.infile = (char *)calloc((strlen(optarg)+1), sizeof(char));
         strcpy(pq_gn_cli_args.infile, optarg);
         break;
 
@@ -214,8 +213,7 @@ int pq_gn_read_cli(int argc, char **argv) {
           fprintf(stderr, "Error: Output prefix too long.\n");
           return(-1);
         }
-        pq_gn_cli_args.outfile_prefix = (char *)malloc((strlen(optarg)+1)*sizeof(char));
-        pq_gn_cli_args.outfile_prefix_allocated = 1;
+        pq_gn_cli_args.outfile_prefix = (char *)calloc((strlen(optarg)+1), sizeof(char));
         strcpy(pq_gn_cli_args.outfile_prefix, optarg);
         break;
 
@@ -312,7 +310,7 @@ int check_pq_gn_cli_args() {
   // -d (--delay)
   // -i (--input-file)
   // Test i1: Was an input file provided?
-  if (!pq_gn_cli_args.infile_allocated) {
+  if (pq_gn_cli_args.infile == NULL) {
     fprintf(stderr, "Error: Please provide an input file with the -i flag\n");
     return(-1);
   }
@@ -339,7 +337,7 @@ void pq_gn_print_options(int no_verbose) {
   setlocale(LC_NUMERIC, "");
   fprintf(stderr, KHEAD1 "Options Summary\n" KNRM);
 
-  if (pq_gn_cli_args.infile_allocated) {
+  if (pq_gn_cli_args.infile != NULL) {
     fprintf(stderr, KHEAD2 "Input File:" KNRM KFILE " %s\n" KNRM, pq_gn_cli_args.infile);
   }
 
@@ -360,15 +358,9 @@ void pq_gn_print_options(int no_verbose) {
 }
 
 void pq_gn_cli_cleanup() {
-  if(pq_gn_cli_args.infile_allocated) {
-    free(pq_gn_cli_args.infile);
-    pq_gn_cli_args.infile_allocated = 0;
-  }
+  free(pq_gn_cli_args.infile);
+  pq_gn_cli_args.infile = NULL;
 
-  if(pq_gn_cli_args.outfile_prefix_allocated) {
-    free(pq_gn_cli_args.outfile_prefix);
-    pq_gn_cli_args.outfile_prefix_allocated = 0;
-  }
-
-
+  free(pq_gn_cli_args.outfile_prefix);
+  pq_gn_cli_args.outfile_prefix = NULL;
 }

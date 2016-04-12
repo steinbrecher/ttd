@@ -16,10 +16,8 @@ typedef struct {
     int64_t total_coinc;
     uint64_t rbs_counts[4];
 
-    _Bool rbs_allocated[4];
     ttd_rb_t *rbs[4];
 
-    _Bool hist_allocated;
     ttd_t *hist;
 } ttd_ccorr4_t;
 

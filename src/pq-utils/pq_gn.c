@@ -196,7 +196,7 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
     for (j=0; j<2; j++) {
       ttd_rb_cleanup(g2_ccorrs[i].rbs[j]);
       free(g2_ccorrs[i].rbs[j]);
-      g2_ccorrs[i].rbs_allocated[j] = 0;
+      g2_ccorrs[i].rbs[j] = NULL;
     }
   }
 
@@ -220,7 +220,7 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
     for (j=0; j<3; j++) {
       ttd_rb_cleanup(g3_ccorrs[i].rbs[j]);
       free(g3_ccorrs[i].rbs[j]);
-      g3_ccorrs[i].rbs_allocated[j] = 0;
+      g3_ccorrs[i].rbs[j] = NULL;
     }
   }
 
@@ -238,7 +238,7 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
     for (j=0; j<4; j++) {
       ttd_rb_cleanup(g4_ccorrs[i].rbs[j]);
       free(g4_ccorrs[i].rbs[j]);
-      g4_ccorrs[i].rbs_allocated[j] = 0;
+      g4_ccorrs[i].rbs[j] = NULL;
     }
   }
 
@@ -703,6 +703,27 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
       // Write output
       ttd_ccorr4_write_csv(&g4_ccorrs[0], outfile);
     }
+  }
+
+  // Set pointers to ringbuffers from g2_ccorrs to NULL
+  for (i=0; i<num_pairs; i++) {
+    g2_ccorrs[i].rbs[0] = NULL;
+    g2_ccorrs[i].rbs[1] = NULL;
+  }
+
+  // Set pointers to ringbuffers from g3_ccorrs to NULL
+  for (i=0; i<num_triplets; i++) {
+    g3_ccorrs[i].rbs[0] = NULL;
+    g3_ccorrs[i].rbs[1] = NULL;
+    g3_ccorrs[i].rbs[2] = NULL;
+  }
+
+  // Set pointers to ringbuffers from g4_ccorrs to NULL
+  for (i=0; i<num_quads; i++) {
+    g4_ccorrs[i].rbs[0] = NULL;
+    g4_ccorrs[i].rbs[1] = NULL;
+    g4_ccorrs[i].rbs[2] = NULL;
+    g4_ccorrs[i].rbs[3] = NULL;
   }
 
   // Clean up global ringbuffers

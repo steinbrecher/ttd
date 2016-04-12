@@ -13,10 +13,8 @@ typedef struct {
   int64_t total_coinc;
   uint64_t rbs_counts[3];
 
-  _Bool rbs_allocated[3];
   ttd_rb_t *rbs[3];
 
-  _Bool hist_allocated;
   ttd_t *hist;
 } ttd_ccorr3_t;
 

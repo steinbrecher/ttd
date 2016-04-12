@@ -23,10 +23,8 @@ struct {
     int64_t channel_offset[PQ_HH_MAX_CHANNELS];
     _Bool channel_active[PQ_HH_MAX_CHANNELS];
 
-    int infile_allocated;
     char *infile; // -o
 
-    int outfile_prefix_allocated;
     char *outfile_prefix; // -o
 
     // This is padded by 1 to make code more obvious & easier to read

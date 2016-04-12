@@ -85,9 +85,9 @@ int ttd_g2_read_cli(int argc, char* argv[]) {
   ttd_g2_cli_args.block_size = 16384;
   ttd_g2_cli_args.rb_size = 1024;
 
-  ttd_g2_cli_args.infiles_allocated[0] = 0;
-  ttd_g2_cli_args.infiles_allocated[1] = 0;
-  ttd_g2_cli_args.outfile_allocated = 0;
+  ttd_g2_cli_args.infile1 = NULL;
+  ttd_g2_cli_args.infile2 = NULL;
+  ttd_g2_cli_args.outfile = NULL;
 
   // Read command line options
   int option_index, opt;
@@ -118,18 +118,15 @@ int ttd_g2_read_cli(int argc, char* argv[]) {
 
     case '1':
       ttd_g2_cli_args.infile1 = (char *)malloc((strlen(optarg)+1)*sizeof(char));
-      ttd_g2_cli_args.infiles_allocated[0] = 1;
       strcpy(ttd_g2_cli_args.infile1, optarg);
       break;
     case '2':
       ttd_g2_cli_args.infile2 = (char *)malloc((strlen(optarg)+1)*sizeof(char));
-      ttd_g2_cli_args.infiles_allocated[1] = 1;
       strcpy(ttd_g2_cli_args.infile2, optarg);
       break;
 
     case 'o':
       ttd_g2_cli_args.outfile = (char *)malloc((strlen(optarg)+1)*sizeof(char));
-      ttd_g2_cli_args.outfile_allocated = 1;
       strcpy(ttd_g2_cli_args.outfile, optarg);
       break;
 
@@ -188,19 +185,10 @@ void ttd_g2_print_options(int no_verbose) {
 }  
 
 void ttd_g2_cli_cleanup() {
-  if(ttd_g2_cli_args.infiles_allocated[0]) {
-    free(ttd_g2_cli_args.infile1);
-    ttd_g2_cli_args.infiles_allocated[0] = 0;
-  }
-  if(ttd_g2_cli_args.infiles_allocated[1]) {
-    free(ttd_g2_cli_args.infile2);
-    ttd_g2_cli_args.infiles_allocated[1] = 0;
-  }
-
-  if(ttd_g2_cli_args.outfile_allocated) {
-    free(ttd_g2_cli_args.outfile);
-    ttd_g2_cli_args.outfile_allocated = 0;
-  }
-
-					  
+  free(ttd_g2_cli_args.infile1);
+  ttd_g2_cli_args.infile1 = NULL;
+  free(ttd_g2_cli_args.infile2);
+  ttd_g2_cli_args.infile2 = NULL;
+  free(ttd_g2_cli_args.outfile);
+  ttd_g2_cli_args.outfile = NULL;
 }

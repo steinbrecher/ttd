@@ -18,7 +18,7 @@ ttd_ccorr2_t *ttd_g2(char* infile1, char* infile2, int *retcode) {
   ttd_t t1, t2;
   ttd_ccorr2_t *ccorr = ttd_ccorr2_build(ttd_g2_cli_args.bin_time, ttd_g2_cli_args.window_time, 256);
 
-  if (ccorr->hist_allocated == 0) {
+  if (ccorr->hist == NULL) {
     printf("ERROR: Histogram not allocated");
     exit(-1);
   }

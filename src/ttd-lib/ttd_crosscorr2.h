@@ -31,14 +31,10 @@ typedef struct {
     uint64_t rbs_counts[2];
     /**< For normalization: Track total number of counts seen on each channel */
 
-    _Bool rbs_allocated[2];
-    /**< Track whether ttd_ccorr2_t#rbs[] should be freed when ttd_ccorr2_cleanup is called */
     ttd_rb_t *rbs[2];
     /**< Pointers to ttd_rb_t ringbuffer structures; all differential times calculated as
      * (time in rbs[1]) - (time in rbs[0]) */
 
-    _Bool hist_allocated;
-    /**< Track whether ttd_ccorr2_t#hist should be freed when ttd_ccorr2_cleanup called */
     // TODO: Look into changing datatype of this
     ttd_t *hist;
     /**< calloc'd array used for storing histogram counts */

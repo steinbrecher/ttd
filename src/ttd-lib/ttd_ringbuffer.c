@@ -11,13 +11,14 @@
 #define RB_NEXT(rb, idx) (rb->start + rb->idx + 1) % rb->size
 
 void ttd_rb_init(ttd_rb_t *rb, size_t size, uint64_t duration) {
+  rb->times = NULL;
+
   rb->size  = size;
   rb->start = 0;
   rb->count = 0;
 
   rb->duration = duration;
   rb->times = (ttd_t *) calloc(rb->size, sizeof(ttd_t));
-  rb->times_allocated = 1;
 }
 
 // Make sure to free ring buffers allocated with this function
@@ -67,16 +68,15 @@ void ttd_rb_prune(ttd_rb_t *rb, ttd_t time) {
 }
 
 void ttd_rb_cleanup(ttd_rb_t *rb) {
-  if (rb->times_allocated) {
-    free(rb->times);
-    rb->times_allocated = 0;
-  }
+  if (rb == NULL) {return;}
+  free(rb->times);
+  rb->times = NULL;
 }
 
 int ttd_rb_grow(ttd_rb_t *rb) {
   ttd_t *newbuff;
   size_t i;
-  if (rb->times_allocated == 1) {
+  if (rb->times != NULL) {
     printf("    Growing ringbuffer size to %lu\n", 2*rb->size);
     newbuff = (ttd_t *) malloc(2*rb->size*sizeof(ttd_t));
     if (newbuff == NULL) {

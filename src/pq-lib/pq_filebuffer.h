@@ -18,12 +18,10 @@ typedef struct {
     _Bool empty;
 
     pq_chanrec_t *buffered_records;
-    _Bool buffer_allocated;
     size_t buffered_records_count;
     size_t buffered_records_idx;
 
     char *filename;
-    _Bool filename_allocated;
 
     _Bool file_open;
     FILE *fp;
@@ -42,7 +40,6 @@ typedef struct {
 
     // File block
     pq_rec_t *file_block;
-    int file_block_allocated;
 
     // Channel offset processing
     ttd_t channel_offsets[PQ_HH_MAX_CHANNELS];

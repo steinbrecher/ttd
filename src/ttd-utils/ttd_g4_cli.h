@@ -9,11 +9,8 @@
 struct {
   _Bool verbose; // -v
 
-  _Bool infiles_allocated[4];
-
   char *infiles[4]; // -1 thru -4
 
-  _Bool outfile_allocated;
   char *outfile; // -o
 
   ttd_t bin_time; // -b

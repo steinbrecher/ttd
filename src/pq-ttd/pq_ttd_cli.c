@@ -33,7 +33,7 @@ static const char *pq_ttd_optstring = "Vhcvi:o:B:";
 
 void pq_ttd_cli_print_help(char* program_name) {
   // Need a string of spaces equal in length to the program name
-  int len = strlen(program_name) + 1;
+  size_t len = strlen(program_name) + 1;
   char pn_spaces[len];
   int i;
   for (i=0; i<len-1; i++) {
@@ -60,8 +60,8 @@ int pq_ttd_read_cli(int argc, char* argv[]) {
   pq_ttd_cli_args.compress = 0;
   pq_ttd_cli_args.block_size = 16384;
 
-  pq_ttd_cli_args.infile_allocated = 0;
-  pq_ttd_cli_args.output_prefix_allocated = 0;
+  pq_ttd_cli_args.infile = NULL;
+  pq_ttd_cli_args.output_prefix = NULL;
 
   // Read command line options
   int option_index, opt;
@@ -88,13 +88,11 @@ int pq_ttd_read_cli(int argc, char* argv[]) {
 
     case 'i':
       pq_ttd_cli_args.infile = (char *)malloc((strlen(optarg)+1)*sizeof(char));
-      pq_ttd_cli_args.infile_allocated = 1;
       strcpy(pq_ttd_cli_args.infile, optarg);
       break;
 
     case 'o':
       pq_ttd_cli_args.output_prefix = (char *)malloc((strlen(optarg)+1)*sizeof(char));
-      pq_ttd_cli_args.output_prefix_allocated = 1;
       strcpy(pq_ttd_cli_args.output_prefix, optarg);
       break;
 
@@ -125,13 +123,8 @@ void pq_ttd_print_options(int no_verbose) {
 }  
 
 void pq_ttd_cli_cleanup() {
-  if(pq_ttd_cli_args.infile_allocated) {
-    free(pq_ttd_cli_args.infile);
-    pq_ttd_cli_args.infile_allocated = 0;
-  }
-
-  if(pq_ttd_cli_args.output_prefix_allocated) {
-    free(pq_ttd_cli_args.output_prefix);
-    pq_ttd_cli_args.output_prefix_allocated = 0;
-  }
+  free(pq_ttd_cli_args.infile);
+  pq_ttd_cli_args.infile = NULL;
+  free(pq_ttd_cli_args.output_prefix);
+  pq_ttd_cli_args.output_prefix = NULL;
 }
