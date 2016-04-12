@@ -16,6 +16,11 @@
  *  - Assign ccorr->bin_time and ccorr->window_time according to function arguments
  *  - Calculate number of bins needed and allocate histogram (setting ccorr->hist_allocated = 1)
  *  - Initialize the rest of the variables
+ *
+ * Allocations:
+ *  - ccorr->rbs[0] (w/ all side effects of initializing a ttd_rb_t struct)
+ *  - ccorr->rbs[1] (w/ all side effects of initializing a ttd_rb_t struct)
+ *  - ccorr->hist (of size ccorr->num_bins; see function for that calculation)
  * */
 void ttd_ccorr2_init(ttd_ccorr2_t *ccorr, ttd_t bin_time, ttd_t window_time, size_t rb_size) {
   // TODO: Error checking here
@@ -47,9 +52,13 @@ void ttd_ccorr2_init(ttd_ccorr2_t *ccorr, ttd_t bin_time, ttd_t window_time, siz
   }
 }
 
-ttd_ccorr2_t *ttd_ccorr2_build(ttd_t bin_time, ttd_t window_time, size_t rb_size) {
+/** /brief Helper function to allocate and initialize a ccorr2 struct
+ *
+ *
+ *
+ * */
+ ttd_ccorr2_t *ttd_ccorr2_build(ttd_t bin_time, ttd_t window_time, size_t rb_size) {
   ttd_ccorr2_t *ccorr = (ttd_ccorr2_t *)calloc(1, sizeof(ttd_ccorr2_t));
-
   ttd_ccorr2_init(ccorr, bin_time, window_time, rb_size);
   return ccorr;
 }
