@@ -6,6 +6,7 @@
 #include "sci_to_int64.h"
 
 int64_t sci_to_int64(const char *scinum, int *retcode) {
+  retcode = 0;
   char end = '\0';
   char *pEnd = &end;
   char *eptr, *Eptr;

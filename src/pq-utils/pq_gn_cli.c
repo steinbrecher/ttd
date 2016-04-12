@@ -106,10 +106,14 @@ int16_t parse_delay(char* input, int16_t *channel, int64_t *delay) {
   strncpy(channelStr, input, nCharChannel);
   strncpy(delayStr, input + colonIdx + 1, nCharDelay);
   *channel = (int16_t)atoi(channelStr);
-  int retcode;
+  int retcode = 0;
+
   *delay = sci_to_int64(delayStr, &retcode);
+
   if (retcode != 0) {
     sci_to_int64_printerr(delayStr, retcode);
+    free(channelStr);
+    free(delayStr);
     return(-1);
   }
 

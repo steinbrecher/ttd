@@ -246,4 +246,5 @@ void ttd_ccorr4_cleanup(ttd_ccorr4_t *ccorr) {
     ccorr->rbs[i] = NULL;
   }
   free(ccorr->hist);
+  ccorr->hist = NULL;
 }

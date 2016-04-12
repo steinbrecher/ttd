@@ -175,5 +175,5 @@ void ttd_ccorr3_cleanup(ttd_ccorr3_t *ccorr) {
   ccorr->rbs[2] = NULL;
 
   free(ccorr->hist);
-  ccorr->hist = NULL;
+  //ccorr->hist = NULL;
 }

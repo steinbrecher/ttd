@@ -49,14 +49,14 @@ int pq_fb_init(pq_fb_t *buffer, char *filename) {
   }
 
   // Allocate array for buffering
-  buffer->buffered_records = (pq_chanrec_t *) calloc(buffer->num_photons, sizeof(pq_chanrec_t));
+  buffer->buffered_records = (pq_chanrec_t *) malloc(buffer->num_photons * sizeof(pq_chanrec_t));
   if (buffer->buffered_records == NULL) {
     retcode = PQ_FB_MALLOC_ERROR;
     goto error_cleanup;
   }
 
   // Allocate filename string
-  buffer->filename = (char *) calloc((strlen(filename) + 1), sizeof(char));
+  buffer->filename = (char *) malloc((strlen(filename) + 1) * sizeof(char));
   if (buffer->filename == NULL) {
     retcode = PQ_FB_MALLOC_ERROR;
     goto error_cleanup;
@@ -90,7 +90,7 @@ int pq_fb_init(pq_fb_t *buffer, char *filename) {
   }
 
   // Allocate block for photon records
-  buffer->file_block = (pq_rec_t *) calloc(buffer->num_photons, sizeof(pq_rec_t));
+  buffer->file_block = (pq_rec_t *) malloc(buffer->num_photons * sizeof(pq_rec_t));
   if (buffer->file_block == NULL) {
     printf("ERROR: Could not allocate %llu bytes for file buffer\n", buffer->num_photons * sizeof(pq_rec_t));
     retcode = PQ_FB_MALLOC_ERROR;
