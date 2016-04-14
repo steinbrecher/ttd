@@ -1,7 +1,7 @@
 #Time Tagged Data Processor#
 =========
 
-This is a collection of programs intended for working with time-tagged photon data, primarily deriving from PicoQuant photon counters.
+This is a collection of programs intended for working with time tagged photon data, primarily deriving from PicoQuant photon counters.
 
 The tools are split into three main categories:
 
@@ -15,12 +15,12 @@ There are variants of the programs in the third category included for working wi
 
 ## Basic installation instructions ##
 
-1. Download the latest version: [ttd.tar.gz](ttd.tar.gz)
+1. Download the [latest release](https://github.com/steinbrecher/ttd/archive/0.4.0.tar.gz) (or clone the repository if you'd like the latest -- possibly buggy -- version)
 
-2. Unzip the .tar.gz into its own folder: 
+2. Unzip the archive into its own folder: 
 
-        $ tar -xvzf ttd.tar.gz
-        $ cd ttd
+        $ tar -xvzf ttd-0.4.0.tar.gz
+        $ cd ttd-0.4.0
 
 3. Install the software. Commands are:
 
@@ -32,30 +32,28 @@ There are variants of the programs in the third category included for working wi
 
 Depending on your system 'sudo' may be optional in the last command.
 
-# Summary of Executable Tools #
-=========
+## Summary of Executable Tools 
 
 (Note: for help with any of the installed tools, run them with the flag --help)
 
-## Working with PicoQuant-formatted data files
+### Working with PicoQuant-formatted data files
 * `pq-gn`: Computes g(2), g(3), g(4) cross-correlations between the channels of a picoquant TTTR file (.ht2, .ht3, etc.)
 * `pq-dump`: Prints photon arrival time and channel information to stdout. Super inefficient but useful for debugging
 
-## Converting to the Time Tagged Data format (.ttd)
+### Converting to the Time Tagged Data format (.ttd)
 * `pq-ttd`: Takes a PicoQuant-formatted data file as input, produces .ttd files (one per channel) as output. 
 
-## Working with Time Tagged Data Files
+### Working with Time Tagged Data Files
 * `ttd-shift`: Move all the time records in a ttd file forward or back in time (useful for aligning channels)
 * `ttd-merge`: Combine two ttd files into a single one for further manipulation / computation
 * `ttd-dump`: Prints the records in a ttd file to stdout. Super inefficient, but useful for debugging.
 * `ttd-g2`, `ttd-g3`, `ttd-g4`: Cross-correlation computation programs for `ttd` files
 
-# Cross-Correlation Output Format #
-=========
+## Cross-Correlation Output Format 
 Currently, all of the cross-correlation programs output CSV files. For g(n) calculations, the first `n-1` columns are the times of the bin centers and the final column is the number of correlation counts in that bin. For example, for a g(3) run on channels 0,1, and 3, the first column is (t1 - t0), the second column is (t3 - t0), and the third column is the number of counts in each bin. 
 
-# Summary of Libraries Included #
-=========
+## Summary of Libraries Included #
+
 In addition to the executable programs discussed above, there are a bunch of fast C libraries included with this package. In general, these APIs will be more stable so that if, e.g. the `.ttd` data format changes or new PicoQuant file formats are introduced, code using these libraries won't have to be updated (or, at the least, impact will be minimized...). 
 
 See the `README` files in the `src/` sub-folders for more detailed information; doxygen-produced documentation for all of these should be completed soon.
