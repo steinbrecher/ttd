@@ -1,7 +1,0 @@
-Standard cmake-style install:
- [starting from source root]
- $ mkdir build && cd build
- $ cmake ..
- $ make
- $ sudo make install
-(sudo may or may not be required depending on system config) 

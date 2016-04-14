@@ -1,4 +1,0 @@
-#ifndef _TTP_G2_HEADER_SEEN
-#define _TTP_G2_HEADER_SEEN
-
-#endif // _TTP_G2_HEADER_SEEN
