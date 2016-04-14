@@ -1,0 +1,69 @@
+\hypertarget{structttd__ccorr2__t}{}\section{ttd\+\_\+ccorr2\+\_\+t Struct Reference}
+\label{structttd__ccorr2__t}\index{ttd\+\_\+ccorr2\+\_\+t@{ttd\+\_\+ccorr2\+\_\+t}}
+
+
+Structure for coordinating second order cross-\/correlation calculation.  
+
+
+
+
+{\ttfamily \#include $<$ttd\+\_\+crosscorr2.\+h$>$}
+
+\subsection*{Data Fields}
+\begin{DoxyCompactItemize}
+\item 
+ttd\+\_\+t \hyperlink{structttd__ccorr2__t_ad92442a4ab2d08d4d15e6b32442a15eb}{bin\+\_\+time}
+\item 
+ttd\+\_\+t \hyperlink{structttd__ccorr2__t_a2afa4d3a622ea10c731181ecaefc63c3}{window\+\_\+time}
+\item 
+size\+\_\+t \hyperlink{structttd__ccorr2__t_a811a546cf1b2cf24a6c907c4917932ef}{num\+\_\+bins}
+\item 
+size\+\_\+t \hyperlink{structttd__ccorr2__t_ade85728d8ba11808be8abbdb876d7d5d}{center\+\_\+bin}
+\item 
+int64\+\_\+t \hyperlink{structttd__ccorr2__t_a127fca4b0a397dc24cf6c3165273ca97}{total\+\_\+coinc}
+\item 
+uint64\+\_\+t \hyperlink{structttd__ccorr2__t_a8413d9d1551e1fafbaf6d168ca997b0c}{rbs\+\_\+counts} \mbox{[}2\mbox{]}
+\item 
+\hyperlink{structttd__rb__t}{ttd\+\_\+rb\+\_\+t} $\ast$ \hyperlink{structttd__ccorr2__t_aa64b2c0039a6466a4d15e18e1d4e22cf}{rbs} \mbox{[}2\mbox{]}
+\item 
+ttd\+\_\+t $\ast$ \hyperlink{structttd__ccorr2__t_a6670bb2f511309d52c6c0cf9ccc9cf43}{hist}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Structure for coordinating second order cross-\/correlation calculation. 
+
+\hyperlink{structttd__ccorr2__t}{ttd\+\_\+ccorr2\+\_\+t} stores the necessary information to calculate G(2) cross-\/correlations. Functions are provided for initialization, updating (adding a new time record), writing the result to a C\+S\+V file, and cleaning up memory allocations. Using the member parameter {\ttfamily window\+\_\+time}, the update function handles buffering of previously seen time records.
+
+The output format is a histogram, with binned coincidences (\hyperlink{structttd__ccorr2__t_ad92442a4ab2d08d4d15e6b32442a15eb}{ttd\+\_\+ccorr2\+\_\+t\+::bin\+\_\+time} sets the size of these), which is written to a csv file, and can be normalized for g(2) correlations. 
+
+\subsection{Field Documentation}
+\hypertarget{structttd__ccorr2__t_ad92442a4ab2d08d4d15e6b32442a15eb}{}\index{ttd\+\_\+ccorr2\+\_\+t@{ttd\+\_\+ccorr2\+\_\+t}!bin\+\_\+time@{bin\+\_\+time}}
+\index{bin\+\_\+time@{bin\+\_\+time}!ttd\+\_\+ccorr2\+\_\+t@{ttd\+\_\+ccorr2\+\_\+t}}
+\subsubsection[{bin\+\_\+time}]{\setlength{\rightskip}{0pt plus 5cm}ttd\+\_\+t ttd\+\_\+ccorr2\+\_\+t\+::bin\+\_\+time}\label{structttd__ccorr2__t_ad92442a4ab2d08d4d15e6b32442a15eb}
+Bin width of histogram \hypertarget{structttd__ccorr2__t_ade85728d8ba11808be8abbdb876d7d5d}{}\index{ttd\+\_\+ccorr2\+\_\+t@{ttd\+\_\+ccorr2\+\_\+t}!center\+\_\+bin@{center\+\_\+bin}}
+\index{center\+\_\+bin@{center\+\_\+bin}!ttd\+\_\+ccorr2\+\_\+t@{ttd\+\_\+ccorr2\+\_\+t}}
+\subsubsection[{center\+\_\+bin}]{\setlength{\rightskip}{0pt plus 5cm}size\+\_\+t ttd\+\_\+ccorr2\+\_\+t\+::center\+\_\+bin}\label{structttd__ccorr2__t_ade85728d8ba11808be8abbdb876d7d5d}
+Precomputed center bin (bin with center at zero time delay) \hypertarget{structttd__ccorr2__t_a6670bb2f511309d52c6c0cf9ccc9cf43}{}\index{ttd\+\_\+ccorr2\+\_\+t@{ttd\+\_\+ccorr2\+\_\+t}!hist@{hist}}
+\index{hist@{hist}!ttd\+\_\+ccorr2\+\_\+t@{ttd\+\_\+ccorr2\+\_\+t}}
+\subsubsection[{hist}]{\setlength{\rightskip}{0pt plus 5cm}ttd\+\_\+t$\ast$ ttd\+\_\+ccorr2\+\_\+t\+::hist}\label{structttd__ccorr2__t_a6670bb2f511309d52c6c0cf9ccc9cf43}
+calloc\textquotesingle{}d array used for storing histogram counts \hypertarget{structttd__ccorr2__t_a811a546cf1b2cf24a6c907c4917932ef}{}\index{ttd\+\_\+ccorr2\+\_\+t@{ttd\+\_\+ccorr2\+\_\+t}!num\+\_\+bins@{num\+\_\+bins}}
+\index{num\+\_\+bins@{num\+\_\+bins}!ttd\+\_\+ccorr2\+\_\+t@{ttd\+\_\+ccorr2\+\_\+t}}
+\subsubsection[{num\+\_\+bins}]{\setlength{\rightskip}{0pt plus 5cm}size\+\_\+t ttd\+\_\+ccorr2\+\_\+t\+::num\+\_\+bins}\label{structttd__ccorr2__t_a811a546cf1b2cf24a6c907c4917932ef}
+Number of elements in the {\ttfamily hist} array \hypertarget{structttd__ccorr2__t_aa64b2c0039a6466a4d15e18e1d4e22cf}{}\index{ttd\+\_\+ccorr2\+\_\+t@{ttd\+\_\+ccorr2\+\_\+t}!rbs@{rbs}}
+\index{rbs@{rbs}!ttd\+\_\+ccorr2\+\_\+t@{ttd\+\_\+ccorr2\+\_\+t}}
+\subsubsection[{rbs}]{\setlength{\rightskip}{0pt plus 5cm}{\bf ttd\+\_\+rb\+\_\+t}$\ast$ ttd\+\_\+ccorr2\+\_\+t\+::rbs\mbox{[}2\mbox{]}}\label{structttd__ccorr2__t_aa64b2c0039a6466a4d15e18e1d4e22cf}
+Pointers to \hyperlink{structttd__rb__t}{ttd\+\_\+rb\+\_\+t} ringbuffer structures; all differential times calculated as (time in rbs\mbox{[}1\mbox{]}) -\/ (time in rbs\mbox{[}0\mbox{]}) \hypertarget{structttd__ccorr2__t_a8413d9d1551e1fafbaf6d168ca997b0c}{}\index{ttd\+\_\+ccorr2\+\_\+t@{ttd\+\_\+ccorr2\+\_\+t}!rbs\+\_\+counts@{rbs\+\_\+counts}}
+\index{rbs\+\_\+counts@{rbs\+\_\+counts}!ttd\+\_\+ccorr2\+\_\+t@{ttd\+\_\+ccorr2\+\_\+t}}
+\subsubsection[{rbs\+\_\+counts}]{\setlength{\rightskip}{0pt plus 5cm}uint64\+\_\+t ttd\+\_\+ccorr2\+\_\+t\+::rbs\+\_\+counts\mbox{[}2\mbox{]}}\label{structttd__ccorr2__t_a8413d9d1551e1fafbaf6d168ca997b0c}
+For normalization\+: Track total number of counts seen on each channel \hypertarget{structttd__ccorr2__t_a127fca4b0a397dc24cf6c3165273ca97}{}\index{ttd\+\_\+ccorr2\+\_\+t@{ttd\+\_\+ccorr2\+\_\+t}!total\+\_\+coinc@{total\+\_\+coinc}}
+\index{total\+\_\+coinc@{total\+\_\+coinc}!ttd\+\_\+ccorr2\+\_\+t@{ttd\+\_\+ccorr2\+\_\+t}}
+\subsubsection[{total\+\_\+coinc}]{\setlength{\rightskip}{0pt plus 5cm}int64\+\_\+t ttd\+\_\+ccorr2\+\_\+t\+::total\+\_\+coinc}\label{structttd__ccorr2__t_a127fca4b0a397dc24cf6c3165273ca97}
+For normalization\+: Track total number of coincidences seen \hypertarget{structttd__ccorr2__t_a2afa4d3a622ea10c731181ecaefc63c3}{}\index{ttd\+\_\+ccorr2\+\_\+t@{ttd\+\_\+ccorr2\+\_\+t}!window\+\_\+time@{window\+\_\+time}}
+\index{window\+\_\+time@{window\+\_\+time}!ttd\+\_\+ccorr2\+\_\+t@{ttd\+\_\+ccorr2\+\_\+t}}
+\subsubsection[{window\+\_\+time}]{\setlength{\rightskip}{0pt plus 5cm}ttd\+\_\+t ttd\+\_\+ccorr2\+\_\+t\+::window\+\_\+time}\label{structttd__ccorr2__t_a2afa4d3a622ea10c731181ecaefc63c3}
+The time centers of the histogram bins range over \{{\ttfamily -\/window\+\_\+time, -\/window\+\_\+time + bin\+\_\+time, ..., -\/2 $\ast$ bin\+\_\+time, -\/bin\+\_\+time, 0, bin\+\_\+time, 2 $\ast$ bin\+\_\+time, ..., window\+\_\+time -\/ bin\+\_\+time , window\+\_\+time}\} 
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/ttd-\/lib/ttd\+\_\+crosscorr2.\+h\end{DoxyCompactItemize}
