@@ -28,3 +28,4 @@ config.status
 
 build
 tests
+html/
