@@ -220,11 +220,11 @@ void ttd_ccorr4_write_csv(ttd_ccorr4_t *ccorr, char *file_name) {
   // Histogram location is [num_bins * dbins1 + dbins2]
   // i.e. row index is the first delta time, column index the second
   for (m = 0; m < num_bins; m++) { // dt1 Loop
-    dt1 = -1 * (int64_t) (window_time + m * bin_time);
+    dt1 = -1 * (int64_t) window_time + m * bin_time;
     for (n = 0; n < num_bins; n++) { // dt2 loop
-      dt2 = -1 * (int64_t) (window_time + n * bin_time);
+      dt2 = -1 * (int64_t) window_time + n * bin_time;
       for (o = 0; o < num_bins; o++) { // dt3 loop
-        dt3 = -1 * (int64_t) (window_time + o * bin_time);
+        dt3 = -1 * (int64_t) window_time + o * bin_time;
         fprintf(output_file,
                 "%" PRId64 ",%" PRId64 ",%" PRId64 ",%" PRIu64 "\n",
                 dt1,

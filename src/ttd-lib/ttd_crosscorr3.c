@@ -145,9 +145,9 @@ void ttd_ccorr3_write_csv(ttd_ccorr3_t *ccorr, char *file_name) {
   // i.e. row index is the first delta time, column index the second
 
   for (m=0; m < num_bins; m++) { // Row Loop
-    dt1 = -1 * (int64_t)(window_time + m*bin_time);
+    dt1 = -1 * (int64_t)window_time + m*bin_time;
     for (n=0; n < num_bins; n++) { // Column loop
-      dt2 = -1 * (int64_t)(window_time + n*bin_time);
+      dt2 = -1 * (int64_t)window_time + n*bin_time;
       fprintf(output_file,
               "%" PRId64 ",%" PRId64 ",%" PRIu64 "\n",
               dt1,
