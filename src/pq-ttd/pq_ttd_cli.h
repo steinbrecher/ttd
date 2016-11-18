@@ -15,6 +15,8 @@ struct {
 
   char *output_prefix; // -o
 
+  _Bool output_sync; // -s
+
   int block_size;
 
 } pq_ttd_cli_args;

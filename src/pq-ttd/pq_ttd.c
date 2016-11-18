@@ -6,6 +6,7 @@
 #include <stdlib.h>
 
 #include "pq_ttd.h"
+#include "pq_ttd_cli.h"
 
 int16_t pt2_v2_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
   int16_t channel = (int16_t) pq_rec.ph_t2_bits.channel;
@@ -55,7 +56,7 @@ int16_t ht2_v1_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correctio
     }
       // Sync record
     else if (channel == 0) {
-      // Channel indices are 0, 1, ... file_info->num_channels, so this is the 'extra' index for sync
+      // Channel indices are 0, 1, ... file_info->num_channels-1, so this is the 'extra' index for sync
       *ttd_rec = ttd_rounded_divide((*overflow_correction + timetag), 2);
       return(file_info->num_channels);
     }
@@ -85,7 +86,7 @@ int16_t ht2_v2_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correctio
       // Sync record
     else if (channel==0) {
       *ttd_rec = *overflow_correction + timetag;
-      // Channel indices are 0, 1, ... file_info->num_channels, so this is the 'extra' index for sync
+      // Channel indices are 0, 1, ... file_info->num_channels-1, so this is the 'extra' index for sync
       return(file_info->num_channels);
     }
   }
@@ -197,11 +198,8 @@ uint64_t run_hh_convert(FILE *fpin, pq_fileinfo_t *file_info) {
   int retcode;
 
   // Output sync records as well in HT2 mode
-  // TODO: Make this a command line switch
-  int output_sync = 0;
-  if ((file_info->instrument == PQ_HH) && (meas_mode == 2)) {
+  if ((file_info->instrument == PQ_HH) && (meas_mode == 2) && pq_ttd_cli_args.output_sync) {
     channels++;
-    output_sync = 1;
   }
 
   ttd_t ttd_blocks[channels][PHOTONBLOCK];
@@ -236,7 +234,7 @@ uint64_t run_hh_convert(FILE *fpin, pq_fileinfo_t *file_info) {
     outfiles[k] = fopen(fname, "wb");
   }
   // If we're outputting sync, change name of the last file
-  if (output_sync) {
+  if (pq_ttd_cli_args.output_sync) {
     snprintf(fname, sizeof(fname), "%s-channel-sync.%s", pq_ttd_cli_args.output_prefix, suffix);
     fclose(outfiles[channels-1]);
     outfiles[channels-1] = fopen(fname, "wb");
