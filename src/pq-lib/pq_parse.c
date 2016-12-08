@@ -218,7 +218,7 @@ int pq_parse_filetype(FILE *fp, pq_fileinfo_t *file_info) {
 }
 
 int pq_parse_header(FILE *fp, pq_fileinfo_t *file_info) {
-  int i, retcode=0;
+  int retcode=0;
   int image_header_size;
   //printf("Parsing header...\n");
   // Instrument type and file format version  are necessary to decide how to parse the 

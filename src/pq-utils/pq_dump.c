@@ -9,8 +9,6 @@
 #include "pq_dump.h"
 
 int main(int argc, char* argv[]) {
-  FILE *pq_file;
-
   // Check to make sure we got an input file (and nothing else) from command line
   int retcode=0, err=0;
 
@@ -36,7 +34,6 @@ int main(int argc, char* argv[]) {
 
   ttd_t time;
   size_t channel;
-  uint64_t i;
   while (!(fb.empty)) {
     pq_fb_get_next(&fb, &time, &channel);
     printf("%lu: %" PRIu64 "\n", channel, time);
@@ -44,6 +41,4 @@ int main(int argc, char* argv[]) {
 
   pq_fb_cleanup(&fb);
   exit(0);
-
-
 }

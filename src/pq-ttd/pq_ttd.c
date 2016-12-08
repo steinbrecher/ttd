@@ -6,7 +6,6 @@
 #include <stdlib.h>
 
 #include "pq_ttd.h"
-#include "pq_ttd_cli.h"
 
 int16_t pt2_v2_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correction, pq_fileinfo_t *file_info) {
   int16_t channel = (int16_t) pq_rec.ph_t2_bits.channel;
@@ -47,8 +46,6 @@ int16_t ht2_v1_to_ttd(pq_rec_t pq_rec, ttd_t *ttd_rec, ttd_t *overflow_correctio
   int16_t special = (int16_t) pq_rec.hh_t2_bits.special;
   int16_t channel = (int16_t) pq_rec.hh_t2_bits.channel;
   int32_t timetag = (int32_t) pq_rec.hh_t2_bits.timetag;
-
-  uint64_t realtime;
 
   if (special == 1) {
     if (channel==0x3F) {
@@ -192,10 +189,10 @@ int16_t get_pq_converter(pq_to_ttd_t *to_ttd, pq_fileinfo_t *file_info) {
 
 uint64_t run_hh_convert(FILE *fpin, pq_fileinfo_t *file_info) {
   int channels = file_info->num_channels;
-  int instrument = file_info->instrument;
+  //int instrument = file_info->instrument;
   int meas_mode = file_info->meas_mode;
-  int fmt_version = file_info->fmt_version;
-  int retcode;
+  //int fmt_version = file_info->fmt_version;
+  //int retcode;
 
   // Output sync records as well in HT2 mode
   if ((file_info->instrument == PQ_HH) && (meas_mode == 2) && pq_ttd_cli_args.output_sync) {
@@ -204,7 +201,7 @@ uint64_t run_hh_convert(FILE *fpin, pq_fileinfo_t *file_info) {
 
   ttd_t ttd_blocks[channels][PHOTONBLOCK];
 
-  int j, k;
+  int k;
   // Select appropriate version of to_ttd
   pq_to_ttd_t to_ttd;
   get_pq_converter(&to_ttd, file_info);
@@ -221,7 +218,7 @@ uint64_t run_hh_convert(FILE *fpin, pq_fileinfo_t *file_info) {
     printf("ERROR: Photon Block Not Allocated!\n");
     exit(-1);
   }
-  int ret, channel, result;
+  int channel;
 
   // Open the output files
   FILE* outfiles[channels];
@@ -267,8 +264,6 @@ uint64_t run_hh_convert(FILE *fpin, pq_fileinfo_t *file_info) {
       fwrite(&(ttd_blocks[k]), sizeof(ttd_record), ttd_buffer_count[k], outfiles[k]);
     }
   }
-
-  int avail=0, locked=0, flush;
 
   // Close the output files
   for (k=0; k < channels; k++) {

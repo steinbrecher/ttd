@@ -3,10 +3,7 @@
 #endif
 #include <stdio.h>
 #include <inttypes.h>
-#include <stddef.h>
 #include <stdlib.h>
-#include <math.h>
-#include <string.h>
 
 #include "ttd_g2_cli.h"
 
@@ -114,13 +111,11 @@ int main(int argc, char* argv[]) {
   ttd_ccorr2_write_csv(g2_ccorr, outfile, ttd_g2_cli_args.normalize, ttd_g2_cli_args.int_time, ttd_g2_cli_args.window_time);
 
 
- cleanup_ccorr:
   ttd_ccorr2_cleanup(g2_ccorr);
   free(g2_ccorr);
 
  cleanup_ttd_g2_cli:
   ttd_g2_cli_cleanup();
-  
- exit_block:
+
   exit(exitcode);
 }
