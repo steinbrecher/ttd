@@ -7,6 +7,7 @@
 #include <string.h>
 #include <inttypes.h>
 #include <locale.h>
+#include <unistd.h>
 
 #include "sci_to_int64.h"
 #include "ttd.h"
