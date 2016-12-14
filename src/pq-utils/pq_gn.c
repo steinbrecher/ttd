@@ -26,14 +26,14 @@
 #ifdef PROGRESS_BAR_ENABLE
 #include <sys/ipc.h>
 #include <sys/shm.h>
-void draw_progress_bar(int shmid, int64_t num_records) {
+void draw_progress_bar(int shmid, size_t num_records) {
   struct timeb currentTime;
   double startTime;
 
   ftime(&currentTime);
   startTime = (currentTime.time + (double)(currentTime.millitm)/1000.0);
 
-  int64_t i, lastVal;
+  int64_t i;
   int64_t *shvals;
   double progress, nextBarProgress;
   double stepBarProgress;
@@ -65,7 +65,6 @@ void draw_progress_bar(int shmid, int64_t num_records) {
   // Use second value in array as done flag
   while (shvals[1] == 0) {
     nanosleep(&waitTime, &remTime);
-    lastVal = shvals[0];
     progress = ((double)shvals[0])/num_records;
     // Check for stalled parent
     if (shvals[0] == 0) {
@@ -81,7 +80,6 @@ void draw_progress_bar(int shmid, int64_t num_records) {
     }
     else {
       nFails = 0;
-      //lastVal = shvals[0];
     }
     // See if we need to draw more progress bar fills
     if (progress >= nextBarProgress) {
@@ -120,6 +118,7 @@ void draw_progress_bar(int shmid, int64_t num_records) {
   fprintf(stderr, " (%4.02f seconds total)        ", timeSoFar);
   fprintf(stderr, "\n" KNRM);
   fprintf(stderr, CURSORON "");
+
   // Detach shared mem
   shmdt(shvals);
   //

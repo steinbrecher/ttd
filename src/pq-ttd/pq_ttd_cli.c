@@ -3,15 +3,10 @@
 #endif
 #include <stdio.h>
 #include <stdlib.h>
-#include <stddef.h>
 #include <getopt.h>
 #include <string.h>
-#include <math.h>
-#include <inttypes.h>
 
 #include "ttd.h"
-#include "pq_parse.h"
-#include "pq_records.h"
 #include "pq_ttd_cli.h"
 
 static const struct option pq_ttd_longopts[] = {
