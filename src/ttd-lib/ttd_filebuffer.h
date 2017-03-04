@@ -23,7 +23,6 @@ ttd_t ttd_fb_pop(ttd_fb_t *buffer);
 
 #define TTD_FB_MALLOC_ERROR -1;
 #define TTD_FB_FILE_OPEN_ERROR -2;
-char *get_extension(char* filename);
 
 #endif // _TTD_FILEBUFFER_HEADER_SEEN
 

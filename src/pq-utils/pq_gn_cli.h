@@ -7,7 +7,7 @@
 #define PQ_GN_MAX_CORRELATION_ORDER 4
 
 #define COLORFUL_OUTPUT
-#include "terminal_colors.h" // Draw terminal colors
+#include "colorful_output.h"
 
 #include "ttd.h"
 #include "pq_parse.h"

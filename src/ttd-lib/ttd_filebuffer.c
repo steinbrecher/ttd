@@ -9,18 +9,6 @@
 #include "ttd.h"
 #include "ttd_filebuffer.h"
 
-// TODO: Make allocation safe
-char *get_extension(char* filename) {
-  int i;
-  char *extension = (char *)malloc(4*sizeof(char));
-
-  for (i=0; i<3; i++) {
-    extension[i] = filename[strlen(filename)-3+i];
-  }
-  extension[3] = '\0';
-  return extension;
-}
-
 int ttd_fb_openfile(ttd_fb_t *buffer) {
   if ((buffer->fp = fopen(buffer->filename, "rb")) == NULL) {
     printf("ERROR: Could not open %s for reading\n", buffer->filename);
@@ -37,8 +25,6 @@ int ttd_fb_init(ttd_fb_t *buffer, uint64_t buffer_size, char* filename, int64_t 
   buffer->filename = NULL;
 
   int retcode = 0;
-  char *extension = NULL;
-  extension = get_extension(filename);
   buffer->offset = offset;
 
   buffer->buffer_size = buffer_size;
@@ -71,7 +57,6 @@ int ttd_fb_init(ttd_fb_t *buffer, uint64_t buffer_size, char* filename, int64_t 
   return(retcode);
 
  error_cleanup:
-  free(extension);
   ttd_fb_cleanup(buffer);
   return(retcode);
 }

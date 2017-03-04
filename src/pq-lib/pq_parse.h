@@ -2,7 +2,7 @@
 #define _PQ_PARSE_HEADER_SEEN
 
 #define COLORFUL_OUTPUT
-#include "terminal_colors.h" // Draw terminal colors
+#include "colorful_output.h"
 
 #include "pq_records.h" // Include for all code linking pq_parse
 
