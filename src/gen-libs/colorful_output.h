@@ -2,8 +2,8 @@
 // Created by Greg Steinbrecher on 4/8/16.
 //
 
-#ifndef PICOQUANT_TERMINAL_COLORS_H
-#define PICOQUANT_TERMINAL_COLORS_H
+#ifndef TTD_COLORFUL_OUTPUT_H
+#define TTD_COLORFUL_OUTPUT_H
 
 #ifdef COLORFUL_OUTPUT
   #ifndef _WIN32
@@ -62,4 +62,4 @@
 #endif // #ifdef COLORFUL_OUTPUT
 
 
-#endif //PICOQUANT_TERMINAL_COLORS_H
+#endif //TTD_COLORFUL_OUTPUT_H

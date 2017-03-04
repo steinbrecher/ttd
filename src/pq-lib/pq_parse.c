@@ -52,18 +52,7 @@ int check_record_type(long long RecordType, pq_fileinfo_t *file_info) {
       file_info->fmt_version = PQ_HH_V2;
       file_info->meas_mode = PQ_T3_MODE;
       break;
-      // case rtTimeHarp260NT3:
-      //   printf("TimeHarp260N T3 data\n");
-      //   break;
-      // case rtTimeHarp260NT2:
-      //   printf("TimeHarp260N T2 data\n");
-      //   break;
-      // case rtTimeHarp260PT3:
-      //   printf("TimeHarp260P T3 data\n");
-      //   break;
-      // case rtTimeHarp260PT2:
-      //   printf("TimeHarp260P T2 data\n");
-      //   break;
+
     default:
       printf("Unknown record type: 0x%llX\n", RecordType);
       return PQ_FILETYPE_INSTRUMENT_NOT_RECOGNIZED;
