@@ -163,8 +163,9 @@ int main(int argc, char *argv[]) {
     fwrite(&time, sizeof(ttd_t), 1, outfile);
     // Skip n-1 records
     for (i=0; i < ttd_decimate_cli_args.n-1; i++) {
-      ttd_fb_pop(&fb);
       if (fb.empty) {break;}
+      ttd_fb_pop(&fb);
+
     }
   }
 
