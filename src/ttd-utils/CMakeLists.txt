@@ -11,6 +11,10 @@ target_link_libraries(ttd-merge LINK_PUBLIC ttd-filebuffer)
 add_executable(ttd-shift ttd_shift.c)
 target_link_libraries(ttd-shift LINK_PUBLIC ttd-filebuffer sci_to_int64)
 
+# Decimate the records in a ttd file
+add_executable(ttd-decimate ttd_decimate.c)
+target_link_libraries(ttd-decimate LINK_PUBLIC ttd-filebuffer)
+
 ### Autocorrelation Executables ###
 # Add executable for direct access
 # Compute g2 cross-correlation function between records in two ttd files
