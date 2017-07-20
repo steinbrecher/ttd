@@ -50,8 +50,8 @@ void ttd_decimate_print_help(char *program_name) {
   printf("Usage: %s -i infile -o outfile -n decimation_factor [-O offset]\n", program_name);
 
   printf("\tNotes: \n");
-  printf("\t\t-n (--decimation-factor):\tOutput one record every n\n");
-  printf("\t\t-O (--offset):\tOffset by some number of records (default: 0) \n");
+  printf("\t\t-n (--decimation-factor): Output one record every n\n");
+  printf("\t\t-O (--offset):            Offset by some number of records (default: 0) \n");
 
   printf("\tOther options:\n");
   printf("\t\t-v (--verbose):\tEnable verbose output to stdout\n");
@@ -126,7 +126,7 @@ int main(int argc, char *argv[]) {
   } else if (retcode < 0) {
     exitcode = retcode;
     if (retcode == TTD_DECIMATE_MISSING_FLAG) {
-      fprintf(stderr, "Error: Missing required flag; you need at least -i, -o, and -n");
+      fprintf(stderr, "Error: Missing required flag; you need at least -i, -o, and -n\n");
     }
     goto cleanup_cli;
   }
@@ -138,8 +138,8 @@ int main(int argc, char *argv[]) {
 
   printf("Input file: %s\n", ttd_decimate_cli_args.infile);
   printf("Output file: %s\n", ttd_decimate_cli_args.outfile);
-  printf("Decimation factor: %" PRId64 " ps\n", ttd_decimate_cli_args.n);
-  printf("Offset: %" PRId64 " ps\n", ttd_decimate_cli_args.offset);
+  printf("Decimation factor: %" PRId64 "\n", ttd_decimate_cli_args.n);
+  printf("Offset: %" PRId64 "\n", ttd_decimate_cli_args.offset);
 
   ttd_fb_t fb;
   ttd_fb_init(&fb, 16384, ttd_decimate_cli_args.infile, 0);
@@ -163,9 +163,9 @@ int main(int argc, char *argv[]) {
     fwrite(&time, sizeof(ttd_t), 1, outfile);
     // Skip n-1 records
     for (i=0; i < ttd_decimate_cli_args.n-1; i++) {
+      // Make sure to check before each pop whether the filebuffer is empty
       if (fb.empty) {break;}
       ttd_fb_pop(&fb);
-
     }
   }
 
