@@ -22,7 +22,7 @@
 #define PQ_PH_V2 2
 #define PQ_PH_V2_TEXT "2.0"
 
-#define PQ_HH_MAX_CHANNELS 8
+#define PQ_HH_MAX_CHANNELS 10
 
 #define PQ_T2_MODE 2
 #define PQ_T3_MODE 3
