@@ -425,10 +425,39 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
   ttd_ccorr4_t *g4_ccorr_ptr;
   size_t rbNum;
 
+  ttd_t nextChunkTime = pq_gn_cli_args.chunk_time;
+  size_t chunkNum = 0;
+  char outfile[strlen(outfile_prefix) + 20];
+
   while ((fb.empty == 0)&&(retcode==0)) {
     // Get next photon
     retcode = pq_fb_get_next(&fb, &photonTime, &chan);
     activeNum = chanToActiveNum[chan];
+
+    // Check if we're done with this chunk
+    if (pq_gn_cli_args.chunk_time > 0) {
+      if (photonTime > nextChunkTime) {
+        if (run_g2) {
+          // Iterate over the ccorrs outputting to CSV files
+          for (i = 0; i < num_pairs; i++) {
+            sprintf(outfile, "%s_%lu-%lu-chunk%lu.csv",
+                    outfile_prefix,
+                    active_channels[ccorr_pairs[i][0]],
+                    active_channels[ccorr_pairs[i][1]],
+                    chunkNum);
+            ttd_ccorr2_write_csv(&g2_ccorrs[i], outfile, pq_gn_cli_args.normalize, pq_gn_cli_args.int_time,
+                                 pq_gn_cli_args.window_time);
+            // Zero out the ccorr histogram
+//            for (j=0; j<g2_ccorrs[i].num_bins; j++){
+//              g2_ccorrs[i].hist[j] = 0;
+//            }
+            memset(g2_ccorrs[i].hist, 0, sizeof(ttd_t)*g2_ccorrs[i].num_bins);
+          }
+        }
+        nextChunkTime += pq_gn_cli_args.chunk_time;
+        chunkNum ++;
+      }
+    }
 
     // Update the photon ringbuffers
     ttd_rb_insert(&global_rbs[activeNum], photonTime);
@@ -554,7 +583,7 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
             total_g4_coinc, totalCounts, runTime);
   }
 
-  char outfile[strlen(outfile_prefix) + 20];
+
 
   // Output the g2 files
   if (run_g2) {

@@ -30,13 +30,14 @@ static const struct option pq_gn_longopts[] = {
 
         { "bin-time", required_argument, NULL, 'b' },
         { "window-time", required_argument, NULL, 'w' },
+        { "chunk-time", required_argument, NULL, 'c' },
 
         // Undocumented deliberately; for performance testing
         { "block-size", required_argument, NULL, 'B' },
         { "ringbuffer-size", required_argument, NULL, 'R' },
 };
 
-static const char *pq_gn_optstring = "Vhvg:Ni:d:o:T:b:w:B:R:";
+static const char *pq_gn_optstring = "Vhvg:Ni:d:o:T:b:w:c:B:R:";
 
 void pq_gn_cli_print_help(char *program_name) {
   // Need a string of spaces equal in length to the program name
@@ -140,6 +141,8 @@ int pq_gn_read_cli(int argc, char **argv) {
   pq_gn_cli_args.block_size = 16384;
   pq_gn_cli_args.rb_size = 1024;
 
+  pq_gn_cli_args.chunk_time = 0;
+
   pq_gn_cli_args.infile = NULL;
   pq_gn_cli_args.outfile_prefix = NULL;
 
@@ -238,6 +241,14 @@ int pq_gn_read_cli(int argc, char **argv) {
           return(-1);
         }
         window_time_set = 1;
+        break;
+
+      case 'c':
+        pq_gn_cli_args.chunk_time = (ttd_t) sci_to_int64(optarg, &retcode);
+        if (retcode != 0) {
+          sci_to_int64_printerr(optarg, retcode);
+          return(-1);
+        }
         break;
 
       case 'B':
@@ -352,6 +363,7 @@ void pq_gn_print_options(int no_verbose) {
 
   fprintf(stderr, KHEAD2 "Bin time: " KNRM KTIME "%'" PRIu64 " ps\n" KNRM, pq_gn_cli_args.bin_time);
   fprintf(stderr, KHEAD2 "Window time: " KNRM KTIME "%'" PRIu64 " ps\n" KNRM, pq_gn_cli_args.window_time);
+  fprintf(stderr, KHEAD2 "Chunk time: " KNRM KTIME "%'" PRIu64 " ps\n" KNRM, pq_gn_cli_args.chunk_time);
 
   int i;
   fprintf(stderr, "\n");
