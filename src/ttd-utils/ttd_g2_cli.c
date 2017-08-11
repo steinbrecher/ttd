@@ -29,14 +29,16 @@ static const struct option ttd_g2_longopts[] = {
 
   { "bin-time", required_argument, NULL, 'b' },
   { "window-time", required_argument, NULL, 'w' },
+  { "chunk-time", required_argument, NULL, 'c' },
   { "input2-offset", required_argument, NULL, 'T' },
 
   { "block-size", required_argument, NULL, 'B' },
   { "ringbuffer-size", required_argument, NULL, 'R' },
 
+
 };
 
-static const char *ttd_g2_optstring = "VhvNt:1:2:o:T:b:w:B:R:";
+static const char *ttd_g2_optstring = "VhvNt:1:2:o:T:b:w:c:B:R:";
 
 void ttd_g2_cli_print_help(char* program_name) {
   // Need a string of spaces equal in length to the program name
@@ -80,6 +82,7 @@ int ttd_g2_read_cli(int argc, char* argv[]) {
 
   int window_time_set = 0;
   ttd_g2_cli_args.window_time = 10000;
+  ttd_g2_cli_args.chunk_time = 0;
   ttd_g2_cli_args.infile2_offset = 0;
 
   ttd_g2_cli_args.block_size = 16384;
@@ -138,6 +141,9 @@ int ttd_g2_read_cli(int argc, char* argv[]) {
       ttd_g2_cli_args.window_time = sci_to_int64(optarg, &retcode);
       window_time_set = 1;
       break;
+    case 'c':
+      ttd_g2_cli_args.chunk_time = sci_to_int64(optarg, &retcode);
+      break;
     case 'T':
       ttd_g2_cli_args.infile2_offset = sci_to_int64(optarg, &retcode);
 
@@ -180,6 +186,9 @@ void ttd_g2_print_options(int no_verbose) {
   }
   printf("Bin time: %" PRIu64 " ps\n", ttd_g2_cli_args.bin_time);
   printf("Window time: %" PRIu64 " ps\n", ttd_g2_cli_args.window_time);
+  if (ttd_g2_cli_args.chunk_time > 0) {
+    printf("Chunk time: %" PRIu64 " ps\n", ttd_g2_cli_args.chunk_time);
+  }
   printf("Offset file 2 times by %" PRId64 " ps\n", ttd_g2_cli_args.infile2_offset);
   printf("Block size: %d records\n", ttd_g2_cli_args.block_size);
 }  

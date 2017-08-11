@@ -363,7 +363,10 @@ void pq_gn_print_options(int no_verbose) {
 
   fprintf(stderr, KHEAD2 "Bin time: " KNRM KTIME "%'" PRIu64 " ps\n" KNRM, pq_gn_cli_args.bin_time);
   fprintf(stderr, KHEAD2 "Window time: " KNRM KTIME "%'" PRIu64 " ps\n" KNRM, pq_gn_cli_args.window_time);
-  fprintf(stderr, KHEAD2 "Chunk time: " KNRM KTIME "%'" PRIu64 " ps\n" KNRM, pq_gn_cli_args.chunk_time);
+  if (pq_gn_cli_args.chunk_time > 0) {
+    fprintf(stderr, KHEAD2 "Chunk time: " KNRM KTIME "%'" PRIu64 " ps\n" KNRM, pq_gn_cli_args.chunk_time);
+  }
+
 
   int i;
   fprintf(stderr, "\n");

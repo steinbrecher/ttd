@@ -19,6 +19,7 @@ struct {
 
   ttd_t bin_time; // -b
   ttd_t window_time; // -w
+  ttd_t chunk_time; // -c
   int64_t infile2_offset; // -T (note signed time for negative shifts)
 
   int block_size; // -B

@@ -586,7 +586,7 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
 
 
   // Output the g2 files
-  if (run_g2) {
+  if (run_g2 && (pq_gn_cli_args.chunk_time == 0)) {
     fprintf(stderr, "\n");
 
     for (i = 0; i < num_pairs; i++) {
@@ -650,7 +650,7 @@ int pq_g2_many(char* infile, char* outfile_prefix) {
   size_t num_bins;
   _Bool allSame = 1;
 
-  if ((run_g2) && (num_pairs > 1)) {
+  if ((run_g2) && (num_pairs > 1) && (pq_gn_cli_args.chunk_time == 0)) {
 
     num_bins = g2_ccorrs[0].num_bins;
     for (i = 1; i < num_pairs; i++) {
