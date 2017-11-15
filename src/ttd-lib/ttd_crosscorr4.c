@@ -238,7 +238,7 @@ void ttd_ccorr4_write_csv(ttd_ccorr4_t *ccorr, char *file_name) {
 }
 
 void ttd_ccorr4_cleanup(ttd_ccorr4_t *ccorr) {
-  if (ccorr == NULL) {return;}
+  if (ccorr == NULL) { return; }
   int i;
   for (i = 0; i < 4; i++) {
     ttd_rb_cleanup(ccorr->rbs[i]);

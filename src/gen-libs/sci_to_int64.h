@@ -9,8 +9,9 @@
 #define SCITOLL_STRTOLL_FAILED -6
 #define SCITOLL_OVERFLOW -7
 
-    
+
 int64_t sci_to_int64(const char *scinum, int *retcode);
-void sci_to_int64_printerr(const char* scinum, int retcode);
+
+void sci_to_int64_printerr(const char *scinum, int retcode);
 
 #endif // _SCITOLL_HEADER_SEEN

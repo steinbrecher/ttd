@@ -131,8 +131,7 @@ int main(int argc, char *argv[]) {
   retcode = ttd_shift_read_cli(argc, argv);
   if (retcode == TTD_SHIFT_EXIT) {
     goto cleanup_cli;
-  }
-  else if (retcode < 0) {
+  } else if (retcode < 0) {
     exitcode = retcode;
     goto cleanup_cli;
   }

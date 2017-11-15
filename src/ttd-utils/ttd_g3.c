@@ -1,6 +1,7 @@
 #ifndef __STDC_FORMAT_MACROS
 #define __STDC_FORMAT_MACROS
 #endif
+
 #include <stdio.h>
 #include <inttypes.h>
 #include <stdlib.h>
@@ -10,7 +11,7 @@
 #include "ttd_crosscorr3.h"
 #include "ttd_filebuffer.h"
 
-ttd_ccorr3_t *ttd_g3(char* infile1, char* infile2, char* infile3, int* retcode) {
+ttd_ccorr3_t *ttd_g3(char *infile1, char *infile2, char *infile3, int *retcode) {
 
   uint64_t t1, t2, t3, ta, tb;
 
@@ -20,16 +21,19 @@ ttd_ccorr3_t *ttd_g3(char* infile1, char* infile2, char* infile3, int* retcode) 
 
   // Initialize buffers
   *retcode = ttd_fb_init(&fb1, g3_cli_args.block_size, infile1, 0);
-  if (retcode < 0) 
+  if (retcode < 0) {
     goto fb1_cleanup;
+  }
 
   *retcode = ttd_fb_init(&fb2, g3_cli_args.block_size, infile2, 0);
-  if (retcode < 0)
+  if (retcode < 0) {
     goto fb2_cleanup;
+  }
 
   *retcode = ttd_fb_init(&fb3, g3_cli_args.block_size, infile3, 0);
-  if (retcode < 0)
+  if (retcode < 0) {
     goto fb3_cleanup;
+  }
 
   // Read out first records
   t1 = ttd_fb_pop(&fb1);
@@ -40,23 +44,20 @@ ttd_ccorr3_t *ttd_g3(char* infile1, char* infile2, char* infile3, int* retcode) 
   while ((fb1.empty + fb2.empty + fb3.empty) == 0) {
     if (t1 <= t2) {
       if (t1 <= t3) { // t1 is lowest
-	      ttd_ccorr3_update(ccorr, 0, t1);
-	      t1 = ttd_fb_pop(&fb1);
+        ttd_ccorr3_update(ccorr, 0, t1);
+        t1 = ttd_fb_pop(&fb1);
+      } else { // t3 is lowest
+        ttd_ccorr3_update(ccorr, 2, t3);
+        t3 = ttd_fb_pop(&fb3);
       }
-      else { // t3 is lowest
-	      ttd_ccorr3_update(ccorr, 2, t3);
-	      t3 = ttd_fb_pop(&fb3);
-      }
-    }
-    else { // t2 < t1
+    } else { // t2 < t1
       if (t2 <= t3) {
-	      ttd_ccorr3_update(ccorr, 1, t2);
-	      t2 = ttd_fb_pop(&fb2);
+        ttd_ccorr3_update(ccorr, 1, t2);
+        t2 = ttd_fb_pop(&fb2);
+      } else {
+        ttd_ccorr3_update(ccorr, 2, t3);
+        t3 = ttd_fb_pop(&fb3);
       }
-      else {
-	      ttd_ccorr3_update(ccorr, 2, t3);
-	      t3 = ttd_fb_pop(&fb3);
-      }	
     }
   }
 
@@ -66,14 +67,13 @@ ttd_ccorr3_t *ttd_g3(char* infile1, char* infile2, char* infile3, int* retcode) 
   if (fb1.empty == 1) {
     fba = &fb2;
     fbb = &fb3;
-    
+
     ta = t2;
     tb = t3;
-    
+
     ia = 1;
     ib = 2;
-  }
-  else if (fb2.empty == 1) {
+  } else if (fb2.empty == 1) {
     fba = &fb1;
     fbb = &fb3;
 
@@ -82,8 +82,7 @@ ttd_ccorr3_t *ttd_g3(char* infile1, char* infile2, char* infile3, int* retcode) 
 
     ia = 0;
     ib = 2;
-  }
-  else {
+  } else {
     fba = &fb1;
     fbb = &fb2;
 
@@ -94,12 +93,11 @@ ttd_ccorr3_t *ttd_g3(char* infile1, char* infile2, char* infile3, int* retcode) 
     ib = 1;
   }
 
-  while((fba->empty == 0) && (fbb->empty == 0)) {
+  while ((fba->empty == 0) && (fbb->empty == 0)) {
     if (ta <= tb) {
       ttd_ccorr3_update(ccorr, ia, ta);
       ta = ttd_fb_pop(fba);
-    }
-    else {
+    } else {
       ttd_ccorr3_update(ccorr, ib, tb);
       tb = ttd_fb_pop(fbb);
     }
@@ -115,28 +113,27 @@ ttd_ccorr3_t *ttd_g3(char* infile1, char* infile2, char* infile3, int* retcode) 
     tb = ttd_fb_pop(fbb);
   }
 
- fb3_cleanup:
+  fb3_cleanup:
   ttd_fb_cleanup(&fb3);
 
- fb2_cleanup:
+  fb2_cleanup:
   ttd_fb_cleanup(&fb2);
 
- fb1_cleanup:
+  fb1_cleanup:
   ttd_fb_cleanup(&fb1);
 
-  return(ccorr);
+  return (ccorr);
 }
 
-int main(int argc, char* argv[]) {
-  int retcode, exitcode=0;
+int main(int argc, char *argv[]) {
+  int retcode, exitcode = 0;
 
   retcode = g3_read_cli(argc, argv);
 
   if (retcode < 0) {
     exitcode = retcode;
     goto cleanup_g3_cli;
-  }
-  else if (retcode == G3_CLI_EXIT_RETCODE) {
+  } else if (retcode == G3_CLI_EXIT_RETCODE) {
     goto cleanup_g3_cli;
   }
 
@@ -149,7 +146,7 @@ int main(int argc, char* argv[]) {
   char *infile3 = g3_cli_args.infile3;
 
   char *outfile = g3_cli_args.outfile;
-  
+
   if (infile1 == NULL) {
     printf("Error: Missing input file 1. Please specify with the '-1' flag.\n");
     exitcode = -1;
@@ -178,8 +175,8 @@ int main(int argc, char* argv[]) {
   ttd_ccorr3_cleanup(g3_ccorr);
   free(g3_ccorr);
 
- cleanup_g3_cli:
+  cleanup_g3_cli:
   g3_cli_cleanup();
-  
+
   exit(exitcode);
 }

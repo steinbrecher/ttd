@@ -1,6 +1,7 @@
 #ifndef __STDC_FORMAT_MACROS
 #define __STDC_FORMAT_MACROS
 #endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
@@ -14,41 +15,42 @@
 #include "pq_gn_cli.h"
 
 static const struct option pq_gn_longopts[] = {
-        { "version", no_argument, NULL, 'V' },
-        { "help", no_argument, NULL, 'h' },
+        {"version",         no_argument,       NULL, 'V'},
+        {"help",            no_argument,       NULL, 'h'},
 
-        { "verbose", no_argument, NULL, 'v' },
+        {"verbose",         no_argument,       NULL, 'v'},
 
-        { "include-g", required_argument, NULL, 'g'},
+        {"include-g",       required_argument, NULL, 'g'},
 
-        { "normalize", no_argument, NULL, 'N' },
+        {"normalize",       no_argument,       NULL, 'N'},
 
-        { "delay", required_argument, NULL, 'd'},
+        {"delay",           required_argument, NULL, 'd'},
 
-        { "input-file", required_argument, NULL, 'i' },
-        { "output-prefix", required_argument, NULL, 'o' },
+        {"input-file",      required_argument, NULL, 'i'},
+        {"output-prefix",   required_argument, NULL, 'o'},
 
-        { "bin-time", required_argument, NULL, 'b' },
-        { "window-time", required_argument, NULL, 'w' },
-        { "chunk-time", required_argument, NULL, 'c' },
+        {"bin-time",        required_argument, NULL, 'b'},
+        {"window-time",     required_argument, NULL, 'w'},
+        {"chunk-time",      required_argument, NULL, 'c'},
 
         // Undocumented deliberately; for performance testing
-        { "block-size", required_argument, NULL, 'B' },
-        { "ringbuffer-size", required_argument, NULL, 'R' },
+        {"block-size",      required_argument, NULL, 'B'},
+        {"ringbuffer-size", required_argument, NULL, 'R'},
 };
 
 static const char *pq_gn_optstring = "Vhvg:Ni:d:o:T:b:w:c:B:R:";
 
 void pq_gn_cli_print_help(char *program_name) {
   // Need a string of spaces equal in length to the program name
-  size_t len = strlen(program_name)+1;
+  size_t len = strlen(program_name) + 1;
   char pn_spaces[len];
   int i;
-  for (i=0; i<len-1; i++) {
+  for (i = 0; i < len - 1; i++) {
     pn_spaces[i] = ' ';
   }
-  pn_spaces[len-1] = '\0';
-  printf("Usage: %s -g <2,3,4> -i input_file -o output_prefix [-d <chan>:<delay>]\n", program_name);// [-b bin_time] [-w window_time] [-N]\n", program_name);
+  pn_spaces[len - 1] = '\0';
+  printf("Usage: %s -g <2,3,4> -i input_file -o output_prefix [-d <chan>:<delay>]\n",
+         program_name);// [-b bin_time] [-w window_time] [-N]\n", program_name);
   printf("       %s [-b bin_time] [-w window_time] [-N]\n", pn_spaces);
   //printf("       %s[-t integration_time]\n", pn_spaces);
 
@@ -87,27 +89,27 @@ void pq_gn_cli_print_help(char *program_name) {
 
 }
 
-int16_t parse_delay(char* input, int16_t *channel, int64_t *delay) {
+int16_t parse_delay(char *input, int16_t *channel, int64_t *delay) {
   size_t nCharInput, nCharChannel, nCharDelay;
   int16_t i, colonIdx;
 
   nCharInput = strlen(input);
   // Find ':'
   colonIdx = -1;
-  for (i=0; i < nCharInput; i++) {
+  for (i = 0; i < nCharInput; i++) {
     if (input[i] == ':') { colonIdx = i; }
   }
 
   if (colonIdx == -1) { return colonIdx; }
 
-  nCharChannel = (size_t)colonIdx;
+  nCharChannel = (size_t) colonIdx;
   nCharDelay = nCharInput - nCharChannel - 1;
 
-  char* channelStr = (char*) calloc((size_t)nCharChannel + 1, sizeof(char));
-  char* delayStr = (char*) calloc((size_t)nCharDelay + 1, sizeof(char));
+  char *channelStr = (char *) calloc((size_t) nCharChannel + 1, sizeof(char));
+  char *delayStr = (char *) calloc((size_t) nCharDelay + 1, sizeof(char));
   strncpy(channelStr, input, nCharChannel);
   strncpy(delayStr, input + colonIdx + 1, nCharDelay);
-  *channel = (int16_t)atoi(channelStr);
+  *channel = (int16_t) atoi(channelStr);
   int retcode = 0;
 
   *delay = sci_to_int64(delayStr, &retcode);
@@ -116,7 +118,7 @@ int16_t parse_delay(char* input, int16_t *channel, int64_t *delay) {
     sci_to_int64_printerr(delayStr, retcode);
     free(channelStr);
     free(delayStr);
-    return(-1);
+    return (-1);
   }
 
   free(channelStr);
@@ -125,7 +127,7 @@ int16_t parse_delay(char* input, int16_t *channel, int64_t *delay) {
 }
 
 int pq_gn_read_cli(int argc, char **argv) {
-  int i, retcode=0;
+  int i, retcode = 0;
   // Initialize default values
   pq_gn_cli_args.verbose = 1;
   pq_gn_cli_args.normalize = 0;
@@ -146,12 +148,12 @@ int pq_gn_read_cli(int argc, char **argv) {
   pq_gn_cli_args.infile = NULL;
   pq_gn_cli_args.outfile_prefix = NULL;
 
-  for(i=0; i<PQ_HH_MAX_CHANNELS; i++) {
+  for (i = 0; i < PQ_HH_MAX_CHANNELS; i++) {
     pq_gn_cli_args.channel_offset[i] = 0;
     pq_gn_cli_args.channel_active[i] = 1;
   }
 
-  for(i=0; i<= PQ_GN_MAX_CORRELATION_ORDER; i++) {
+  for (i = 0; i <= PQ_GN_MAX_CORRELATION_ORDER; i++) {
     pq_gn_cli_args.activeCorrelationOrders[i] = 0;
   }
 
@@ -175,21 +177,20 @@ int pq_gn_read_cli(int argc, char **argv) {
         g = strtol(optarg, &pEnd, 10);
         if (*pEnd) {
           fprintf(stderr, "Error: Cannot convert %s to a valid correlation order.\n", optarg);
-          return(-1);
+          return (-1);
         }
         if ((g > 1) && (g <= PQ_GN_MAX_CORRELATION_ORDER)) {
           pq_gn_cli_args.activeCorrelationOrders[g] = 1;
-        }
-        else {
+        } else {
           fprintf(stderr, "Error: %" PRId64 " is not a valid correlation order.\n", g);
-          return(-1);
+          return (-1);
         }
         break;
 
 
       case 'V':
         ttd_print_version(argv[0]);
-        return(PQ_GN_CLI_EXIT_RETCODE);
+        return (PQ_GN_CLI_EXIT_RETCODE);
 
       case 'N':
         pq_gn_cli_args.normalize = 1;
@@ -199,29 +200,29 @@ int pq_gn_read_cli(int argc, char **argv) {
         pq_gn_cli_args.int_time = (uint64_t) sci_to_int64(optarg, &retcode);
         if (retcode != 0) {
           sci_to_int64_printerr(optarg, retcode);
-          return(-1);
+          return (-1);
         }
         break;
 
       case 'h':
         pq_gn_cli_print_help(argv[0]);
-        return(PQ_GN_CLI_EXIT_RETCODE);
+        return (PQ_GN_CLI_EXIT_RETCODE);
 
       case 'i':
         if (strlen(optarg) > 4096) {
           fprintf(stderr, "Error: Input filename too long.\n");
-          return(-1);
+          return (-1);
         }
-        pq_gn_cli_args.infile = (char *)calloc((strlen(optarg)+1), sizeof(char));
+        pq_gn_cli_args.infile = (char *) calloc((strlen(optarg) + 1), sizeof(char));
         strcpy(pq_gn_cli_args.infile, optarg);
         break;
 
       case 'o':
         if (strlen(optarg) > 4096) {
           fprintf(stderr, "Error: Output prefix too long.\n");
-          return(-1);
+          return (-1);
         }
-        pq_gn_cli_args.outfile_prefix = (char *)calloc((strlen(optarg)+1), sizeof(char));
+        pq_gn_cli_args.outfile_prefix = (char *) calloc((strlen(optarg) + 1), sizeof(char));
         strcpy(pq_gn_cli_args.outfile_prefix, optarg);
         break;
 
@@ -229,7 +230,7 @@ int pq_gn_read_cli(int argc, char **argv) {
         pq_gn_cli_args.bin_time = (ttd_t) sci_to_int64(optarg, &retcode);
         if (retcode != 0) {
           sci_to_int64_printerr(optarg, retcode);
-          return(-1);
+          return (-1);
         }
         bin_time_set = 1;
         break;
@@ -238,7 +239,7 @@ int pq_gn_read_cli(int argc, char **argv) {
         pq_gn_cli_args.window_time = (ttd_t) sci_to_int64(optarg, &retcode);
         if (retcode != 0) {
           sci_to_int64_printerr(optarg, retcode);
-          return(-1);
+          return (-1);
         }
         window_time_set = 1;
         break;
@@ -247,7 +248,7 @@ int pq_gn_read_cli(int argc, char **argv) {
         pq_gn_cli_args.chunk_time = (ttd_t) sci_to_int64(optarg, &retcode);
         if (retcode != 0) {
           sci_to_int64_printerr(optarg, retcode);
-          return(-1);
+          return (-1);
         }
         break;
 
@@ -255,7 +256,7 @@ int pq_gn_read_cli(int argc, char **argv) {
         pq_gn_cli_args.block_size = (ttd_t) sci_to_int64(optarg, &retcode);
         if (retcode != 0) {
           sci_to_int64_printerr(optarg, retcode);
-          return(-1);
+          return (-1);
         }
         break;
 
@@ -263,7 +264,7 @@ int pq_gn_read_cli(int argc, char **argv) {
         pq_gn_cli_args.rb_size = (ttd_t) sci_to_int64(optarg, &retcode);
         if (retcode != 0) {
           sci_to_int64_printerr(optarg, retcode);
-          return(-1);
+          return (-1);
         }
         break;
 
@@ -274,16 +275,20 @@ int pq_gn_read_cli(int argc, char **argv) {
     opt = getopt_long(argc, argv, pq_gn_optstring, pq_gn_longopts, &option_index);
   }
 
-  if (!(bin_time_set))
-    fprintf(stderr, "Warning: Bin time not specified. Using default value of %" PRIu64 " ps\n", pq_gn_cli_args.bin_time);
+  if (!(bin_time_set)) {
+    fprintf(stderr, "Warning: Bin time not specified. Using default value of %" PRIu64 " ps\n",
+            pq_gn_cli_args.bin_time);
+  }
 
-  if (!(window_time_set))
-    fprintf(stderr, "Warning: Window time not specified. Using default value of %" PRIu64 " ps\n", pq_gn_cli_args.window_time);
+  if (!(window_time_set)) {
+    fprintf(stderr, "Warning: Window time not specified. Using default value of %" PRIu64 " ps\n",
+            pq_gn_cli_args.window_time);
+  }
 
   // Add two padding bins worth of extra time to compensate for edge effects
   pq_gn_cli_args.padded_window_time = pq_gn_cli_args.window_time + pq_gn_cli_args.bin_time;
 
-  return(0);
+  return (0);
 }
 
 int check_pq_gn_cli_args() {
@@ -302,14 +307,14 @@ int check_pq_gn_cli_args() {
 
   // Test g2: Any order set?
   _Bool any_order_set = 0;
-  for (i=2; i <= PQ_GN_MAX_CORRELATION_ORDER; i++) {
+  for (i = 2; i <= PQ_GN_MAX_CORRELATION_ORDER; i++) {
     if (pq_gn_cli_args.activeCorrelationOrders[i] == 1) {
       any_order_set = 1;
     }
   }
   if (!any_order_set) {
     fprintf(stderr, "Error: Please select at least one correlation order with the -g flag.\n");
-    return(-1);
+    return (-1);
   }
 
   // -N (--normalize)
@@ -328,12 +333,12 @@ int check_pq_gn_cli_args() {
   // Test i1: Was an input file provided?
   if (pq_gn_cli_args.infile == NULL) {
     fprintf(stderr, "Error: Please provide an input file with the -i flag\n");
-    return(-1);
+    return (-1);
   }
   // Test i2: Does file exist?
-  if (access(pq_gn_cli_args.infile, F_OK ) == -1) {
+  if (access(pq_gn_cli_args.infile, F_OK) == -1) {
     fprintf(stderr, "Error: Input file %s does not exist\n", pq_gn_cli_args.infile);
-    return(-1);
+    return (-1);
   }
 
   // -o (--output-prefix)
@@ -342,11 +347,11 @@ int check_pq_gn_cli_args() {
   // Test w1: Is window time > bin time?
   if (pq_gn_cli_args.bin_time >= pq_gn_cli_args.window_time) {
     fprintf(stderr, "Error: Window time must be greater than bin time\n");
-    return(-1);
+    return (-1);
   }
 
   // All good
-  return(0);
+  return (0);
 }
 
 void pq_gn_print_options(int no_verbose) {
@@ -358,7 +363,9 @@ void pq_gn_print_options(int no_verbose) {
   }
 
   if (pq_gn_cli_args.outfile_prefix != NULL) {
-    fprintf(stderr, KHEAD2 "Output File Format: " KNRM KFILE "%s_" KITL "<chanA>" KFILE "-" KITL "<chanB>" KFILE ".csv\n" KNRM, pq_gn_cli_args.outfile_prefix);
+    fprintf(stderr,
+            KHEAD2 "Output File Format: " KNRM KFILE "%s_" KITL "<chanA>" KFILE "-" KITL "<chanB>" KFILE ".csv\n" KNRM,
+            pq_gn_cli_args.outfile_prefix);
   }
 
   fprintf(stderr, KHEAD2 "Bin time: " KNRM KTIME "%'" PRIu64 " ps\n" KNRM, pq_gn_cli_args.bin_time);
@@ -370,9 +377,10 @@ void pq_gn_print_options(int no_verbose) {
 
   int i;
   fprintf(stderr, "\n");
-  for (i=0; i<PQ_HH_MAX_CHANNELS; i++) {
+  for (i = 0; i < PQ_HH_MAX_CHANNELS; i++) {
     if (pq_gn_cli_args.channel_offset[i] != 0) {
-      fprintf(stderr, KHEAD2 KCYN "Channel %d: " KHEAD2 "Delay by " KNRM KTIME "%'" PRId64 " ps\n" KNRM, i, pq_gn_cli_args.channel_offset[i]);
+      fprintf(stderr, KHEAD2 KCYN "Channel %d: " KHEAD2 "Delay by " KNRM KTIME "%'" PRId64 " ps\n" KNRM, i,
+              pq_gn_cli_args.channel_offset[i]);
     }
   }
 }

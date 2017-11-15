@@ -1,6 +1,7 @@
 #ifndef __STDC_FORMAT_MACROS
 #define __STDC_FORMAT_MACROS
 #endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
@@ -10,33 +11,33 @@
 #include "pq_ttd_cli.h"
 
 static const struct option pq_ttd_longopts[] = {
-        { "version", no_argument, NULL, 'V' },
-        { "help", no_argument, NULL, 'h' },
+        {"version",       no_argument,       NULL, 'V'},
+        {"help",          no_argument,       NULL, 'h'},
 
-        { "verbose", no_argument, NULL, 'v' },
+        {"verbose",       no_argument,       NULL, 'v'},
 
-        { "compress", no_argument, NULL, 'c' },
+        {"compress",      no_argument,       NULL, 'c'},
 
-        { "input-file", required_argument, NULL, 'i' },
+        {"input-file",    required_argument, NULL, 'i'},
 
-        { "output-prefix", required_argument, NULL, 'o' },
+        {"output-prefix", required_argument, NULL, 'o'},
 
-        { "output-sync", no_argument, NULL, 's'},
+        {"output-sync",   no_argument,       NULL, 's'},
 
-        { "block-size", required_argument, NULL, 'B' },
+        {"block-size",    required_argument, NULL, 'B'},
 };
 
 static const char *pq_ttd_optstring = "Vhcvi:o:sB:";
 
-void pq_ttd_cli_print_help(char* program_name) {
+void pq_ttd_cli_print_help(char *program_name) {
   // Need a string of spaces equal in length to the program name
   size_t len = strlen(program_name) + 1;
   char pn_spaces[len];
   int i;
-  for (i=0; i<len-1; i++) {
+  for (i = 0; i < len - 1; i++) {
     pn_spaces[i] = ' ';
   }
-  pn_spaces[len-1] = '\0';
+  pn_spaces[len - 1] = '\0';
   printf("Usage: %s -i input_file [-o output_prefix]\n", program_name);
   //  printf("       %s [-B block_size]\n", pn_spaces);
 
@@ -52,7 +53,7 @@ void pq_ttd_cli_print_help(char* program_name) {
   printf("\t\t-V (--version):\t\tPrint program version\n");
 }
 
-int pq_ttd_read_cli(int argc, char* argv[]) {
+int pq_ttd_read_cli(int argc, char *argv[]) {
   // Initialize default values
   pq_ttd_cli_args.verbose = 0;
   pq_ttd_cli_args.compress = 0;
@@ -73,12 +74,12 @@ int pq_ttd_read_cli(int argc, char* argv[]) {
 
       case 'V':
         ttd_print_version(argv[0]);
-        return(PQ_TTD_CLI_EXIT_RETCODE);
+        return (PQ_TTD_CLI_EXIT_RETCODE);
         break;
 
       case 'h':
         pq_ttd_cli_print_help(argv[0]);
-        return(PQ_TTD_CLI_EXIT_RETCODE);
+        return (PQ_TTD_CLI_EXIT_RETCODE);
         break;
 
       case 'c':
@@ -86,12 +87,12 @@ int pq_ttd_read_cli(int argc, char* argv[]) {
         break;
 
       case 'i':
-        pq_ttd_cli_args.infile = (char *)malloc((strlen(optarg)+1)*sizeof(char));
+        pq_ttd_cli_args.infile = (char *) malloc((strlen(optarg) + 1) * sizeof(char));
         strcpy(pq_ttd_cli_args.infile, optarg);
         break;
 
       case 'o':
-        pq_ttd_cli_args.output_prefix = (char *)malloc((strlen(optarg)+1)*sizeof(char));
+        pq_ttd_cli_args.output_prefix = (char *) malloc((strlen(optarg) + 1) * sizeof(char));
         strcpy(pq_ttd_cli_args.output_prefix, optarg);
         break;
 
@@ -109,7 +110,7 @@ int pq_ttd_read_cli(int argc, char* argv[]) {
     }
     opt = getopt_long(argc, argv, pq_ttd_optstring, pq_ttd_longopts, &option_index);
   }
-  return(0);
+  return (0);
 }
 
 void pq_ttd_print_options(int no_verbose) {

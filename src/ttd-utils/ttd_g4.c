@@ -22,20 +22,24 @@ ttd_ccorr4_t *ttd_g4(char *infile1, char *infile2, char *infile3, char *infile4,
 
   // Initialize buffers
   *retcode = ttd_fb_init(&fbs[0], g4_cli_args.block_size, infile1, 0);
-  if (*retcode < 0)
+  if (*retcode < 0) {
     goto fb1_cleanup;
+  }
 
   *retcode = ttd_fb_init(&fbs[1], g4_cli_args.block_size, infile2, 0);
-  if (*retcode < 0)
+  if (*retcode < 0) {
     goto fb2_cleanup;
+  }
 
   *retcode = ttd_fb_init(&fbs[2], g4_cli_args.block_size, infile3, 0);
-  if (*retcode < 0)
+  if (*retcode < 0) {
     goto fb3_cleanup;
+  }
 
   *retcode = ttd_fb_init(&fbs[3], g4_cli_args.block_size, infile4, 0);
-  if (*retcode < 0)
+  if (*retcode < 0) {
     goto fb4_cleanup;
+  }
 
 
   // Read out first records
@@ -80,8 +84,7 @@ ttd_ccorr4_t *ttd_g4(char *infile1, char *infile2, char *infile3, char *infile4,
           least_index = i;
           least_time = times[i];
           start = 0;
-        }
-        else if (times[i] < least_time) {
+        } else if (times[i] < least_time) {
           least_index = i;
           least_time = times[i];
         }
@@ -128,8 +131,7 @@ int main(int argc, char *argv[]) {
   if (retcode < 0) {
     exitcode = retcode;
     goto cleanup_g4_cli;
-  }
-  else if (retcode == G4_CLI_EXIT_RETCODE) {
+  } else if (retcode == G4_CLI_EXIT_RETCODE) {
     goto cleanup_g4_cli;
   }
 

@@ -57,16 +57,24 @@ typedef struct {
 
 } pq_fb_t;
 
-int pq_fb_init(pq_fb_t *buffer, char* filename);
+int pq_fb_init(pq_fb_t *buffer, char *filename);
+
 int pq_fb_openfile(pq_fb_t *buffer);
+
 int pq_fb_cleanup(pq_fb_t *buffer);
+
 int pq_fb_pop(pq_fb_t *buffer, ttd_t *time, size_t *channel);
+
 int pq_fb_get_next(pq_fb_t *buffer, ttd_t *recTime, size_t *recChannel);
+
 uint64_t pq_fb_get_block(pq_fb_t *buffer);
+
 int pq_fb_closefile(pq_fb_t *buffer);
 
 void pq_fb_update_active(pq_fb_t *buffer);
+
 void pq_fb_enable_channel(pq_fb_t *buffer, size_t channel);
+
 void pq_fb_disable_channel(pq_fb_t *buffer, size_t channel);
 
 #define PQ_FB_MALLOC_ERROR -1;

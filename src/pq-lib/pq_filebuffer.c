@@ -263,8 +263,7 @@ int pq_fb_get_next(pq_fb_t *buffer, ttd_t *recTime, size_t *recChannel) {
       if (pq_fb_get_block(buffer) < buffer->num_photons) {
         pq_fb_closefile(buffer);
       }
-    }
-    else {
+    } else {
       pq_fb_disable_channel(buffer, firstChannel);
 
       // Check to see which (if any) remaining channels have zero counts

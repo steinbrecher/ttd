@@ -4,21 +4,21 @@
 #ifndef __STDC_FORMAT_MACROS
 #define __STDC_FORMAT_MACROS
 #endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "pq_dump.h"
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
   // Check to make sure we got an input file (and nothing else) from command line
-  int retcode=0, err=0;
+  int retcode = 0, err = 0;
 
   if (argc > 2) {
     fprintf(stderr, "Error: Too many inputs.\n");
-    err=-1;
-  }
-  else if (argc < 2) {
+    err = -1;
+  } else if (argc < 2) {
     fprintf(stderr, "Error: Missing input file.\n");
-    err=-2;
+    err = -2;
   }
   if (err < 0) {
     fprintf(stderr, "Usage: %s [input_file]\n", argv[0]);

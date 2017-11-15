@@ -7,6 +7,7 @@
 #define PQ_GN_MAX_CORRELATION_ORDER 4
 
 #define COLORFUL_OUTPUT
+
 #include "colorful_output.h"
 
 #include "ttd.h"

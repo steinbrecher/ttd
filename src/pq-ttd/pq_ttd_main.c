@@ -4,6 +4,7 @@
 #ifndef __STDC_FORMAT_MACROS
 #define __STDC_FORMAT_MACROS
 #endif
+
 #include <stdio.h>
 #include <inttypes.h>
 #include <stdlib.h>
@@ -12,37 +13,36 @@
 
 #include "pq_ttd_cli.h"
 
-char *get_prefix(char* filename) {
+char *get_prefix(char *filename) {
   int i, dot_index = -1;
   char *prefix;
-  for (i=0; i < strlen(filename); i++) {
+  for (i = 0; i < strlen(filename); i++) {
     if (filename[i] == '.') {
       dot_index = i;
     }
   }
   if (dot_index == -1) {
-    prefix = (char *)malloc((strlen(filename)+1)*sizeof(char));
+    prefix = (char *) malloc((strlen(filename) + 1) * sizeof(char));
     strcpy(prefix, filename);
-    return(prefix);
+    return (prefix);
   }
-  prefix = (char *)malloc((dot_index+2)*sizeof(char));
-  for (i=0; i<dot_index; i++) {
+  prefix = (char *) malloc((dot_index + 2) * sizeof(char));
+  for (i = 0; i < dot_index; i++) {
     prefix[i] = filename[i];
   }
   prefix[dot_index] = '\0';
   return prefix;
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
   FILE *ht_file;
-  int retcode,exitcode=0;
+  int retcode, exitcode = 0;
 
   retcode = pq_ttd_read_cli(argc, argv);
   if (retcode < 0) {
     exitcode = retcode;
     goto cleanup_pq_ttd_cli;
-  }
-  else if (retcode == PQ_TTD_CLI_EXIT_RETCODE) {
+  } else if (retcode == PQ_TTD_CLI_EXIT_RETCODE) {
     goto cleanup_pq_ttd_cli;
   }
 
@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
   run_hh_convert(ht_file, &file_info);
   diff = clock() - start;
 
-  double read_time = (double)diff / CLOCKS_PER_SEC;
+  double read_time = (double) diff / CLOCKS_PER_SEC;
   printf("Elapsed Time: %g seconds\n", read_time);
 
   clean_file:
